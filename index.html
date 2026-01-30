@@ -1,165 +1,62 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Militan Atlası | Pro Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Militan Atlası – Afrika</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <script src="https://unpkg.com/tippy.js@6"></script>
+  <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light.css"/>
   <style>
-    :root {
-      --bg-dark: #020617;
-      --card-bg: rgba(15, 23, 42, 0.8);
-      --accent: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --text-main: #f8fafc;
-      --border: rgba(255, 255, 255, 0.1);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body {
-      background: var(--bg-dark);
-      color: var(--text-main);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      height: 100vh;
-      display: flex;
-      overflow: hidden;
-    }
-
-    /* Sol Sidebar - Dashboard */
-    #sidebar {
-      width: 350px;
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border-right: 1px solid var(--border);
-      padding: 30px;
-      display: flex;
-      flex-direction: column;
-      z-index: 100;
-    }
-
-    .header h1 { font-size: 22px; letter-spacing: 2px; color: var(--accent); margin-bottom: 5px; }
-    .header p { font-size: 12px; opacity: 0.5; margin-bottom: 30px; }
-
-    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-    .stat-item { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
-    .stat-item small { font-size: 10px; text-transform: uppercase; opacity: 0.6; }
-    .stat-item div { font-size: 20px; font-weight: bold; margin-top: 5px; }
-
-    /* Harita Alanı */
-    #map-wrapper {
-      flex: 1;
-      position: relative;
-      background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    svg { width: 90%; height: 90%; transition: transform 0.3s ease; }
-    svg path { 
-      fill: #1e293b; 
-      stroke: #020617; 
-      stroke-width: 0.5; 
-      transition: all 0.2s ease; 
-      cursor: crosshair;
-    }
-    svg path:hover { 
-      filter: brightness(1.5); 
-      stroke: var(--accent); 
-      stroke-width: 1.5;
-    }
-    svg path.active { fill: var(--accent) !important; stroke: #fff; stroke-width: 2; }
-
-    /* Tooltip */
-    #map-tooltip {
-      position: fixed;
-      pointer-events: none;
-      background: rgba(0, 0, 0, 0.9);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      z-index: 1000;
-      display: none;
-      border: 1px solid var(--accent);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    }
-
-    /* Sağ Bilgi Kartı */
-    #info-card {
-      position: absolute;
-      right: 30px;
-      top: 30px;
-      width: 380px;
-      max-height: calc(100vh - 60px);
-      background: var(--card-bg);
-      backdrop-filter: blur(25px);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 30px;
-      transform: translateX(450px);
-      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-      overflow-y: auto;
-    }
-    #info-card.visible { transform: translateX(0); }
-
-    .risk-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 50px;
-      font-size: 11px;
-      font-weight: bold;
-      text-transform: uppercase;
-      margin-bottom: 15px;
-    }
-    .risk-high { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
-    .risk-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
-    .risk-low { background: rgba(16, 185, 129, 0.2); color: var(--accent); border: 1px solid var(--accent); }
-
-    .group-item {
-      background: rgba(255,255,255,0.05);
-      padding: 12px;
-      border-radius: 10px;
-      margin-top: 10px;
-      border-left: 3px solid var(--accent);
-    }
+    body { background: #0f0f17; color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; }
+    svg path { fill: #334155; stroke: #1e293b; stroke-width: 1.2; transition: all 0.2s; }
+    svg path:hover { fill: #22c55e; cursor: pointer; }
+    svg path.active { fill: #ef4444 !important; stroke: #f87171; stroke-width: 2.5; filter: drop-shadow(0 0 8px #ef4444aa); }
+    .tooltip { background: rgba(15,23,42,0.96); border: 1px solid #334155; border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; backdrop-filter: blur(8px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6); pointer-events: none; z-index: 9999; }
+    .modal { background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); }
+    .modal-content { background: #1e293b; border: 1px solid #334155; border-radius: 12px; max-height: 92vh; overflow-y: auto; }
+    .group-card { background: #0f172a; border-left: 4px solid #22c55e; transition: all 0.2s; }
+    .group-card:hover { transform: translateX(6px); background: #1e293b; }
   </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
 
-  <div id="map-tooltip">Ülke İsmi</div>
+  <!-- Header / Arama Butonu -->
+  <div class="fixed bottom-6 right-6 z-50">
+    <button id="open-search" class="w-16 h-16 rounded-full bg-emerald-500 text-slate-900 font-bold shadow-xl hover:bg-emerald-400 hover:scale-110 transition-all duration-300 flex items-center justify-center text-sm leading-tight">
+      Ülke<br>Ara
+    </button>
+  </div>
 
-  <aside id="sidebar">
-    <div class="header">
-      <h1>MİLİTAN ATLASI</h1>
-      <p>AFRİKA OPERASYONEL VERİ PANELİ</p>
-    </div>
-
-    <div class="stat-grid">
-      <div class="stat-item">
-        <small>Aktif Odaklar</small>
-        <div id="high-risk-count">12</div>
+  <!-- Sidebar (Arama + Liste) -->
+  <div id="sidebar" class="fixed inset-y-0 right-0 w-full max-w-sm bg-slate-900/95 backdrop-blur-xl border-l border-slate-700 shadow-2xl transform translate-x-full transition-transform duration-400 z-40 overflow-hidden">
+    <div class="p-5 flex flex-col h-full">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-xl font-bold text-emerald-400">Ülke Ara</h2>
+        <button id="close-sidebar" class="text-3xl text-slate-400 hover:text-white">&times;</button>
       </div>
-      <div class="stat-item">
-        <small>Bilinen Örgütler</small>
-        <div id="total-groups-count">48</div>
+      <div class="relative mb-6">
+        <input id="search-input" type="text" placeholder="Ülke adı yazın..." class="w-full bg-slate-800 border border-slate-600 rounded-lg py-3 px-4 text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+        <button id="clear-search" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white hidden">×</button>
       </div>
+      <div id="results" class="flex-1 overflow-y-auto space-y-2 pr-2"></div>
     </div>
+  </div>
 
-    <div id="recent-activity" style="flex: 1;">
-      <h3 style="font-size: 14px; margin-bottom: 15px; color: var(--accent);">Son Güncellemeler</h3>
-      <div style="font-size: 12px; opacity: 0.7; line-height: 2;">
-        • Sahel bölgesi hareketlilik arttı.<br>
-        • Nijerya kuzeydoğu stabil.<br>
-        • Somali operasyonları sürüyor.
-      </div>
+  <!-- Ülke Detay Modal -->
+  <div id="country-modal" class="modal fixed inset-0 hidden flex items-center justify-center z-50 p-4">
+    <div class="modal-content w-full max-w-2xl p-6 relative">
+      <button id="close-country" class="absolute top-4 right-5 text-3xl text-slate-400 hover:text-white">&times;</button>
+      <h2 id="country-title" class="text-2xl font-bold text-emerald-400 mb-6">Ülke Adı</h2>
+      <div id="group-list" class="space-y-3"></div>
     </div>
-  </aside>
+  </div>
 
-  <main id="map-wrapper">
-    <svg viewBox="0 0 1000 1000" id="main-svg">
-        <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
+  <!-- Harita Alanı -->
+  <div class="flex-1 relative">
+    <svg id="map" viewBox="0 0 1000 1000" class="w-full h-full" preserveAspectRatio="xMidYMid meet">
+       <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
       <path id="BI" data-name="Burundi" data-id="BI" d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
       <path id="BJ" data-name="Benin" data-id="BJ" d="m 340,356 -9.3,-8 -4.3,0.1 -4.1,4 -2.6,4.2 -6,1.2 -2.5,6.1 -4.1,1.6 -1.6,7.2 3.7,4.1 4.3,4.9 0.4,6.8 2.5,2.8 -0.5,31.8 3,9.5 10.1,-1.6 0.6,-22.3 -0.3,-8.8 2.3,-8.7 3.7,-4.3 5.9,-8.5 -1.3,-3.7 2.4,-5.6 -2.8,-8.2 0.5,-4.6 z" />
       <path id="BF" data-name="Burkina Faso" data-id="BF" d="m 300.7,310.8 -7.8,0 -3,-2.6 -6.7,1.9 -11.3,5.8 -2.3,4.3 -9.4,6.2 -1.7,3.6 -5.1,2.8 -5.8,-1.9 -3.4,3.4 -1.8,9.5 -9.7,11.4 0.3,4.7 -3.4,5.9 0.8,8 5.5,3 2.1,4.6 5.4,2.9 4.3,-3.4 5.7,-0.6 8.3,3.6 -1.6,-10.4 0.3,-7.9 21.1,-0.6 5.4,1 3.9,-2.2 5.6,1.1 10.7,0.3 4.1,-1.6 2.5,-6.1 6,-1.2 2.6,-4.2 0.3,-9.5 -14,-3.1 -0.4,-6.7 -6.9,-9 -1.6,-6.3 1,-6.7 z" />
@@ -210,87 +107,143 @@
       <path id="ZW" data-name="Zimbabwe" data-id="ZW" d="m 669.1,825.1 13.4,-15.7 3.6,-9.9 1.9,-1.3 1.7,-8.1 -1.7,-4.1 1,-10.4 2.8,-9.6 0.8,-17.5 -6.1,-4.4 -5.7,-1 -2.5,-3.4 -5.5,-3 -10,0.3 -0.6,-5.1 -9.3,1.9 -7,5.5 -1.7,4.8 -4.4,1 -10.9,11.4 -7,9 -4.1,0.3 -3.8,-1.6 -13.4,-1.5 4.2,11.1 2.3,2.4 3.5,8 13,15.2 5.1,1.5 -0.2,4.9 3.1,8.8 9.2,2.1 7.3,6.2 4.9,0.2 5.7,2.3 4.1,-1.6 6.3,1.3 z" />
       <path id="SO" data-name="Somalia" data-id="SO" d="m 832.6,372.8 -5.7,-5.8 -2.5,-5.7 -4.1,-2.6 -4.2,7.4 -2.5,4.9 4.8,7.7 4.6,6.6 4.8,5 40.3,16.4 10.3,-0.1 -33.5,41.5 -15.9,0.6 -10.7,9.8 -7.8,0.2 -3.3,4.4 -10.5,15.7 0.4,50.4 7.2,11.4 2.7,-3.3 2.9,-7.3 13.4,-16.7 11.4,-10.6 18.1,-13.7 12.1,-11.2 14.1,-18.9 10.1,-15.5 10,-20.2 7,-17.7 5.4,-15.5 2.9,-14.9 2.4,-5 -0.4,-7.3 0.8,-8 -0.5,-3.9 -4.6,0.1 -5.5,4.7 -6.4,1.4 -5.5,2.1 -3.9,0.2 0,0 -6.9,0.5 -4.2,2.6 -6,0.9 -10.5,4.3 -13.2,1.6 -11.3,3.5 -6.1,0 z" />
     </svg>
-
-    <div id="info-card">
-      <div id="risk-level" class="risk-badge">Risk Analizi</div>
-      <h2 id="country-title" style="font-size: 28px; margin-bottom: 10px;">Ülke Seçin</h2>
-      <p id="country-info" style="font-size: 14px; opacity: 0.8; margin-bottom: 20px;"></p>
-      
-      <h4 style="font-size: 14px; margin-bottom: 10px; border-top: 1px solid var(--border); pt: 15px;">Aktif Militan Gruplar</h4>
-      <div id="groups-container"></div>
-    </div>
-  </main>
+  </div>
 
   <script>
-    const tooltip = document.getElementById('map-tooltip');
-    
-    // 1. Veriyi Çek
-    fetch('trdata.json')
-      .then(res => res.json())
-      .then(data => {
-        const countries = data.countries;
+    // ──────────────────────────────────────────────
+    // VERİ (trdata.json yükleniyor)
+    // ──────────────────────────────────────────────
+    let countryData = {};
+    let activeCountry = null;
 
-        document.querySelectorAll('path').forEach(path => {
-          const cData = countries[path.id];
-          
-          // Renklendirme
-          if(cData) {
-            if(cData.risk === 'high') path.style.fill = '#450a0a';
-            if(cData.risk === 'medium') path.style.fill = '#451a03';
-          }
+    fetch("trdata.json")
+      .then(r => r.json())
+      .then(data => { countryData = data; })
+      .catch(() => console.warn("trdata.json yüklenemedi"));
 
-          // HOVER: İsim Gösterme (Tooltip)
-          path.addEventListener('mousemove', (e) => {
-            const name = cData ? cData.name : path.id;
-            tooltip.innerText = name;
-            tooltip.style.display = 'block';
-            tooltip.style.left = (e.clientX + 15) + 'px';
-            tooltip.style.top = (e.clientY + 15) + 'px';
-          });
-
-          path.addEventListener('mouseleave', () => {
-            tooltip.style.display = 'none';
-          });
-
-          // TIKLAMA: Detay Gösterme
-          path.addEventListener('click', function() {
-            document.querySelectorAll('path').forEach(p => p.classList.remove('active'));
-            this.classList.add('active');
-
-            if(cData) {
-              showDetails(cData);
-            }
-          });
-        });
-      });
-
-    function showDetails(data) {
-      const card = document.getElementById('info-card');
-      document.getElementById('country-title').innerText = data.name;
-      document.getElementById('country-info').innerText = data.info;
-      
-      const riskBadge = document.getElementById('risk-level');
-      riskBadge.innerText = data.risk.toUpperCase() + " RİSK";
-      riskBadge.className = 'risk-badge risk-' + data.risk;
-
-      const groupsHtml = data.groups.map(g => `
-        <div class="group-item">
-          <strong>${g}</strong><br>
-          <small>Sektör: Operasyonel</small>
-        </div>
-      `).join('');
-      
-      document.getElementById('groups-container').innerHTML = groupsHtml || 'Kayıtlı grup yok.';
-      card.classList.add('visible');
-    }
-
-    // Harita dışına tıklayınca kapat
-    document.getElementById('map-wrapper').addEventListener('click', (e) => {
-      if(e.target.tagName !== 'path') {
-        document.getElementById('info-card').classList.remove('visible');
-        document.querySelectorAll('path').forEach(p => p.classList.remove('active'));
+    // ──────────────────────────────────────────────
+    // TOOLTIP (Tippy.js ile)
+    // ──────────────────────────────────────────────
+    tippy("svg path", {
+      theme: "light",
+      placement: "top",
+      allowHTML: true,
+      delay: [80, 120],
+      onShow(instance) {
+        const id = instance.reference.id;
+        const country = countryData[id] || {};
+        const name = country.name_tr || instance.reference.dataset.name || id;
+        const groups = country.groups?.map(g => g.name_tr).join("<br>") || "Bilgi yok";
+        instance.setContent(`<strong>${name}</strong><br><div class="text-sm text-slate-300 mt-1">${groups}</div>`);
       }
     });
+
+    // ──────────────────────────────────────────────
+    // Ülke tıklama → Modal açma
+    // ──────────────────────────────────────────────
+    document.querySelectorAll("svg path").forEach(path => {
+      path.addEventListener("click", () => {
+        const id = path.id;
+        if (!id) return;
+
+        if (activeCountry) {
+          document.getElementById(activeCountry)?.classList.remove("active");
+        }
+        path.classList.add("active");
+        activeCountry = id;
+
+        const country = countryData[id] || {};
+        const name = country.name_tr || path.dataset.name || id;
+
+        document.getElementById("country-title").textContent = name;
+        const list = document.getElementById("group-list");
+        list.innerHTML = "";
+
+        if (country.groups?.length) {
+          country.groups.forEach(group => {
+            const div = document.createElement("div");
+            div.className = "group-card p-4 rounded-lg cursor-pointer";
+            div.innerHTML = `
+              <div class="font-semibold text-lg mb-1">${group.name_tr || "İsimsiz Grup"}</div>
+              <div class="text-sm text-slate-300">
+                ${group.details?.grup_durumu || "—"} • ${group.details?.kurulus_yili || "—"}
+              </div>
+            `;
+            div.addEventListener("click", () => {
+              alert(`Grup detayları yakında eklenecek:\n${group.name_tr}\n${group.details?.ideoloji || ""}`);
+              // Buraya ileride büyük modal gelebilir
+            });
+            list.appendChild(div);
+          });
+        } else {
+          list.innerHTML = '<p class="text-center text-slate-400 py-10">Bu ülkede kayıtlı militan grup bilgisi bulunmuyor.</p>';
+        }
+
+        document.getElementById("country-modal").classList.remove("hidden");
+      });
+    });
+
+    // ──────────────────────────────────────────────
+    // Arama Sidebar
+    // ──────────────────────────────────────────────
+    const sidebar = document.getElementById("sidebar");
+    const searchInput = document.getElementById("search-input");
+    const results = document.getElementById("results");
+    const clearBtn = document.getElementById("clear-search");
+
+    function showResults(term) {
+      term = term.trim().toLowerCase();
+      clearBtn.classList.toggle("hidden", !term);
+
+      if (!term) {
+        results.innerHTML = '<p class="text-slate-500 text-center py-8">Arama yapmak için ülke adı yazın…</p>';
+        return;
+      }
+
+      results.innerHTML = "";
+      let found = 0;
+
+      Object.entries(countryData).forEach(([id, c]) => {
+        const name = (c.name_tr || id).toLowerCase();
+        if (name.includes(term)) {
+          found++;
+          const item = document.createElement("div");
+          item.className = "p-3 bg-slate-800 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors";
+          item.innerHTML = `<strong>${c.name_tr || id}</strong>`;
+          item.onclick = () => {
+            document.getElementById(id)?.dispatchEvent(new Event("click"));
+            sidebar.classList.add("translate-x-full");
+          };
+          results.appendChild(item);
+        }
+      });
+
+      if (found === 0) {
+        results.innerHTML = '<p class="text-slate-500 text-center py-8">Sonuç bulunamadı…</p>';
+      }
+    }
+
+    searchInput.addEventListener("input", e => showResults(e.target.value));
+    clearBtn.onclick = () => { searchInput.value = ""; showResults(""); searchInput.focus(); };
+
+    document.getElementById("open-search").onclick = () => sidebar.classList.remove("translate-x-full");
+    document.getElementById("close-sidebar").onclick = () => sidebar.classList.add("translate-x-full");
+
+    // Modal kapatma
+    document.getElementById("close-country").onclick = () => {
+      document.getElementById("country-modal").classList.add("hidden");
+      if (activeCountry) {
+        document.getElementById(activeCountry).classList.remove("active");
+        activeCountry = null;
+      }
+    };
+
+    // Modal dışına tıklayınca kapatma
+    document.getElementById("country-modal").onclick = e => {
+      if (e.target === e.currentTarget) {
+        document.getElementById("country-modal").classList.add("hidden");
+      }
+    };
   </script>
 </body>
 </html>

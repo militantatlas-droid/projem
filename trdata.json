@@ -1,60 +1,498 @@
 {
-  "last_updated": "2024-05-22",
-  "total_countries": 54,
-  "countries": {
-    "DZ": { "name": "Cezayir", "risk": "medium", "groups": ["AQIM", "Jund al-Khilafah"], "info": "Kuzeyde güvenlik durumu stabil, güney sınırlarında hareketlilik var." },
-    "AO": { "name": "Angola", "risk": "low", "groups": [], "info": "Genel güvenlik durumu stabil." },
-    "BJ": { "name": "Benin", "risk": "medium", "groups": ["JNIM"], "info": "Kuzey sınırlarında Sahel kaynaklı sızmalar görülüyor." },
-    "BW": { "name": "Botsvana", "risk": "low", "groups": [], "info": "Bölgenin en güvenli ülkelerinden biri." },
-    "BF": { "name": "Burkina Faso", "risk": "high", "groups": ["JNIM", "ISGS", "Ansarul Islam"], "info": "Toprakların önemli bir kısmı hükümet kontrolü dışında." },
-    "BI": { "name": "Burundi", "risk": "medium", "groups": ["RED-Tabara"], "info": "Siyasi gerginlik ve sınır ötesi grup hareketliliği mevcut." },
-    "CV": { "name": "Yeşil Burun Adaları", "risk": "low", "groups": [], "info": "Güvenli." },
-    "CM": { "name": "Kamerun", "risk": "high", "groups": ["Boko Haram", "Ambazonia Separatists"], "info": "Kuzeyde radikal gruplar, batıda ayrılıkçı çatışmalar." },
-    "CF": { "name": "Orta Afrika Cumhuriyeti", "risk": "high", "groups": ["CPC", "LRA"], "info": "İç çatışmalar ve milis grupların kontrol alanları mevcut." },
-    "TD": { "name": "Çad", "risk": "high", "groups": ["FACT", "Boko Haram"], "info": "Çad Gölü havzasında operasyonlar sürüyor." },
-    "KM": { "name": "Komorlar", "risk": "low", "groups": [], "info": "Stabil." },
-    "CG": { "name": "Kongo Cumhuriyeti", "risk": "low", "groups": [], "info": "Genel olarak sakin." },
-    "CD": { "name": "Demokratik Kongo Cumhuriyeti", "risk": "high", "groups": ["ADF", "M23", "CODECO"], "info": "Doğu bölgesinde onlarca aktif silahlı grup bulunuyor." },
-    "DJ": { "name": "Cibuti", "risk": "low", "groups": [], "info": "Stratejik askeri üslerin merkezi, stabil." },
-    "EG": { "name": "Mısır", "risk": "medium", "groups": ["Wilayat Sayna (IŞİD)"], "info": "Sina Yarımadası'nda operasyonlar devam ediyor." },
-    "GQ": { "name": "Ekvator Ginesi", "risk": "low", "groups": [], "info": "Siyasi baskı yüksek, silahlı çatışma düşük." },
-    "ER": { "name": "Eritre", "risk": "medium", "groups": [], "info": "Kapalı rejim, sınır gerginlikleri mevcut." },
-    "SZ": { "name": "Esvatini", "risk": "low", "groups": [], "info": "Monarşi karşıtı protestolar zaman zaman görülüyor." },
-    "ET": { "name": "Etiyopya", "risk": "high", "groups": ["OLA", "Fano"], "info": "Amhara ve Oromia bölgelerinde iç huzursuzluk sürüyor." },
-    "GA": { "name": "Gabon", "risk": "low", "groups": [], "info": "Darbe sonrası geçiş dönemi, stabil." },
-    "GM": { "name": "Gambiya", "risk": "low", "groups": [], "info": "Stabil." },
-    "GH": { "name": "Gana", "risk": "low", "groups": [], "info": "Bölgesel olarak en güvenli ülkelerden biri." },
-    "GN": { "name": "Gine", "risk": "medium", "groups": [], "info": "Cunta yönetimi, siyasi belirsizlik." },
-    "GW": { "name": "Gine-Bissau", "risk": "medium", "groups": [], "info": "Narkotik trafik ve siyasi istikrarsızlık." },
-    "CI": { "name": "Fildişi Sahili", "risk": "medium", "groups": ["Sahel Grupları"], "info": "Kuzey sınırında terör tehdidi artıyor." },
-    "KE": { "name": "Kenya", "risk": "medium", "groups": ["Al-Shabaab"], "info": "Somali sınır hattında saldırılar yaşanıyor." },
-    "LS": { "name": "Lesotho", "risk": "low", "groups": [], "info": "Güvenli." },
-    "LR": { "name": "Liberya", "risk": "low", "groups": [], "info": "İç savaş sonrası toparlanma sürecinde." },
-    "LY": { "name": "Libya", "risk": "high", "groups": ["Milis Grupları", "IŞİD Hücreleri"], "info": "İkiye bölünmüş yönetim ve kontrolsüz milis güçler." },
-    "MG": { "name": "Madagaskar", "risk": "low", "groups": [], "info": "Stabil." },
-    "MW": { "name": "Malavi", "risk": "low", "groups": [], "info": "Güvenli." },
-    "ML": { "name": "Mali", "risk": "high", "groups": ["JNIM", "ISGS"], "info": "Liptako-Gourma bölgesinde yoğun çatışmalar." },
-    "MR": { "name": "Moritanya", "risk": "medium", "groups": [], "info": "Sınır güvenliği sıkı, tehdit kontrol altında." },
-    "MU": { "name": "Mauritius", "risk": "low", "groups": [], "info": "Çok güvenli." },
-    "MA": { "name": "Fas", "risk": "low", "groups": ["Polisario Front"], "info": "Batı Sahra meselesi dışında güvenlik yüksek." },
-    "MZ": { "name": "Mozambik", "risk": "high", "groups": ["ISM (Ahlu Sunna Wal Jammah)"], "info": "Cabo Delgado bölgesinde insani kriz ve çatışma." },
-    "NA": { "name": "Namibya", "risk": "low", "groups": [], "info": "Güvenli." },
-    "NE": { "name": "Nijer", "risk": "high", "groups": ["ISGS", "Boko Haram"], "info": "Darbe sonrası güvenlik boşluğu ve artan saldırılar." },
-    "NG": { "name": "Nijerya", "risk": "high", "groups": ["Boko Haram", "ISWAP", "IPOB"], "info": "Çok boyutlu güvenlik krizi (Terör ve haydutluk)." },
-    "RW": { "name": "Ruanda", "risk": "low", "groups": [], "info": "Yüksek güvenlikli ve disiplinli." },
-    "ST": { "name": "Sao Tome ve Principe", "risk": "low", "groups": [], "info": "Güvenli." },
-    "SN": { "name": "Senegal", "risk": "low", "groups": ["MFDC"], "info": "Casamance bölgesinde düşük yoğunluklu ayrılıkçılık." },
-    "SC": { "name": "Seyşeller", "risk": "low", "groups": [], "info": "Çok güvenli." },
-    "SL": { "name": "Sierra Leone", "risk": "low", "groups": [], "info": "Stabil." },
-    "SO": { "name": "Somali", "risk": "high", "groups": ["Al-Shabaab", "IŞİD-Somali"], "info": "On yıllardır süren iç savaş ve terör operasyonları." },
-    "ZA": { "name": "Güney Afrika", "risk": "medium", "groups": [], "info": "Yüksek suç oranları ve sosyal huzursuzluk." },
-    "SS": { "name": "Güney Sudan", "risk": "high", "groups": ["Milis Grupları"], "info": "Etnik çatışmalar ve kırılgan barış süreci." },
-    "SD": { "name": "Sudan", "risk": "high", "groups": ["RSF", "Sudan Ordusu"], "info": "Tam ölçekli iç savaş devam ediyor." },
-    "TZ": { "name": "Tanzanya", "risk": "low", "groups": [], "info": "Genel olarak stabil." },
-    "TG": { "name": "Togo", "risk": "medium", "groups": ["Sahel Grupları"], "info": "Kuzey bölgelerinde terör sızmaları başladı." },
-    "TN": { "name": "Tunus", "risk": "medium", "groups": ["IŞİD/El-Kaide Hücreleri"], "info": "Sınır bölgelerinde periyodik operasyonlar." },
-    "UG": { "name": "Uganda", "risk": "medium", "groups": ["ADF"], "info": "Demokratik Kongo sınırında ADF tehdidi." },
-    "ZM": { "name": "Zambiya", "risk": "low", "groups": [], "info": "Stabil." },
-    "ZW": { "name": "Zimbabve", "risk": "low", "groups": [], "info": "Ekonomik kriz var ancak silahlı çatışma düşük." }
+  "AO": {
+    "name_tr": "Angola",
+    "groups": [
+      {
+        "name_tr": "UNITA",
+        "details": {
+          "kurulus_yili": "1966",
+          "ilk_eylem": "1975 Portekiz'e karşı büyük saldırı",
+          "grup_turu": "Milliyetçi / anti-komünist gerilla",
+          "grup_durumu": "Pasif"
+        }
+      }
+    ]
+  },
+  "BI": {
+    "name_tr": "Burundi",
+    "groups": [
+      {
+        "name_tr": "Palipehutu-FNL",
+        "details": {
+          "kurulus_yili": "1980",
+          "ilk_eylem": "1990'lar etnik çatışmalar",
+          "grup_turu": "Hutu milliyetçi militan grup",
+          "grup_durumu": "Pasif"
+        }
+      }
+    ]
+  },
+  "BJ": {
+    "name_tr": "Benin",
+    "groups": []
+  },
+  "BF": {
+    "name_tr": "Burkina Faso",
+    "groups": [
+      {
+        "name_tr": "JNIM",
+        "details": {
+          "kurulus_yili": "2017",
+          "ilk_eylem": "2017 birleşme sonrası saldırılar",
+          "grup_turu": "El Kaide bağlantılı cihatçı koalisyon",
+          "grup_durumu": "Aktif"
+        }
+      },
+      {
+        "name_tr": "ISGS",
+        "details": {
+          "kurulus_yili": "2015",
+          "ilk_eylem": "2016-2017 sınır saldırıları",
+          "grup_turu": "IŞİD Sahel kolu",
+          "grup_durumu": "Aktif"
+        }
+      }
+    ]
+  },
+  "BW": {
+    "name_tr": "Botswana",
+    "groups": []
+  },
+  "CF": {
+    "name_tr": "Orta Afrika Cumhuriyeti",
+    "groups": [
+      {
+        "name_tr": "Anti-balaka",
+        "details": {
+          "kurulus_yili": "2013",
+          "ilk_eylem": "2013 Seleka'ya karşı misilleme saldırıları",
+          "grup_turu": "Hristiyan milis koalisyonu",
+          "grup_durumu": "Zayıfladı / parçalı"
+        }
+      },
+      {
+        "name_tr": "CPC",
+        "details": {
+          "kurulus_yili": "2019",
+          "ilk_eylem": "2019 seçim sonrası saldırılar",
+          "grup_turu": "İsyan koalisyonu",
+          "grup_durumu": "Aktif"
+        }
+      }
+    ]
+  },
+  "CI": {
+    "name_tr": "Fildişi Sahili",
+    "groups": []
+  },
+  "CM": {
+    "name_tr": "Kamerun",
+    "groups": [
+      {
+        "name_tr": "ADF",
+        "details": {
+          "kurulus_yili": "1995",
+          "ilk_eylem": "2014'ten itibaren Kamerun'da eylemler",
+          "grup_turu": "IŞİD bağlantılı cihatçı grup",
+          "grup_durumu": "Aktif"
+        }
+      },
+      {
+        "name_tr": "Ambazonia Savunma Kuvvetleri",
+        "details": {
+          "kurulus_yili": "2017",
+          "ilk_eylem": "2017 Güney Kamerun ayrılıkçı çatışmaları",
+          "grup_turu": "Ayrılıkçı silahlı grup",
+          "grup_durumu": "Aktif"
+        }
+      }
+    ]
+  },
+  "CD": {
+    "name_tr": "Kongo DC",
+    "groups": [
+      {
+        "name_tr": "ADF",
+        "details": {
+          "kurulus_yili": "1995",
+          "ilk_eylem": "1990'lar sonu Kongo'da eylemler",
+          "grup_turu": "IŞİD bağlantılı cihatçı grup",
+          "grup_durumu": "Aktif"
+        }
+      },
+      {
+        "name_tr": "M23",
+        "details": {
+          "kurulus_yili": "2012",
+          "ilk_eylem": "2012 Kuzey Kivu isyanı",
+          "grup_turu": "Tutsi ağırlıklı isyancı grup",
+          "grup_durumu": "Aktif"
+        }
+      },
+      {
+        "name_tr": "CODECO",
+        "details": {
+          "kurulus_yili": "2017",
+          "ilk_eylem": "2017-2018 Lendu saldırıları",
+          "grup_turu": "Etnik milis (Lendu)",
+          "grup_durumu": "Aktif"
+        }
+      }
+    ]
+  },
+  "CG": {
+    "name_tr": "Kongo Cumhuriyeti",
+    "groups": []
+  },
+  "DJ": {
+    "name_tr": "Cibuti",
+    "groups": []
+  },
+  "DZ": {
+    "name_tr": "Cezayir",
+    "groups": [
+      {
+        "name_tr": "AQIM",
+        "details": {
+          "kurulus_yili": "2007",
+          "ilk_eylem": "2007 Cezayir bombalı saldırıları",
+          "grup_turu": "El Kaide Mağrip kolu",
+          "grup_durumu": "Aktif (düşük yoğunluk)"
+        }
+      }
+    ]
+  },
+  "EG": {
+    "name_tr": "Mısır",
+    "groups": [
+      {
+        "name_tr": "Vilayet Sina",
+        "details": {
+          "kurulus_yili": "2014",
+          "ilk_eylem": "2014-2015 Sina Yarımadası saldırıları",
+          "grup_turu": "IŞİD Sina kolu",
+          "grup_durumu": "Zayıfladı"
+        }
+      }
+    ]
+  },
+  "ER": {
+    "name_tr": "Eritre",
+    "groups": []
+  },
+  "ET": {
+    "name_tr": "Etiyopya",
+    "groups": [
+      {
+        "name_tr": "TPLF (Tigray Halk Kurtuluş Cephesi)",
+        "details": {
+          "kurulus_yili": "1975",
+          "ilk_eylem": "1970'ler-1980'ler gerilla savaşı",
+          "grup_turu": "Etnik ayrılıkçı / milliyetçi hareket",
+          "grup_durumu": "Pasif (2022 barış anlaşması)"
+        }
+      },
+      {
+        "name_tr": "Oromo Kurtuluş Ordusu (OLA)",
+        "details": {
+          "kurulus_yili": "2018",
+          "ilk_eylem": "2018 sonrası Oromia çatışmaları",
+          "grup_turu": "Etnik isyancı grup",
+          "grup_durumu": "Aktif"
+        }
+      }
+    ]
+  },
+  "GA": {
+    "name_tr": "Gabon",
+    "groups": []
+  },
+  "GH": {
+    "name_tr": "Gana",
+    "groups": []
+  },
+  "GN": {
+    "name_tr": "Gine",
+    "groups": []
+  },
+  "GM": {
+    "name_tr": "Gambiya",
+    "groups": []
+  },
+  "GW": {
+    "name_tr": "Gine-Bissau",
+    "groups": []
+  },
+  "GQ": {
+    "name_tr": "Ekvator Ginesi",
+    "groups": []
+  },
+  "KE": {
+    "name_tr": "Kenya",
+    "groups": [
+      {
+        "name_tr": "Al-Shabaab",
+        "details": {
+          "kurulus_yili": "2006",
+          "ilk_eylem": "2008-2010 Kenya sınır saldırıları",
+          "grup_turu": "El Kaide bağlantılı cihatçı grup",
+          "grup_durumu": "Aktif"
+        }
+      }
+    ]
+  },
+  "LR": {
+    "name_tr": "Liberya",
+    "groups": []
+  },
+  "LY": {
+    "name_tr": "Libya",
+    "groups": [
+      {
+        "name_tr": "LNA (Hafter güçleri)",
+        "details": {
+          "kurulus_yili": "2014",
+          "ilk_eylem": "2014 Tobruk merkezli operasyonlar",
+          "grup_turu": "Askeri koalisyon / yarı devlet gücü",
+          "grup_durumu": "Aktif"
+        }
+      },
+      {
+        "name_tr": "IS Libya",
+        "details": {
+          "kurulus_yili": "2014",
+          "ilk_eylem": "2015 Sirte'de IŞİD kontrolü",
+          "grup_turu": "IŞİD bağlantılı grup",
+          "grup_durumu": "Zayıfladı / dağıldı"
+        }
+      }
+    ]
+  },
+  "LS": {
+    "name_tr": "Lesotho",
+    "groups": []
+  },
+  "MA": {
+    "name_tr": "Fas",
+    "groups": []
+  },
+  "MG": {
+    "name_tr": "Madagaskar",
+    "groups": []
+  },
+  "ML": {
+    "name_tr": "Mali",
+    "groups": [
+      {
+        "name_tr": "JNIM",
+        "details": {
+          "kurulus_yili": "2017",
+          "ilk_eylem": "2017 birleşme sonrası saldırılar",
+          "grup_turu": "El Kaide bağlantılı cihatçı koalisyon",
+          "grup_durumu": "Aktif"
+        }
+      },
+      {
+        "name_tr": "ISGS",
+        "details": {
+          "kurulus_yili": "2015",
+          "ilk_eylem": "2016-2017 sınır saldırıları",
+          "grup_turu": "IŞİD Sahel kolu",
+          "grup_durumu": "Aktif"
+        }
+      }
+    ]
+  },
+  "MR": {
+    "name_tr": "Moritanya",
+    "groups": []
+  },
+  "MW": {
+    "name_tr": "Malavi",
+    "groups": []
+  },
+  "NA": {
+    "name_tr": "Namibya",
+    "groups": []
+  },
+  "NE": {
+    "name_tr": "Nijer",
+    "groups": [
+      {
+        "name_tr": "ISGS",
+        "details": {
+          "kurulus_yili": "2015",
+          "ilk_eylem": "2015'ten itibaren Tillabéri saldırıları",
+          "grup_turu": "IŞİD Sahel kolu",
+          "grup_durumu": "Aktif"
+        }
+      },
+      {
+        "name_tr": "JNIM",
+        "details": {
+          "kurulus_yili": "2017",
+          "ilk_eylem": "2019-2020 Nijer saldırıları",
+          "grup_turu": "El Kaide bağlantılı cihatçı koalisyon",
+          "grup_durumu": "Aktif"
+        }
+      }
+    ]
+  },
+  "NG": {
+    "name_tr": "Nijerya",
+    "groups": [
+      {
+        "name_tr": "Boko Haram",
+        "details": {
+          "kurulus_yili": "2002",
+          "ilk_eylem": "2009 Maiduguri ayaklanması",
+          "grup_turu": "Cihatçı Selefi grup",
+          "grup_durumu": "Aktif"
+        }
+      },
+      {
+        "name_tr": "ISWAP",
+        "details": {
+          "kurulus_yili": "2016",
+          "ilk_eylem": "2016'dan sonra ayrılma saldırıları",
+          "grup_turu": "IŞİD bağlantılı cihatçı grup",
+          "grup_durumu": "Aktif"
+        }
+      }
+    ]
+  },
+  "RW": {
+    "name_tr": "Ruanda",
+    "groups": []
+  },
+  "EH": {
+    "name_tr": "Batı Sahra",
+    "groups": [
+      {
+        "name_tr": "Polisario Cephesi",
+        "details": {
+          "kurulus_yili": "1973",
+          "ilk_eylem": "1975-1991 Fas'a karşı gerilla savaşı",
+          "grup_turu": "Bağımsızlık hareketi",
+          "grup_durumu": "Düşük yoğunluklu çatışma"
+        }
+      }
+    ]
+  },
+  "SD": {
+    "name_tr": "Sudan",
+    "groups": [
+      {
+        "name_tr": "RSF (Hızlı Destek Kuvvetleri)",
+        "details": {
+          "kurulus_yili": "2013",
+          "ilk_eylem": "2013 Darfur'da Janjaweed dönüşümü",
+          "grup_turu": "Yarı-askeri güç / paramiliter",
+          "grup_durumu": "Aktif"
+        }
+      }
+    ]
+  },
+  "SS": {
+    "name_tr": "Güney Sudan",
+    "groups": [
+      {
+        "name_tr": "SPLM-IO",
+        "details": {
+          "kurulus_yili": "2013",
+          "ilk_eylem": "2013 Juba'dan sonra iç savaş",
+          "grup_turu": "Etnik / siyasi isyancı grup",
+          "grup_durumu": "Barış sürecinde / düşük yoğunluk"
+        }
+      }
+    ]
+  },
+  "SN": {
+    "name_tr": "Senegal",
+    "groups": []
+  },
+  "SL": {
+    "name_tr": "Sierra Leone",
+    "groups": []
+  },
+  "SZ": {
+    "name_tr": "Esvatini",
+    "groups": []
+  },
+  "TD": {
+    "name_tr": "Çad",
+    "groups": [
+      {
+        "name_tr": "FACT",
+        "details": {
+          "kurulus_yili": "2015",
+          "ilk_eylem": "2015-2021 Libye-Çad sınır çatışmaları",
+          "grup_turu": "İsyan / muhalif silahlı grup",
+          "grup_durumu": "Pasif / entegre oldu"
+        }
+      }
+    ]
+  },
+  "TG": {
+    "name_tr": "Togo",
+    "groups": []
+  },
+  "TN": {
+    "name_tr": "Tunus",
+    "groups": [
+      {
+        "name_tr": "Uqba ibn Nafi",
+        "details": {
+          "kurulus_yili": "2014",
+          "ilk_eylem": "2014-2015 Chaambi Dağı saldırıları",
+          "grup_turu": "El Kaide bağlantılı grup",
+          "grup_durumu": "Zayıfladı"
+        }
+      }
+    ]
+  },
+  "TZ": {
+    "name_tr": "Tanzanya",
+    "groups": []
+  },
+  "UG": {
+    "name_tr": "Uganda",
+    "groups": [
+      {
+        "name_tr": "ADF",
+        "details": {
+          "kurulus_yili": "1995",
+          "ilk_eylem": "1996'dan itibaren Uganda'da eylemler",
+          "grup_turu": "IŞİD bağlantılı cihatçı grup",
+          "grup_durumu": "Aktif"
+        }
+      }
+    ]
+  },
+  "ZA": {
+    "name_tr": "Güney Afrika",
+    "groups": []
+  },
+  "ZM": {
+    "name_tr": "Zambiya",
+    "groups": []
+  },
+  "ZW": {
+    "name_tr": "Zimbabve",
+    "groups": []
+  },
+  "SO": {
+    "name_tr": "Somali",
+    "groups": [
+      {
+        "name_tr": "Al-Shabaab",
+        "details": {
+          "kurulus_yili": "2006",
+          "ilk_eylem": "2007 Mogadişu çatışmaları",
+          "grup_turu": "El Kaide bağlantılı cihatçı grup",
+          "grup_durumu": "Aktif"
+        }
+      }
+    ]
   }
 }

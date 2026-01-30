@@ -3,151 +3,111 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MİLİTAN ATLASI AFRİKA V2</title>
+  <title>MİLİTAN ATLASI - JSON VERİ ENTEGRASYONU</title>
   <style>
-    /* GENEL VE HARİTA STİLLERİ */
+    /* TEMEL TASARIM VE HARİTA STİLLERİ */
     * { box-sizing: border-box; margin:0; padding:0; }
     body {
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #111;
-      color: #eee;
-      height: 100vh;
-      overflow: hidden;
+      margin: 0; font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0a0a0a; color: #eee; height: 100vh; overflow: hidden;
     }
     #container { display: flex; height: 100%; position: relative; }
-    #map-area {
-      flex: 1;
-      position: relative;
-      background: #1a1a1a;
-      overflow: hidden;
-      cursor: default;
-    }
-    svg { width: 100%; height: 100%; display: block; user-select: none; }
+    #map-area { flex: 1; position: relative; background: #111; overflow: hidden; }
+    svg { width: 100%; height: 100%; display: block; }
     svg path {
-      fill: #ffffff;
-      stroke: #000;
-      stroke-width: 2.0;
-      vector-effect: non-scaling-stroke;
-      cursor: pointer;
-      transition: fill 0.2s;
+      fill: #ffffff; stroke: #000; stroke-width: 1.5;
+      vector-effect: non-scaling-stroke; cursor: pointer; transition: 0.2s;
     }
     svg path:hover { fill: #4ade80 !important; }
-    svg path.active { fill: #ff4444 !important; stroke-width: 3.0; }
+    svg path.active { fill: #ff4444 !important; stroke-width: 2.5; }
 
-    /* İSTATİSTİK PANELİ (SOL ÜST) */
-    #stats-overlay {
-      position: absolute; top: 20px; left: 70px; /* Geri butonu yanına */
-      background: rgba(20, 20, 20, 0.85);
-      padding: 12px 20px; border-radius: 10px;
-      border-left: 4px solid #4ade80;
-      z-index: 500; backdrop-filter: blur(8px);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-      pointer-events: none;
+    /* SOL ÜST İSTATİSTİK PANELİ */
+    #stats-panel {
+      position: absolute; top: 20px; left: 80px;
+      background: rgba(20, 20, 20, 0.8); padding: 10px 15px;
+      border-radius: 8px; border-left: 3px solid #4ade80;
+      z-index: 100; backdrop-filter: blur(10px); display: flex; gap: 20px;
     }
-    .stat-box { margin: 4px 0; }
-    .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-    .stat-num { font-size: 18px; font-weight: bold; color: #4ade80; display: block; }
+    .stat-box { font-size: 11px; color: #888; text-transform: uppercase; }
+    .stat-box b { display: block; font-size: 16px; color: #4ade80; }
 
-    /* TOOLTIP */
-    .tooltip {
-      position: absolute; background: rgba(0,0,0,0.92); color: white; padding: 10px 16px;
-      border-radius: 8px; font-size: 13.5px; pointer-events: none; z-index: 1000;
-      display: none; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1);
+    /* BUTONLAR */
+    .btn-circle {
+      width: 50px; height: 50px; border-radius: 50%; background: #1a1a1a;
+      border: 1px solid #333; color: #fff; display: flex;
+      align-items: center; justify-content: center; cursor: pointer;
+      position: absolute; z-index: 500; transition: 0.3s;
     }
+    .btn-circle:hover { border-color: #4ade80; color: #4ade80; }
+    #search-btn { top: 20px; left: 20px; }
+    #admin-btn { bottom: 20px; left: 20px; border-color: #ff4444; color: #ff4444; font-size: 24px; }
+    #admin-btn.active { background: #ff4444; color: #fff; transform: rotate(45deg); }
 
     /* SIDEBAR */
     #sidebar {
-      width: 380px; background: #1f1f1f; border-left: 1px solid #333;
-      padding: 25px; position: fixed; right: 0; top: 0; bottom: 0;
-      transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 600; box-shadow: -10px 0 30px rgba(0,0,0,0.6);
-      display: flex; flex-direction: column;
+      position: fixed; right: 0; top: 0; bottom: 0; width: 360px;
+      background: #161616; border-left: 1px solid #333; z-index: 1000;
+      transform: translateX(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 25px; display: flex; flex-direction: column;
     }
     #sidebar.active { transform: translateX(0); }
-    .sidebar-content { flex: 1; overflow-y: auto; margin-top: 20px; }
-
-    /* TÜM ÖRGÜTLER BUTONU */
-    #all-groups-btn {
-      position: fixed; bottom: 24px; right: 110px;
-      background: #1f1f1f; color: #4ade80; border: 1px solid #4ade80;
-      padding: 15px 25px; border-radius: 12px; font-weight: bold;
-      cursor: pointer; z-index: 150; transition: 0.3s;
-    }
-    #all-groups-btn:hover { background: #4ade80; color: #111; box-shadow: 0 0 20px rgba(74,222,128,0.4); }
-
-    /* ADMIN BUTONU */
-    #admin-toggle {
-      position: fixed; bottom: 24px; left: 24px;
-      width: 60px; height: 60px; border-radius: 50%;
-      background: #2a2a2a; color: #fff; border: 2px solid #444;
-      font-size: 30px; cursor: pointer; z-index: 700; transition: 0.3s;
-    }
-    #admin-toggle.active { background: #ff4444; border-color: #fff; transform: rotate(45deg); }
-
-    /* MODAL VE SEKME SİSTEMİ */
-    .modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-      display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(10px);
-    }
-    .modal-content {
-      background: #161616; width: 95%; max-width: 1000px; height: 85vh;
-      border-radius: 15px; border: 1px solid #333; display: flex; flex-direction: column; overflow: hidden;
-    }
-    .modal-tabs { display: flex; background: #000; overflow-x: auto; }
-    .tab-btn {
-      flex: 1; padding: 20px; border: none; background: #111; color: #666;
-      cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; white-space: nowrap;
-    }
-    .tab-btn.active { color: #4ade80; background: #161616; box-shadow: inset 0 -3px 0 #4ade80; }
-    .tab-pane { flex: 1; padding: 40px; overflow-y: auto; display: none; }
-    .tab-pane.active { display: block; animation: fadeIn 0.3s; }
-
-    /* ADMIN FORM STİLLERİ */
-    .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .admin-grid div { display: flex; flex-direction: column; }
-    .admin-grid label { color: #4ade80; font-size: 12px; margin-bottom: 8px; font-weight: bold; }
-    .admin-grid input, .admin-grid textarea, .admin-grid select {
-      background: #252525; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 6px;
-    }
-    .full-width { grid-column: span 2; }
-
-    .save-btn {
-      margin-top: 20px; background: #4ade80; color: #111; padding: 15px;
-      border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
-    }
-
-    /* KARTLAR */
-    .group-card {
-      background: #2a2a2a; padding: 15px; border-radius: 10px; margin-bottom: 12px;
+    .group-item {
+      background: #222; padding: 15px; border-radius: 8px; margin-bottom: 10px;
       border-left: 4px solid #4ade80; cursor: pointer; transition: 0.2s;
     }
-    .group-card:hover { transform: translateX(5px); background: #333; }
+    .group-item:hover { background: #2a2a2a; transform: translateX(5px); }
+
+    /* MODAL VE ADMİN PANELİ */
+    #modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+      display: none; justify-content: center; align-items: center; z-index: 2000;
+      backdrop-filter: blur(15px);
+    }
+    #modal-content {
+      background: #121212; width: 90%; max-width: 1100px; height: 85vh;
+      border-radius: 15px; border: 1px solid #333; display: flex; flex-direction: column; overflow: hidden;
+    }
+    .tabs { display: flex; background: #000; border-bottom: 1px solid #222; }
+    .tab-btn {
+      flex: 1; padding: 18px; border: none; background: none; color: #666;
+      cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.3s;
+    }
+    .tab-btn.active { color: #4ade80; background: #121212; box-shadow: inset 0 -3px 0 #4ade80; }
+    .pane { flex: 1; padding: 40px; overflow-y: auto; display: none; }
+    .pane.active { display: block; animation: fadeIn 0.4s; }
+
+    /* ADMIN FORM */
+    .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .admin-grid label { font-size: 11px; color: #4ade80; margin-bottom: 5px; display: block; font-weight: bold; }
+    .admin-grid input, .admin-grid textarea, .admin-grid select {
+      width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 6px;
+    }
+    .full { grid-column: span 2; }
+    .save-btn { margin-top: 20px; background: #4ade80; color: #000; border: none; padding: 15px; font-weight: bold; cursor: pointer; border-radius: 6px; width: 100%; }
+
+    #tooltip {
+      position: fixed; background: rgba(0,0,0,0.85); color: white; padding: 10px;
+      border-radius: 6px; pointer-events: none; display: none; z-index: 3000; border: 1px solid #333;
+    }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
 
-<div id="stats-overlay">
-  <div class="stat-box">
-    <span class="stat-label">Kayıtlı Ülke</span>
-    <span class="stat-num" id="stat-country-count">0</span>
-  </div>
-  <div class="stat-box">
-    <span class="stat-label">Aktif Örgüt</span>
-    <span class="stat-num" id="stat-group-count">0</span>
-  </div>
-</div>
-
 <div id="container">
-  <a href="https://militantatlas-droid.github.io/militantatlascom" id="back-to-home" style="position:fixed; top:20px; left:20px; z-index:501; width:44px; height:44px; background:rgba(30,30,30,0.8); border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid #444; color:#4ade80;">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
-  </a>
-
   <div id="map-area">
-    <div id="tooltip" class="tooltip"></div>
-    <svg id="svg-map" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
+    <div id="stats-panel">
+      <div class="stat-box">Ülkeler <b id="stat-c">0</b></div>
+      <div class="stat-box">Örgütler <b id="stat-g">0</b></div>
+    </div>
+
+    <div id="search-btn" class="btn-circle" onclick="listAllGroups()">🔍</div>
+    <div id="admin-btn" class="btn-circle" onclick="toggleAdmin()">+</div>
+
+    <div id="tooltip"></div>
+
+    <svg id="svg-map" viewBox="0 0 1000 1000">
       <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
       <path id="BI" data-name="Burundi" data-id="BI" d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
       <path id="BJ" data-name="Benin" data-id="BJ" d="m 340,356 -9.3,-8 -4.3,0.1 -4.1,4 -2.6,4.2 -6,1.2 -2.5,6.1 -4.1,1.6 -1.6,7.2 3.7,4.1 4.3,4.9 0.4,6.8 2.5,2.8 -0.5,31.8 3,9.5 10.1,-1.6 0.6,-22.3 -0.3,-8.8 2.3,-8.7 3.7,-4.3 5.9,-8.5 -1.3,-3.7 2.4,-5.6 -2.8,-8.2 0.5,-4.6 z" />
@@ -201,202 +161,186 @@
     </svg>
   </div>
 
-  <button id="all-groups-btn">TÜM ÖRGÜTLER</button>
-  <button id="admin-toggle" title="Admin Paneli">+</button>
-
   <div id="sidebar">
-    <button id="sidebar-close" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#fff; cursor:pointer; font-size:24px;">✕</button>
-    <h2 id="side-title" style="color:#4ade80;">Militan Atlası</h2>
-    <p id="side-subtitle" style="font-size:12px; color:#666;"></p>
-    <div class="sidebar-content" id="side-list"></div>
+    <h2 id="side-title" style="color:#4ade80; margin-bottom:10px;">Liste</h2>
+    <p id="side-sub" style="font-size:12px; color:#666; margin-bottom:20px;"></p>
+    <div id="side-list" style="flex:1; overflow-y:auto;"></div>
+    <button onclick="closeSidebar()" style="margin-top:15px; padding:12px; background:#333; border:none; color:#fff; cursor:pointer; border-radius:6px;">KAPAT</button>
   </div>
 </div>
 
-<div id="modal-overlay" class="modal">
-  <div class="modal-content">
-    <div class="modal-tabs" id="modal-tabs">
-      <button class="tab-btn active" data-target="tab-ana">ANA BİLGİLER</button>
-      <button class="tab-btn" data-target="tab-eylem">EYLEMLER</button>
-      <button class="tab-btn" data-target="tab-detay">DETAYLAR</button>
-      <button class="tab-btn" data-target="tab-finans">FİNANS</button>
-      <button class="tab-btn" data-target="tab-liderlik">LİDERLİK</button>
-      <button class="tab-btn" data-target="tab-admin" id="tab-admin-btn" style="display:none; background:#222; color:#ff4444;">DÜZENLE / EKLE</button>
+<div id="modal-overlay">
+  <div id="modal-content">
+    <div class="tabs" id="modal-nav">
+      <button class="tab-btn active" onclick="switchTab('pane-basic')">ANA BİLGİLER</button>
+      <button class="tab-btn" onclick="switchTab('pane-details')">ANALİZ</button>
+      <button class="tab-btn" onclick="switchTab('pane-actions')">EYLEMLER</button>
+      <button class="tab-btn" onclick="switchTab('pane-finance')">FİNANS</button>
+      <button class="tab-btn" onclick="switchTab('pane-leader')">LİDERLİK</button>
     </div>
 
-    <div id="tab-ana" class="tab-pane active"></div>
-    <div id="tab-eylem" class="tab-pane"></div>
-    <div id="tab-detay" class="tab-pane"></div>
-    <div id="tab-finans" class="tab-pane"></div>
-    <div id="tab-liderlik" class="tab-pane"></div>
+    <div id="pane-basic" class="pane active"></div>
+    <div id="pane-details" class="pane"></div>
+    <div id="pane-actions" class="pane"></div>
+    <div id="pane-finance" class="pane"></div>
+    <div id="pane-leader" class="pane"></div>
 
-    <div id="tab-admin" class="tab-pane">
-      <h2 style="color:#4ade80; margin-bottom:20px;">İstihbarat Veri Girişi</h2>
+    <div id="pane-admin" class="pane">
+      <h2 style="color:#4ade80; margin-bottom:25px;">Yeni İstihbarat Verisi</h2>
       <div class="admin-grid">
-        <div><label>Ülke Kodu (Örn: DZ)</label><input type="text" id="adm-iso"></div>
+        <div><label>Ülke Kodu (ISO)</label><input type="text" id="adm-iso" placeholder="Örn: NG"></div>
         <div><label>Örgüt Adı</label><input type="text" id="adm-name"></div>
         <div><label>Kuruluş Yılı</label><input type="text" id="adm-year"></div>
-        <div>
-          <label>Durum</label>
-          <select id="adm-status"><option>Aktif</option><option>Pasif</option><option>Bilinmiyor</option></select>
-        </div>
-        <div class="full-width"><label>İlk Büyük Eylem</label><input type="text" id="adm-first"></div>
-        <div class="full-width"><label>Detaylı Analiz</label><textarea id="adm-detail" rows="4"></textarea></div>
-        <div class="full-width"><label>Eylemler Listesi</label><textarea id="adm-act" rows="2"></textarea></div>
-        <div class="full-width"><label>Finansal Kaynaklar</label><textarea id="adm-fin" rows="2"></textarea></div>
-        <div class="full-width"><label>Liderlik Yapısı</label><textarea id="adm-lead" rows="2"></textarea></div>
+        <div><label>Durum</label><select id="adm-status"><option>Aktif</option><option>Pasif</option></select></div>
+        <div class="full"><label>İlk Büyük Eylem</label><input type="text" id="adm-first"></div>
+        <div class="full"><label>Detaylı Analiz</label><textarea id="adm-desc" rows="3"></textarea></div>
+        <div class="full"><label>Eylem Listesi</label><textarea id="adm-acts" rows="2"></textarea></div>
+        <div class="full"><label>Finans Kaynakları</label><textarea id="adm-fin" rows="2"></textarea></div>
+        <div class="full"><label>Liderlik Yapısı</label><textarea id="adm-lead" rows="2"></textarea></div>
       </div>
-      <button class="save-btn full-width" onclick="saveIntelligence()">SİSTEME KAYDET</button>
+      <button class="save-btn" onclick="saveToData()">VERİYİ SİSTEME EKLE</button>
     </div>
 
-    <button onclick="closeModal()" style="position:absolute; bottom:20px; right:20px; background:#444; border:none; color:#fff; padding:10px 20px; border-radius:5px; cursor:pointer;">Kapat</button>
+    <button onclick="closeModal()" style="position:absolute; top:15px; right:20px; color:#fff; background:none; border:none; font-size:26px; cursor:pointer;">✕</button>
   </div>
 </div>
 
 <script>
-  // VERİ TABANI
-  let militantData = {
-    "DZ": [{ id: 1, name: "AQIM", year: "2007", firstAction: "Cezayir Patlamaları", status: "Aktif", detail: "Mağrip El-Kaidesi'nin ana kolu...", finance: "Kaçakçılık, fidye", actions: "2007 Bombalı saldırı, 2011 sınır baskını", leadership: "Ebu Ubeyde Yusuf el-Annabi" }],
-    "NG": [{ id: 2, name: "Boko Haram", year: "2002", firstAction: "Maiduguri Ayaklanması", status: "Aktif", detail: "Nijerya'nın kuzeyinde şeriat amaçlı grup...", finance: "Yağma, dış bağışlar", actions: "Chibok kızları kaçırılması", leadership: "Ebu Musab el-Barnawi" }]
-  };
+  let militantData = {};
 
-  const svgMap = document.getElementById('svg-map');
-  const sidebar = document.getElementById('sidebar');
-  const modal = document.getElementById('modal-overlay');
-  const adminToggle = document.getElementById('admin-toggle');
-  
-  let isAdmin = false;
+  // JSON'DAN VERİ ÇEKME
+  async function loadData() {
+    try {
+      const response = await fetch('trdata.json'); // trdata.json dosyasını okur
+      militantData = await response.json();
+      updateStats();
+      console.log("Veri başarıyla yüklendi.");
+    } catch (error) {
+      console.error("Veri yüklenirken hata oluştu! trdata.json dosyasını kontrol et.", error);
+    }
+  }
 
-  // 3- İSTATİSTİKLERİ GÜNCELLE
-  function refreshStats() {
+  function updateStats() {
     const countries = Object.keys(militantData).length;
     let groups = 0;
     Object.values(militantData).forEach(arr => groups += arr.length);
-    document.getElementById('stat-country-count').textContent = countries;
-    document.getElementById('stat-group-count').textContent = groups;
+    document.getElementById('stat-c').textContent = countries;
+    document.getElementById('stat-g').textContent = groups;
   }
 
-  // 1- TÜM ÖRGÜTLER BUTONU
-  document.getElementById('all-groups-btn').onclick = () => {
+  // HARİTA ETKİLEŞİMİ
+  const svgMap = document.getElementById('svg-map');
+  svgMap.addEventListener('click', (e) => {
+    const path = e.target.closest('path');
+    if (path) {
+      document.querySelectorAll('path').forEach(p => p.classList.remove('active'));
+      path.classList.add('active');
+      openSidebar(path.id, path.getAttribute('data-name'));
+    } else {
+      closeSidebar();
+    }
+  });
+
+  function openSidebar(iso, name) {
+    document.getElementById('side-title').textContent = name;
+    const groups = militantData[iso] || [];
+    document.getElementById('side-sub').textContent = `${groups.length} örgüt listeleniyor`;
+    
+    document.getElementById('side-list').innerHTML = groups.map(g => `
+      <div class="group-item" onclick="openDetails('${iso}', ${g.id})">
+        <strong>${g.name}</strong><br><small>${g.status} | ${g.year}</small>
+      </div>
+    `).join('') || '<p style="color:#666">Veri bulunamadı.</p>';
+    document.getElementById('sidebar').classList.add('active');
+  }
+
+  // TÜM ÖRGÜTLERİ LİSTELE (🔍 Butonu)
+  function listAllGroups() {
+    document.getElementById('side-title').textContent = "Tüm Örgütler";
     let all = [];
     for(let iso in militantData) {
       militantData[iso].forEach(g => all.push({...g, iso}));
     }
-    document.getElementById('side-title').textContent = "Tüm Örgütler";
-    document.getElementById('side-subtitle').textContent = `Toplam ${all.length} kayıt bulundu`;
-    
+    document.getElementById('side-sub').textContent = `Kıta genelinde ${all.length} kayıtlı yapı`;
     document.getElementById('side-list').innerHTML = all.map(g => `
-      <div class="group-card" onclick="openGroupDetails('${g.iso}', ${g.id})">
-        <strong>${g.name}</strong> <span style="font-size:10px; color:#666;">(${g.iso})</span><br>
-        <small>${g.status} | ${g.year}</small>
+      <div class="group-item" onclick="openDetails('${g.iso}', ${g.id})">
+        <strong>${g.name}</strong> <small>(${g.iso})</small><br>
+        <small>${g.status} | Kurul: ${g.year}</small>
       </div>
-    `).join('');
-    sidebar.classList.add('active');
-  };
-
-  // HARİTA TIKLAMA
-  svgMap.addEventListener('click', (e) => {
-    const path = e.target.closest('path');
-    if(path) {
-      document.querySelectorAll('path').forEach(p => p.classList.remove('active'));
-      path.classList.add('active');
-      openCountryGroups(path.id, path.getAttribute('data-name'));
-    } else {
-      sidebar.classList.remove('active');
-    }
-  });
-
-  function openCountryGroups(iso, name) {
-    document.getElementById('side-title').textContent = name;
-    const groups = militantData[iso] || [];
-    document.getElementById('side-list').innerHTML = groups.map(g => `
-      <div class="group-card" onclick="openGroupDetails('${iso}', ${g.id})">
-        <strong>${g.name}</strong><br><small>${g.status}</small>
-      </div>
-    `).join('') || '<p style="color:#666">Kayıt yok.</p>';
-    sidebar.classList.add('active');
+    `).sort().join('');
+    document.getElementById('sidebar').classList.add('active');
   }
 
-  // 2- GENİŞ YETKİLİ ADMİN PANELİ YÖNETİMİ
-  adminToggle.onclick = () => {
-    isAdmin = !isAdmin;
-    adminToggle.classList.toggle('active');
-    document.getElementById('tab-admin-btn').style.display = isAdmin ? 'block' : 'none';
-    
-    if(isAdmin) {
-      modal.style.display = 'flex';
-      switchTab('tab-admin');
-    }
-  };
+  // DETAY PENCERESİ
+  function openDetails(iso, gid) {
+    const g = militantData[iso].find(x => x.id === gid);
+    document.getElementById('modal-overlay').style.display = 'flex';
+    document.getElementById('modal-nav').style.display = 'flex';
+    document.getElementById('pane-admin').classList.remove('active');
 
-  function saveIntelligence() {
+    document.getElementById('pane-basic').innerHTML = `
+      <h1 style="color:#4ade80; font-size:40px;">${g.name}</h1>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:30px;">
+        <div style="background:#1a1a1a; padding:20px; border-radius:12px; border:1px solid #333;"><h3>Kuruluş Yılı</h3><p>${g.year}</p></div>
+        <div style="background:#1a1a1a; padding:20px; border-radius:12px; border:1px solid #333;"><h3>Operasyonel Durum</h3><p>${g.status}</p></div>
+        <div style="background:#1a1a1a; padding:20px; border-radius:12px; border:1px solid #333; grid-column:span 2;"><h3>İlk Kaydedilen Büyük Eylem</h3><p>${g.firstAction}</p></div>
+      </div>
+    `;
+    document.getElementById('pane-details').innerHTML = `<h2>Detaylı Analiz</h2><p style="line-height:1.8; margin-top:20px; color:#ccc;">${g.detail || 'Veri girilmemiş.'}</p>`;
+    document.getElementById('pane-actions').innerHTML = `<h2>Bilinen Eylemler</h2><p style="line-height:1.8; margin-top:20px;">${g.actions || 'Veri girilmemiş.'}</p>`;
+    document.getElementById('pane-finance').innerHTML = `<h2>Finansman ve Lojistik</h2><p style="line-height:1.8; margin-top:20px;">${g.finance || 'Veri girilmemiş.'}</p>`;
+    document.getElementById('pane-leader').innerHTML = `<h2>Liderlik ve Emir Komuta</h2><p style="line-height:1.8; margin-top:20px;">${g.leader || 'Veri girilmemiş.'}</p>`;
+
+    switchTab('pane-basic');
+  }
+
+  function switchTab(id) {
+    document.querySelectorAll('.pane, .tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelector(`[onclick="switchTab('${id}')"]`)?.classList.add('active');
+  }
+
+  // ADMİN PANELİ (Geniş Yetki)
+  function toggleAdmin() {
+    const btn = document.getElementById('admin-btn');
+    btn.classList.toggle('active');
+    document.getElementById('modal-overlay').style.display = 'flex';
+    document.getElementById('modal-nav').style.display = 'none';
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    document.getElementById('pane-admin').classList.add('active');
+  }
+
+  function saveToData() {
     const iso = document.getElementById('adm-iso').value.toUpperCase();
-    if(!iso) return alert("Hata: Ülke kodu boş bırakılamaz!");
+    if(!iso) return alert("Hata: Ülke kodu boş olamaz!");
 
-    const newEntry = {
+    const newGroup = {
       id: Date.now(),
-      name: document.getElementById('adm-name').value || "İsimsiz Örgüt",
+      name: document.getElementById('adm-name').value || "İsimsiz Yapı",
       year: document.getElementById('adm-year').value || "Bilinmiyor",
       status: document.getElementById('adm-status').value,
       firstAction: document.getElementById('adm-first').value || "-",
-      detail: document.getElementById('adm-detail').value || "-",
-      actions: document.getElementById('adm-act').value || "-",
+      detail: document.getElementById('adm-desc').value || "-",
+      actions: document.getElementById('adm-acts').value || "-",
       finance: document.getElementById('adm-fin').value || "-",
-      leadership: document.getElementById('adm-lead').value || "-"
+      leader: document.getElementById('adm-lead').value || "-"
     };
 
     if(!militantData[iso]) militantData[iso] = [];
-    militantData[iso].push(newEntry);
+    militantData[iso].push(newGroup);
     
-    refreshStats();
-    alert("İstihbarat başarıyla işlendi.");
+    updateStats();
+    alert("Veri başarıyla işlendi (Geçici oturum). Kalıcı olması için trdata.json dosyasını manuel güncelleyin.");
     closeModal();
-    // Formu sıfırla
-    document.querySelectorAll('.admin-grid input, .admin-grid textarea').forEach(i => i.value = "");
   }
-
-  // DETAY MODALI
-  function openGroupDetails(iso, id) {
-    const g = militantData[iso].find(x => x.id === id);
-    modal.style.display = 'flex';
-    
-    document.getElementById('tab-ana').innerHTML = `
-      <h2 style="color:#4ade80; font-size:32px;">${g.name}</h2>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:20px;">
-        <div style="background:#222; padding:20px; border-radius:10px;"><h3>Kuruluş</h3><p>${g.year}</p></div>
-        <div style="background:#222; padding:20px; border-radius:10px;"><h3>Durum</h3><p>${g.status}</p></div>
-        <div style="background:#222; padding:20px; border-radius:10px; grid-column:span 2;"><h3>İlk Büyük Eylem</h3><p>${g.firstAction}</p></div>
-      </div>
-    `;
-    document.getElementById('tab-eylem').innerHTML = `<h2>Eylem Geçmişi</h2><p style="margin-top:20px; line-height:1.6;">${g.actions}</p>`;
-    document.getElementById('tab-detay').innerHTML = `<h2>Analiz</h2><p style="margin-top:20px; line-height:1.6; color:#ccc;">${g.detail}</p>`;
-    document.getElementById('tab-finans').innerHTML = `<h2>Finansal Kaynaklar</h2><p style="margin-top:20px; line-height:1.6;">${g.finance}</p>`;
-    document.getElementById('tab-liderlik').innerHTML = `<h2>Liderlik ve Komuta</h2><p style="margin-top:20px; line-height:1.6;">${g.leadership}</p>`;
-
-    switchTab('tab-ana');
-  }
-
-  // TAB DEĞİŞTİRME
-  function switchTab(id) {
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelector(`[data-target="${id}"]`).classList.add('active');
-  }
-
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.onclick = () => switchTab(btn.dataset.target);
-  });
 
   function closeModal() {
-    modal.style.display = 'none';
-    isAdmin = false;
-    adminToggle.classList.remove('active');
-    document.getElementById('tab-admin-btn').style.display = 'none';
+    document.getElementById('modal-overlay').style.display = 'none';
+    document.getElementById('admin-btn').classList.remove('active');
   }
+  function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); }
 
-  document.getElementById('sidebar-close').onclick = () => sidebar.classList.remove('active');
-
-  // TOOLTIP
+  // TOOLTIP (AFRIKA 29)
   svgMap.addEventListener('mousemove', (e) => {
     const path = e.target.closest('path');
     const tt = document.getElementById('tooltip');
@@ -405,12 +349,12 @@
       tt.style.left = e.clientX + 15 + 'px';
       tt.style.top = e.clientY + 15 + 'px';
       const count = (militantData[path.id] || []).length;
-      tt.innerHTML = `<strong>${path.getAttribute('data-name')}</strong><small>${count} Kayıtlı Örgüt</small>`;
+      tt.innerHTML = `<strong>${path.getAttribute('data-name')}</strong><br><small>${count} Örgüt</small>`;
     } else { tt.style.display = 'none'; }
   });
 
-  // BAŞLANGIÇ
-  refreshStats();
+  // BAŞLAT
+  loadData();
 </script>
 
 </body>

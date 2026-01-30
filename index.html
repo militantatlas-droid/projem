@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MİLİTAN ATLASI AFRİKA PRO</title>
+  <title>MİLİTAN ATLASI PRO V2</title>
   <style>
     :root {
       --primary-green: #4ade80;
@@ -16,111 +16,102 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; }
     
-    /* 1- HARİTA BEYAZ, ARKA PLAN KARANLIK */
-    #container { position: relative; width: 100%; height: 100%; display: flex; }
-    #map-area { flex: 1; background: #000; position: relative; overflow: hidden; transition: filter 0.3s; }
+    /* İSTATİSTİK PANELİ */
+    #stats-panel {
+      position: absolute; top: 20px; left: 20px;
+      background: rgba(20, 20, 20, 0.8);
+      padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary-green);
+      z-index: 500; backdrop-filter: blur(5px);
+    }
+    .stat-item { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+    .stat-value { font-size: 20px; font-weight: bold; color: var(--primary-green); display: block; }
+
+    /* HARİTA TASARIMI */
+    #map-area { flex: 1; background: #000; position: relative; overflow: hidden; transition: filter 0.3s; width: 100%; height: 100%; }
     svg { width: 100%; height: 100%; }
-    
-    svg path {
-      fill: #ffffff; /* Harita Beyaz */
-      stroke: #333;
-      stroke-width: 1;
-      transition: fill 0.2s, stroke 0.2s;
-      vector-effect: non-scaling-stroke;
-      cursor: pointer;
-    }
-
-    /* 2- HOVER YEŞİL, TIKLAYINCA KIRMIZI */
+    svg path { fill: #ffffff; stroke: #333; stroke-width: 0.8; transition: 0.2s; cursor: pointer; vector-effect: non-scaling-stroke; }
     svg path:hover { fill: var(--primary-green) !important; }
-    svg path.selected-country { fill: var(--active-red) !important; stroke: #fff; stroke-width: 2; }
+    svg path.selected-country { fill: var(--active-red) !important; stroke: #fff; stroke-width: 1.5; }
     
-    /* 4- BUTONLARIN GÖRÜNÜRLÜĞÜ */
-    .control-btn {
-      background: var(--panel-bg);
-      color: var(--primary-green);
-      border: 1px solid var(--primary-green);
-      padding: 12px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
-      box-shadow: 0 4px 15px rgba(74, 222, 128, 0.2);
-    }
-    .control-btn:hover { background: var(--primary-green); color: #000; }
-
-    #main-controls { position: absolute; bottom: 30px; right: 30px; display: flex; gap: 10px; z-index: 100; }
-    
-    /* 6- SADE TOOLTIP BOX VE ÖRGÜT ÖNİZLEME */
+    /* TOOLTIP */
     #tooltip {
-      position: fixed;
-      background: rgba(0,0,0,0.9);
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid var(--primary-green);
-      color: #fff;
-      font-size: 13px;
-      pointer-events: none;
-      display: none;
-      z-index: 1000;
-      min-width: 150px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      position: fixed; background: rgba(0,0,0,0.95); padding: 12px; border-radius: 6px;
+      border: 1px solid var(--primary-green); color: #fff; font-size: 13px;
+      pointer-events: none; display: none; z-index: 1000; min-width: 160px;
     }
-    .tt-title { font-weight: bold; border-bottom: 1px solid #444; margin-bottom: 5px; padding-bottom: 3px; color: var(--primary-green); }
-    .tt-group-tag { font-size: 11px; background: #333; padding: 2px 5px; border-radius: 3px; margin: 2px; display: inline-block; }
+
+    /* KONTROLLER */
+    #main-controls { position: absolute; bottom: 30px; right: 30px; display: flex; gap: 10px; z-index: 100; }
+    .control-btn {
+      background: var(--panel-bg); color: var(--primary-green); border: 1px solid var(--primary-green);
+      padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;
+    }
+    .control-btn:hover { background: var(--primary-green); color: #000; box-shadow: 0 0 20px rgba(74, 222, 128, 0.4); }
 
     /* SIDEBAR */
     #sidebar {
-      position: fixed; right: 0; top: 0; bottom: 0; width: 350px;
+      position: fixed; right: 0; top: 0; bottom: 0; width: 380px;
       background: var(--panel-bg); border-left: 1px solid #333;
-      z-index: 300; transform: translateX(100%); transition: 0.4s;
-      display: flex; flex-direction: column;
+      z-index: 600; transform: translateX(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0,0,0,0.5);
     }
     #sidebar.active { transform: translateX(0); }
-    .sidebar-header { padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+    .sidebar-header { padding: 25px; border-bottom: 1px solid #333; background: #1a1a1a; }
     .list-area { padding: 20px; overflow-y: auto; flex: 1; }
-    .group-item { 
-      background: #1d1d1d; padding: 15px; border-radius: 6px; margin-bottom: 10px; 
-      cursor: pointer; border: 1px solid #333; transition: 0.3s;
-    }
-    .group-item:hover { border-color: var(--primary-green); background: #252525; }
 
-    /* 7- MODAL PENCERE (BLURLU) */
+    /* MODAL & TABLAR */
     #modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-      display: none; justify-content: center; align-items: center; z-index: 2000;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      display: none; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(10px);
     }
     #modal-box {
-      background: #1a1a1a; width: 80%; max-width: 800px; height: 70vh;
-      border-radius: 12px; border: 1px solid #444; display: flex; flex-direction: column;
-      position: relative; overflow: hidden;
+      background: #161616; width: 90%; max-width: 900px; height: 80vh;
+      border-radius: 15px; border: 1px solid #333; display: flex; flex-direction: column; overflow: hidden;
     }
-    .modal-tabs { display: flex; background: #111; border-bottom: 1px solid #333; }
+    .modal-tabs { display: flex; background: #000; gap: 2px; }
     .tab-btn { 
-      padding: 15px 25px; border: none; background: none; color: #888; 
-      cursor: pointer; font-weight: bold; font-size: 14px;
+      flex: 1; padding: 18px; border: none; background: #111; color: #666; 
+      cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 12px;
     }
-    .tab-btn.active { color: var(--primary-green); border-bottom: 2px solid var(--primary-green); background: #1a1a1a; }
-    .tab-content { flex: 1; padding: 30px; overflow-y: auto; display: none; }
+    .tab-btn.active { color: var(--primary-green); background: #161616; box-shadow: inset 0 -3px 0 var(--primary-green); }
+    .tab-content { flex: 1; padding: 40px; overflow-y: auto; display: none; animation: fadeIn 0.3s; }
     .tab-content.active { display: block; }
-    
-    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .info-box { background: #222; padding: 15px; border-radius: 8px; }
-    .info-label { font-size: 12px; color: #777; margin-bottom: 5px; text-transform: uppercase; }
 
-    /* ADMIN PANEL BUTONU */
-    #admin-add { position: absolute; bottom: 30px; left: 30px; width: 50px; height: 50px; border-radius: 50%; border: none; background: #222; color: #fff; font-size: 24px; cursor: pointer; border: 1px solid #444; z-index: 100; }
-    #admin-add.active { background: var(--primary-green); color: #000; }
+    /* ADMIN FORM */
+    .admin-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .admin-form label { display: block; margin-bottom: 5px; font-size: 12px; color: var(--primary-green); }
+    .admin-form input, .admin-form textarea, .admin-form select {
+      width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 4px;
+    }
+    .full-width { grid-column: span 2; }
 
-    .blur { filter: blur(8px); pointer-events: none; }
+    #admin-add { position: absolute; bottom: 30px; left: 30px; width: 60px; height: 60px; border-radius: 50%; background: #222; color: #fff; font-size: 30px; cursor: pointer; border: 2px solid #444; z-index: 100; transition: 0.3s; }
+    #admin-add.active { background: var(--active-red); border-color: #fff; transform: rotate(45deg); }
+
+    .group-card { background: #222; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #333; cursor: pointer; }
+    .group-card:hover { border-color: var(--primary-green); background: #282828; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .blur { filter: blur(15px); }
   </style>
 </head>
 <body>
 
-<div id="container">
-  <div id="map-area">
-    <div id="tooltip"></div>
-    <svg id="africa-map" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
-       <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
+<div id="stats-panel">
+  <div style="margin-bottom:10px">
+    <span class="stat-item">Kapsanan Ülke</span>
+    <span class="stat-value" id="count-countries">0</span>
+  </div>
+  <div>
+    <span class="stat-item">Aktif Örgüt</span>
+    <span class="stat-value" id="count-groups">0</span>
+  </div>
+</div>
+
+<div id="map-area">
+  <div id="tooltip"></div>
+  <svg id="africa-map" viewBox="0 0 1000 1000">
+    <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
       <path id="BI" data-name="Burundi" data-id="BI" d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
       <path id="BJ" data-name="Benin" data-id="BJ" d="m 340,356 -9.3,-8 -4.3,0.1 -4.1,4 -2.6,4.2 -6,1.2 -2.5,6.1 -4.1,1.6 -1.6,7.2 3.7,4.1 4.3,4.9 0.4,6.8 2.5,2.8 -0.5,31.8 3,9.5 10.1,-1.6 0.6,-22.3 -0.3,-8.8 2.3,-8.7 3.7,-4.3 5.9,-8.5 -1.3,-3.7 2.4,-5.6 -2.8,-8.2 0.5,-4.6 z" />
       <path id="BF" data-name="Burkina Faso" data-id="BF" d="m 300.7,310.8 -7.8,0 -3,-2.6 -6.7,1.9 -11.3,5.8 -2.3,4.3 -9.4,6.2 -1.7,3.6 -5.1,2.8 -5.8,-1.9 -3.4,3.4 -1.8,9.5 -9.7,11.4 0.3,4.7 -3.4,5.9 0.8,8 5.5,3 2.1,4.6 5.4,2.9 4.3,-3.4 5.7,-0.6 8.3,3.6 -1.6,-10.4 0.3,-7.9 21.1,-0.6 5.4,1 3.9,-2.2 5.6,1.1 10.7,0.3 4.1,-1.6 2.5,-6.1 6,-1.2 2.6,-4.2 0.3,-9.5 -14,-3.1 -0.4,-6.7 -6.9,-9 -1.6,-6.3 1,-6.7 z" />
@@ -171,26 +162,26 @@
       <path id="ZW" data-name="Zimbabwe" data-id="ZW" d="m 669.1,825.1 13.4,-15.7 3.6,-9.9 1.9,-1.3 1.7,-8.1 -1.7,-4.1 1,-10.4 2.8,-9.6 0.8,-17.5 -6.1,-4.4 -5.7,-1 -2.5,-3.4 -5.5,-3 -10,0.3 -0.6,-5.1 -9.3,1.9 -7,5.5 -1.7,4.8 -4.4,1 -10.9,11.4 -7,9 -4.1,0.3 -3.8,-1.6 -13.4,-1.5 4.2,11.1 2.3,2.4 3.5,8 13,15.2 5.1,1.5 -0.2,4.9 3.1,8.8 9.2,2.1 7.3,6.2 4.9,0.2 5.7,2.3 4.1,-1.6 6.3,1.3 z" />
       <path id="SO" data-name="Somalia" data-id="SO" d="m 832.6,372.8 -5.7,-5.8 -2.5,-5.7 -4.1,-2.6 -4.2,7.4 -2.5,4.9 4.8,7.7 4.6,6.6 4.8,5 40.3,16.4 10.3,-0.1 -33.5,41.5 -15.9,0.6 -10.7,9.8 -7.8,0.2 -3.3,4.4 -10.5,15.7 0.4,50.4 7.2,11.4 2.7,-3.3 2.9,-7.3 13.4,-16.7 11.4,-10.6 18.1,-13.7 12.1,-11.2 14.1,-18.9 10.1,-15.5 10,-20.2 7,-17.7 5.4,-15.5 2.9,-14.9 2.4,-5 -0.4,-7.3 0.8,-8 -0.5,-3.9 -4.6,0.1 -5.5,4.7 -6.4,1.4 -5.5,2.1 -3.9,0.2 0,0 -6.9,0.5 -4.2,2.6 -6,0.9 -10.5,4.3 -13.2,1.6 -11.3,3.5 -6.1,0 z" />
     </svg>
-  </div>
+</div>
 
-  <button id="admin-add" title="Yeni Örgüt Ekle">+</button>
+<button id="admin-add" title="Gelişmiş Admin Paneli">+</button>
 
-  <div id="main-controls">
-    <button class="control-btn" id="btn-list-all">Tüm Örgütler</button>
-  </div>
+<div id="main-controls">
+  <button class="control-btn" id="btn-all-groups">TÜM ÖRGÜTLER</button>
+</div>
 
-  <div id="sidebar">
-    <div class="sidebar-header">
-      <h2 id="side-title">Ülke Detayı</h2>
-      <button onclick="closeSidebar()" style="background:none; border:none; color:#fff; cursor:pointer;">✕</button>
-    </div>
-    <div class="list-area" id="side-list"></div>
+<div id="sidebar">
+  <div class="sidebar-header">
+    <h2 id="side-title">Filtreleme</h2>
+    <p id="side-subtitle" style="font-size: 13px; color: #666; margin-top: 5px;"></p>
   </div>
+  <div class="list-area" id="side-list"></div>
+  <button onclick="closeSidebar()" style="padding:15px; background:#f44; border:none; color:#fff; cursor:pointer; font-weight:bold;">KAPAT</button>
 </div>
 
 <div id="modal-overlay">
   <div id="modal-box">
-    <div class="modal-tabs">
+    <div class="modal-tabs" id="modal-tabs-nav">
       <button class="tab-btn active" data-tab="tab-temel">TEMEL</button>
       <button class="tab-btn" data-tab="tab-detay">DETAYLAR</button>
       <button class="tab-btn" data-tab="tab-eylem">EYLEMLER</button>
@@ -198,178 +189,206 @@
       <button class="tab-btn" data-tab="tab-liderlik">LİDERLİK</button>
     </div>
     
-    <div id="tab-temel" class="tab-content active">
-      <div class="detail-grid" id="modal-basic-info">
-        </div>
-    </div>
-    <div id="tab-detay" class="tab-content">
-      <h3>Geniş Detay Analizi</h3>
-      <p style="margin-top:15px; line-height:1.6; color:#ccc;" id="modal-detail-text"></p>
-    </div>
-    <div id="tab-eylem" class="tab-content"><h3>Eylem Geçmişi</h3><p>Veri bekleniyor...</p></div>
-    <div id="tab-finans" class="tab-content"><h3>Finansal Kaynaklar</h3><p>Veri bekleniyor...</p></div>
-    <div id="tab-liderlik" class="tab-content"><h3>Komuta Zinciri</h3><p>Veri bekleniyor...</p></div>
+    <div id="tab-temel" class="tab-content active"></div>
+    <div id="tab-detay" class="tab-content"></div>
+    <div id="tab-eylem" class="tab-content"></div>
+    <div id="tab-finans" class="tab-content"></div>
+    <div id="tab-liderlik" class="tab-content"></div>
 
-    <button onclick="closeModal()" style="position:absolute; top:10px; right:10px; background:none; border:none; color:#fff; cursor:pointer; font-size:20px;">✕</button>
+    <div id="tab-admin" class="tab-content" style="display:none;">
+      <h2 style="color:var(--primary-green); margin-bottom:20px;">Yeni İstihbarat Girişi</h2>
+      <div class="admin-form">
+        <div><label>Ülke Kodu (ISO)</label><input type="text" id="adm-iso" placeholder="Örn: DZ"></div>
+        <div><label>Örgüt Adı</label><input type="text" id="adm-name"></div>
+        <div><label>Kuruluş Yılı</label><input type="text" id="adm-year"></div>
+        <div><label>Durum</label>
+          <select id="adm-status"><option>Aktif</option><option>Pasif</option><option>Bilinmiyor</option></select>
+        </div>
+        <div class="full-width"><label>İlk Büyük Eylem</label><input type="text" id="adm-first"></div>
+        <div class="full-width"><label>Detaylı Analiz</label><textarea id="adm-detail" rows="3"></textarea></div>
+        <div class="full-width"><label>Finansal Kaynaklar</label><textarea id="adm-fin" rows="2"></textarea></div>
+        <div class="full-width"><label>Eylemler Listesi</label><textarea id="adm-act" rows="2"></textarea></div>
+        <div class="full-width"><label>Liderlik Yapısı</label><textarea id="adm-lead" rows="2"></textarea></div>
+        <button class="control-btn full-width" onclick="saveNewGroup()">VERİTABANINA KAYDET</button>
+      </div>
+    </div>
+
+    <button onclick="closeModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#fff; cursor:pointer; font-size:24px;">✕</button>
   </div>
 </div>
 
 <script>
-  // VERİ YAPISI (Örnek)
+  // VERİ TABANI
   let miltanData = {
-    "DZ": [
-      { id: 1, name: "AQIM", year: "2007", firstAction: "Algiers Bombing", status: "Aktif", detail: "Mağrip El-Kaidesi detaylı analizi..." },
-      { id: 2, name: "Jund al-Khilafah", year: "2014", firstAction: "Kidnapping", status: "Pasif", detail: "IŞİD bağlantılı grup..." }
-    ]
+    "DZ": [{ id: 1, name: "AQIM", year: "2007", firstAction: "Cezayir Patlamaları", status: "Aktif", detail: "Mağrip El-Kaidesi'nin ana kolu...", finance: "Kaçakçılık, fidye", actions: "2007 Bombalı saldırı, 2011 sınır baskını", leadership: "Ebu Ubeyde Yusuf el-Annabi" }],
+    "NG": [{ id: 2, name: "Boko Haram", year: "2002", firstAction: "Maiduguri Ayaklanması", status: "Aktif", detail: "Nijerya'nın kuzeyinde şeriat amaçlı grup...", finance: "Yağma, dış bağışlar", actions: "Chibok kızları kaçırılması", leadership: "Ebu Musab el-Barnawi" }]
   };
 
   const svgMap = document.getElementById('africa-map');
-  const tooltip = document.getElementById('tooltip');
-  const sidebar = document.getElementById('sidebar');
-  const modalOverlay = document.getElementById('modal-overlay');
-  const mapArea = document.getElementById('map-area');
+  const statsCountries = document.getElementById('count-countries');
+  const statsGroups = document.getElementById('count-groups');
   const adminBtn = document.getElementById('admin-add');
 
-  let selectedCountryId = null;
   let isAdminMode = false;
 
-  // 1 & 2 - HARİTA TIKLAMA VE RENK YÖNETİMİ
-  svgMap.addEventListener('click', (e) => {
-    const path = e.target.closest('path');
+  // 3- İSTATİSTİKLERİ GÜNCELLE
+  function updateStats() {
+    const countryCount = Object.keys(miltanData).length;
+    let groupCount = 0;
+    Object.values(miltanData).forEach(arr => groupCount += arr.length);
     
-    if (path) {
-      e.stopPropagation();
-      if(isAdminMode) {
-        openAdminPanel(path.id, path.getAttribute('data-name'));
-        return;
-      }
-      selectCountry(path.id);
-    } else {
-      // 3 - HARİTA DIŞINA TIKLANINCA SEÇİMİ KALDIR
-      clearSelection();
-    }
-  });
-
-  function selectCountry(id) {
-    clearSelection();
-    selectedCountryId = id;
-    const path = document.getElementById(id);
-    path.classList.add('selected-country');
-    openSidebar(id, path.getAttribute('data-name'));
+    statsCountries.textContent = countryCount;
+    statsGroups.textContent = groupCount;
   }
 
-  function clearSelection() {
-    selectedCountryId = null;
-    document.querySelectorAll('path').forEach(p => p.classList.remove('selected-country'));
-    closeSidebar();
-  }
-
-  // 5 - ESC BASINCA İPTAL
-  document.addEventListener('keydown', (e) => {
-    if (e.key === "Escape") {
-      clearSelection();
-      closeModal();
+  // 1- TÜM ÖRGÜTLER BUTONU FONKSİYONU
+  document.getElementById('btn-all-groups').onclick = () => {
+    const allGroups = [];
+    for(let code in miltanData) {
+      miltanData[code].forEach(g => allGroups.push({...g, countryCode: code}));
     }
-  });
-
-  // 6 - TOOLTIP ÖRGÜT ÖNİZLEME
-  svgMap.addEventListener('mousemove', (e) => {
-    const path = e.target.closest('path');
-    if (path) {
-      const id = path.id;
-      const name = path.getAttribute('data-name');
-      const groups = miltanData[id] || [];
-      
-      let groupHtml = groups.map(g => `<span class="tt-group-tag">${g.name}</span>`).join('');
-      if(groups.length === 0) groupHtml = '<div style="color:#666">Kayıt yok</div>';
-
-      tooltip.style.display = 'block';
-      tooltip.innerHTML = `<div class="tt-title">${name}</div>${groupHtml}`;
-      tooltip.style.left = e.clientX + 15 + 'px';
-      tooltip.style.top = e.clientY + 15 + 'px';
-    } else {
-      tooltip.style.display = 'none';
-    }
-  });
-
-  svgMap.addEventListener('mouseleave', () => tooltip.style.display = 'none');
-
-  // 7 - SIDEBAR VE MODAL PENCERELER
-  function openSidebar(id, name) {
+    
+    document.getElementById('side-title').textContent = "TÜM ÖRGÜTLER";
+    document.getElementById('side-subtitle').textContent = `Toplam ${allGroups.length} kayıt listeleniyor`;
+    
     const sideList = document.getElementById('side-list');
-    document.getElementById('side-title').textContent = name;
-    
-    const groups = miltanData[id] || [];
-    sideList.innerHTML = groups.map(g => `
-      <div class="group-item" onclick="openGroupModal('${id}', ${g.id})">
-        <strong>${g.name}</strong><br>
+    sideList.innerHTML = allGroups.sort((a,b) => a.name.localeCompare(b.name)).map(g => `
+      <div class="group-card" onclick="openGroupModal('${g.countryCode}', ${g.id})">
+        <strong>${g.name}</strong> <span style="font-size:10px; color:#666;">(${g.countryCode})</span><br>
         <small>${g.status} | Kurul: ${g.year}</small>
       </div>
     `).join('');
     
-    if(groups.length === 0) sideList.innerHTML = '<p>Bu ülkede kayıt bulunamadı.</p>';
-    sidebar.classList.add('active');
-  }
+    document.getElementById('sidebar').classList.add('active');
+  };
 
-  function closeSidebar() { sidebar.classList.remove('active'); }
-
-  function openGroupModal(countryId, groupId) {
-    const group = miltanData[countryId].find(g => g.id === groupId);
-    mapArea.classList.add('blur');
-    modalOverlay.style.display = 'flex';
-
-    document.getElementById('modal-basic-info').innerHTML = `
-      <div class="info-box"><div class="info-label">ÖRGÜT ADI</div><b>${group.name}</b></div>
-      <div class="info-box"><div class="info-label">KURULUŞ YILI</div><b>${group.year}</b></div>
-      <div class="info-box"><div class="info-label">İLK BÜYÜK EYLEM</div><b>${group.firstAction}</b></div>
-      <div class="info-box"><div class="info-label">DURUM</div><b style="color:${group.status === 'Aktif' ? '#4ade80':'#ff4444'}">${group.status}</b></div>
-    `;
-    document.getElementById('modal-detail-text').textContent = group.detail;
-  }
-
-  function closeModal() {
-    mapArea.classList.remove('blur');
-    modalOverlay.style.display = 'none';
-  }
-
-  // MODAL TAB SİSTEMİ
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(btn.dataset.tab).classList.add('active');
-    });
+  // HARİTA ETKİLEŞİMLERİ
+  svgMap.addEventListener('click', (e) => {
+    const path = e.target.closest('path');
+    if (path) {
+      e.stopPropagation();
+      document.querySelectorAll('path').forEach(p => p.classList.remove('selected-country'));
+      path.classList.add('selected-country');
+      openCountrySidebar(path.id, path.getAttribute('data-name'));
+    } else {
+      document.querySelectorAll('path').forEach(p => p.classList.remove('selected-country'));
+      closeSidebar();
+    }
   });
 
-  // 8 - ADMIN PANEL (YENİ ÖRGÜT EKLEME)
+  function openCountrySidebar(id, name) {
+    document.getElementById('side-title').textContent = name;
+    document.getElementById('side-subtitle').textContent = "Ülkedeki aktif/pasif oluşumlar";
+    const groups = miltanData[id] || [];
+    document.getElementById('side-list').innerHTML = groups.map(g => `
+      <div class="group-card" onclick="openGroupModal('${id}', ${g.id})">
+        <strong>${g.name}</strong><br>
+        <small>${g.status} | Kurul: ${g.year}</small>
+      </div>
+    `).join('') || '<p style="color:#666">Kayıt bulunamadı.</p>';
+    document.getElementById('sidebar').classList.add('active');
+  }
+
+  // 2- GENİŞ YETKİLİ ADMIN PANELİ
   adminBtn.onclick = () => {
     isAdminMode = !isAdminMode;
     adminBtn.classList.toggle('active');
-    alert(isAdminMode ? "Admin Modu Aktif: Örgüt eklemek istediğiniz ülkeye tıklayın." : "Admin Modu Kapalı.");
+    
+    if(isAdminMode) {
+      document.getElementById('modal-overlay').style.display = 'flex';
+      document.getElementById('modal-tabs-nav').style.display = 'none';
+      document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+      document.getElementById('tab-admin').style.display = 'block';
+    }
   };
 
-  function openAdminPanel(id, name) {
-    const orgName = prompt(`${name} için yeni örgüt adı:`);
-    if(!orgName) return;
-    const year = prompt("Kuruluş Yılı:");
-    const status = prompt("Durum (Aktif/Pasif):");
+  function saveNewGroup() {
+    const iso = document.getElementById('adm-iso').value.toUpperCase();
+    if(!iso) return alert("Ülke kodu şart!");
 
-    if(!miltanData[id]) miltanData[id] = [];
-    miltanData[id].push({
+    const newOrg = {
       id: Date.now(),
-      name: orgName,
-      year: year,
-      firstAction: "Belirtilmedi",
-      status: status,
-      detail: "Yeni eklenen örgüt açıklaması..."
-    });
+      name: document.getElementById('adm-name').value,
+      year: document.getElementById('adm-year').value,
+      status: document.getElementById('adm-status').value,
+      firstAction: document.getElementById('adm-first').value,
+      detail: document.getElementById('adm-detail').value,
+      finance: document.getElementById('adm-fin').value,
+      actions: document.getElementById('adm-act').value,
+      leadership: document.getElementById('adm-lead').value
+    };
+
+    if(!miltanData[iso]) miltanData[iso] = [];
+    miltanData[iso].push(newOrg);
     
-    alert("Örgüt eklendi! (Sayfa yenilenirse gider, kodun içindeki miltanData'ya kopyalayın)");
-    isAdminMode = false;
-    adminBtn.classList.remove('active');
-    selectCountry(id);
+    updateStats();
+    alert("İstihbarat başarıyla eklendi!");
+    closeModal();
+    // Formu temizle
+    document.querySelectorAll('.admin-form input, .admin-form textarea').forEach(i => i.value = "");
   }
 
+  // MODAL VE TAB YÖNETİMİ
+  function openGroupModal(countryId, groupId) {
+    const group = miltanData[countryId].find(g => g.id === groupId);
+    document.getElementById('map-area').classList.add('blur');
+    document.getElementById('modal-overlay').style.display = 'flex';
+    document.getElementById('modal-tabs-nav').style.display = 'flex';
+    document.getElementById('tab-admin').style.display = 'none';
+
+    // Sekme İçeriklerini Doldur
+    document.getElementById('tab-temel').innerHTML = `
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div style="background:#222; padding:20px; border-radius:10px;"><h3>${group.name}</h3><p>${group.status}</p></div>
+        <div style="background:#222; padding:20px; border-radius:10px;"><h3>${group.year}</h3><p>Kuruluş</p></div>
+        <div style="background:#222; padding:20px; border-radius:10px; grid-column:span 2;"><h3>İlk Eylem</h3><p>${group.firstAction}</p></div>
+      </div>
+    `;
+    document.getElementById('tab-detay').innerHTML = `<h3>Analiz</h3><p style="line-height:1.8; color:#ccc; margin-top:15px;">${group.detail}</p>`;
+    document.getElementById('tab-eylem').innerHTML = `<h3>Eylem Geçmişi</h3><p style="line-height:1.8;">${group.actions}</p>`;
+    document.getElementById('tab-finans').innerHTML = `<h3>Finansal Kaynaklar</h3><p style="line-height:1.8;">${group.finance}</p>`;
+    document.getElementById('tab-liderlik').innerHTML = `<h3>Komuta Zinciri</h3><p style="line-height:1.8;">${group.leadership}</p>`;
+
+    // İlk sekmeyi aç
+    document.querySelector('.tab-btn').click();
+  }
+
+  function closeModal() {
+    document.getElementById('map-area').classList.remove('blur');
+    document.getElementById('modal-overlay').style.display = 'none';
+    isAdminMode = false;
+    adminBtn.classList.remove('active');
+  }
+
+  function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); }
+
+  // ESC TUŞU
+  document.addEventListener('keydown', (e) => { if(e.key === "Escape") { closeModal(); closeSidebar(); } });
+
+  // TAB SWITCHER
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    };
+  });
+
+  // TOOLTIP (Önceki kodla aynı)
+  svgMap.addEventListener('mousemove', (e) => {
+    const path = e.target.closest('path');
+    const tt = document.getElementById('tooltip');
+    if(path) {
+      tt.style.display = 'block';
+      tt.style.left = e.clientX + 15 + 'px';
+      tt.style.top = e.clientY + 15 + 'px';
+      tt.innerHTML = `<strong>${path.getAttribute('data-name')}</strong><br><small>${(miltanData[path.id] || []).length} Örgüt</small>`;
+    } else { tt.style.display = 'none'; }
+  });
+
+  // Başlangıçta sayıları güncelle
+  updateStats();
 </script>
+
 </body>
 </html>

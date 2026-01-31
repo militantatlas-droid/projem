@@ -2,149 +2,487 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>MİLİTAN ATLASI | ADMİN V7</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MİLİTAN ATLASI | Admin Panel</title>
   <style>
-    :root { 
-      --bg-body: #0a0a0a; --bg-map: #141414; --accent: #3b82f6;
-      --sidebar-bg: #111; --text-main: #eee; --text-dim: #aaa;
-      --aktif: #10b981; --pasif: #ef4444; --bilinmiyor: #6b7280;
+    /* ─── GENEL TASARIM (DARK MODE / WRITER FEEL) ─── */
+    :root {
+      --bg-dark: #111;
+      --bg-panel: #1a1a1a;
+      --bg-input: #252525;
+      --accent: #4ade80; /* Yeşil ton */
+      --text-main: #eee;
+      --text-muted: #888;
+      --border: #333;
     }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; overflow: hidden; height: 100vh; }
-    #app { display: flex; flex-direction: column; height: 100vh; }
-    
-    /* HEADER */
-    #header { height: 60px; background: #000; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-    #stats-bar { background: #050505; padding: 10px 20px; display: flex; gap: 20px; font-size: 12px; border-bottom: 1px solid #222; }
-    .stat-box { display: flex; align-items: center; gap: 8px; }
-    .stat-box b { background: #222; padding: 2px 8px; border-radius: 4px; color: var(--accent); }
 
-    #main { display: flex; flex: 1; position: relative; overflow: hidden; }
-
-    /* SOL PANEL: FİLTRELEME */
-    #filter-panel { width: 280px; background: var(--sidebar-bg); border-right: 1px solid #222; display: flex; flex-direction: column; }
-    .filter-tabs { display: flex; background: #000; padding: 5px; gap: 2px; }
-    .f-tab { flex: 1; padding: 8px 2px; font-size: 10px; border: none; background: #1a1a1a; color: var(--text-dim); cursor: pointer; text-align: center; border-radius: 3px; }
-    .f-tab.active { background: var(--accent); color: white; }
-    #filter-results { flex: 1; overflow-y: auto; padding: 10px; }
-    .result-item { padding: 10px; border-bottom: 1px solid #222; font-size: 12px; cursor: pointer; border-radius: 4px; margin-bottom: 5px; }
-    .result-item:hover { background: #1a1a1a; }
-
-    /* HARİTA: Dengeli Boyut */
-    #map-container { flex: 1; background: var(--bg-map); display: flex; align-items: center; justify-content: center; padding: 30px; position: relative; }
-    svg { width: 100%; height: 100%; transition: 0.4s ease-in-out; max-width: 90%; max-height: 90%; }
-    path { fill: #fff; stroke: #333; stroke-width: 0.7; transition: 0.2s; cursor: pointer; vector-effect: non-scaling-stroke; }
-    path:hover { fill: #f0f0f0; stroke: var(--accent); stroke-width: 1.5; }
-    path.selected { fill: #dbeafe !important; stroke: var(--accent); stroke-width: 2; }
-
-    /* EDİTÖR PANELİ */
-    #editor-panel {
-      width: 500px; background: var(--sidebar-bg); border-left: 1px solid #333;
-      position: absolute; right: 0; top: 0; bottom: 0; z-index: 2000;
-      transform: translateX(100%); transition: 0.3s ease; display: flex; flex-direction: column;
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
     }
-    #editor-panel.active { transform: translateX(0); }
-    .panel-content { flex: 1; overflow-y: auto; padding: 25px; }
 
-    .field-label { font-size: 10px; font-weight: bold; color: var(--text-dim); margin: 15px 0 5px; display: block; text-transform: uppercase; }
-    .input-text { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; font-size: 14px; }
+    /* ─── SOL SIDEBAR (İSTATİSTİKLER & KONTROLLER) ─── */
+    #sidebar {
+      width: 280px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      z-index: 100;
+      box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+    }
+
+    .brand { font-size: 20px; font-weight: bold; color: var(--accent); margin-bottom: 20px; letter-spacing: 1px; }
     
-    .btn-group { display: flex; gap: 5px; margin-bottom: 10px; }
-    .btn-opt { flex: 1; padding: 8px; font-size: 11px; background: #1a1a1a; border: 1px solid #333; color: var(--text-dim); cursor: pointer; border-radius: 4px; }
-    .btn-opt.active { border-color: var(--accent); color: white; background: #1e293b; }
+    .stats-container {
+      background: #222;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+    .stat-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+    .stat-item span:first-child { color: var(--text-muted); }
+    .stat-item span:last-child { font-weight: bold; color: #fff; }
+    .stat-total { border-top: 1px solid #444; padding-top: 8px; margin-top: 8px; font-size: 15px; color: var(--accent); }
 
-    .tabs { display: flex; overflow-x: auto; gap: 5px; margin: 15px 0; border-bottom: 1px solid #222; padding-bottom: 8px; }
-    .tab-btn { background: #1a1a1a; color: var(--text-dim); border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; white-space: nowrap; }
-    .tab-btn.active { background: var(--accent); color: #fff; }
+    .action-btn {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #333;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .action-btn:hover { background: #444; }
+    .btn-primary { background: var(--accent); color: #000; border: none; }
+    .btn-primary:hover { background: #3ecf75; }
+    .btn-danger { background: #cf3e3e; color: #fff; border: none; }
 
-    .rich-editor { min-height: 300px; background: #050505; border: 1px solid #222; border-radius: 6px; padding: 15px; outline: none; line-height: 1.6; font-size: 14px; color: #ddd; }
-    .btn-main { background: var(--accent); color: #fff; border: none; padding: 15px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
-    #tooltip { position: absolute; pointer-events: none; background: #000; color: #fff; padding: 8px 12px; border-radius: 5px; display: none; z-index: 3000; border: 1px solid #444; font-size: 12px; }
+    /* ─── ORTA ALAN (HARİTA) ─── */
+    #map-container {
+      flex: 1;
+      position: relative;
+      background: #0f0f0f;
+      overflow: hidden;
+      cursor: grab;
+    }
+    #map-container:active { cursor: grabbing; }
+
+    /* SVG Stilleri */
+    svg path {
+      fill: #2a2a2a;
+      stroke: #000;
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+      transition: fill 0.2s;
+      cursor: pointer;
+    }
+    svg path:hover { fill: var(--accent); opacity: 0.6; }
+    svg path.active { fill: var(--accent) !important; stroke: #fff; stroke-width: 2; }
+    svg path.has-data { fill: #3a5a40; } /* Verisi olan ülkeler hafif yeşil */
+
+    /* Tooltip */
+    #tooltip {
+      position: absolute;
+      background: rgba(0,0,0,0.9);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      pointer-events: none;
+      display: none;
+      border: 1px solid #444;
+      z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    /* ─── MODAL (EDİTÖR) ─── */
+    .modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 2000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+    .modal.active { display: flex; }
+
+    /* Yazar Modu Editör Tasarımı */
+    .editor-panel {
+      width: 90%; max-width: 1100px;
+      height: 90vh;
+      background: var(--bg-panel);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      overflow: hidden;
+    }
+
+    .editor-header {
+      padding: 20px;
+      background: #222;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .editor-title { font-size: 18px; font-weight: bold; color: var(--accent); }
+
+    .editor-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Sol Liste (Ülkedeki Örgütler) */
+    .group-list-sidebar {
+      width: 250px;
+      background: #181818;
+      border-right: 1px solid var(--border);
+      padding: 15px;
+      overflow-y: auto;
+    }
+    .group-list-item {
+      padding: 12px;
+      background: #2a2a2a;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: 0.2s;
+    }
+    .group-list-item:hover { background: #333; }
+    .group-list-item.active { background: #2f2f2f; border-left-color: var(--accent); color: var(--accent); }
+    .add-new-btn {
+      width: 100%; padding: 10px; border: 1px dashed #555; background: transparent; color: #888;
+      cursor: pointer; border-radius: 6px; margin-bottom: 15px;
+    }
+    .add-new-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Sağ Form (Writer Alanı) */
+    .form-area {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+      background: var(--bg-dark);
+    }
+    
+    .form-row { display: flex; gap: 20px; margin-bottom: 20px; }
+    .form-group { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    label { font-size: 12px; color: #aaa; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    input, select, textarea {
+      background: var(--bg-input);
+      border: 1px solid #333;
+      color: #eee;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    
+    /* Blog Havası İçin Sekmeler */
+    .detail-tabs { display: flex; gap: 5px; border-bottom: 1px solid #333; margin-bottom: 20px; flex-wrap: wrap; }
+    .d-tab {
+      padding: 10px 15px;
+      background: #1a1a1a;
+      border: 1px solid transparent;
+      border-radius: 6px 6px 0 0;
+      color: #777;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .d-tab:hover { color: #ccc; }
+    .d-tab.active { background: var(--bg-dark); color: var(--accent); border-color: #333; border-bottom-color: var(--bg-dark); }
+
+    .tab-content-area textarea {
+      width: 100%;
+      height: 300px;
+      line-height: 1.6;
+      resize: vertical;
+      font-size: 15px; /* Okuma/Yazma kolaylığı */
+    }
+
+    .hidden { display: none; }
+    
+    /* Toast Mesajı */
+    #toast {
+      position: fixed; bottom: 20px; right: 20px;
+      background: var(--accent); color: #000;
+      padding: 12px 24px; border-radius: 6px; font-weight: bold;
+      transform: translateY(100px); transition: transform 0.3s;
+      z-index: 3000;
+    }
+    #toast.show { transform: translateY(0); }
+
   </style>
 </head>
-<body onload="init()">
+<body>
 
-<div id="app">
-  <div id="header">
-    <div style="font-weight: bold; letter-spacing: 1px;">MİLİTAN ATLASI <span style="color:var(--accent)">ADMIN V7</span></div>
-    <div>
-      <input type="file" id="load-file" style="display:none" onchange="handleFile(this)">
-      <button class="f-tab" style="display:inline-block; width:100px;" onclick="document.getElementById('load-file').click()">VERİ YÜKLE</button>
-      <button class="f-tab" style="display:inline-block; width:120px; background:var(--accent); color:white;" onclick="saveJSON()">TRDATA.JSON İNDİR</button>
+  <div id="sidebar">
+    <div class="brand">MİLİTAN ATLASI<br><span style="font-size:12px;color:#666;">YÖNETİM PANELİ</span></div>
+    
+    <div style="margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:20px;">
+      <label style="display:block; margin-bottom:5px;">1. Veri Yükle (trdata.json)</label>
+      <input type="file" id="file-input" accept=".json" style="display:none;" onchange="loadJsonFile(this)">
+      <button class="action-btn" onclick="document.getElementById('file-input').click()">📂 Mevcut JSON'u Yükle</button>
+      
+      <label style="display:block; margin:15px 0 5px;">2. Veri Kaydet</label>
+      <button class="action-btn btn-primary" onclick="downloadJson()">💾 Güncel JSON İndir</button>
+    </div>
+
+    <div class="stats-container">
+      <div style="font-size:12px; color:#aaa; margin-bottom:10px; border-bottom:1px solid #444; padding-bottom:5px;">GENEL DURUM</div>
+      <div class="stat-item"><span>Cihatçı:</span> <span id="stat-cihat">0</span></div>
+      <div class="stat-item"><span>Ayrılıkçı:</span> <span id="stat-ayrilik">0</span></div>
+      <div class="stat-item"><span>Diğer:</span> <span id="stat-diger">0</span></div>
+      <div class="stat-item stat-total"><span>TOPLAM:</span> <span id="stat-total">0</span></div>
+    </div>
+
+    <div style="font-size:11px; color:#555; margin-top:auto;">
+      Haritada ülkeye tıkla -> Örgüt ekle/düzenle -> JSON İndir -> Projeye at.
     </div>
   </div>
 
-  <div id="stats-bar">
-    <div class="stat-box">Toplam: <b id="st-total">0</b></div>
-    <div class="stat-box">Cihatçı: <b id="st-cihat">0</b></div>
-    <div class="stat-box">Ayrılıkçı: <b id="st-ayri">0</b></div>
-    <div class="stat-box">Diğer: <b id="st-diger">0</b></div>
+  <div id="map-container">
+    <div style="position:absolute; top:20px; right:20px; z-index:10; background:rgba(0,0,0,0.5); padding:10px; border-radius:8px;">
+        <button class="action-btn" onclick="resetZoom()" style="width:40px; margin:0;">⟲</button>
+    </div>
+    
+    <svg id="svg-map" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
+        <g id="map-transform-group">
+            <path id="TR" data-name="Turkey" d="M 622.7,117.8 ... (BUNU KENDİ DOSYANDAN ALACAKSIN)" /> 
+               </g>
+    </svg>
+    <div id="tooltip"></div>
   </div>
 
-  <div id="main">
-    <div id="filter-panel">
-      <div class="filter-tabs">
-        <button class="f-tab active" onclick="setFilter('Tümü', this)">Tümü</button>
-        <button class="f-tab" onclick="setFilter('Cihatçı', this)">Cihatçı</button>
-        <button class="f-tab" onclick="setFilter('Ayrılıkçı', this)">Ayrılıkçı</button>
-        <button class="f-tab" onclick="setFilter('Diğer', this)">Diğer</button>
-      </div>
-      <div id="filter-results"></div>
-    </div>
-
-    <div id="map-container" onclick="closePanel()">
-      <div id="tooltip"></div>
-      <svg id="svg-map" viewBox="0 0 1000 500"><g id="paths-container"></g></svg>
-    </div>
-
-    <div id="editor-panel" onclick="event.stopPropagation()">
-      <div class="panel-content">
-        <label class="field-label">Ülke Tanımı</label>
-        <input type="text" id="country-name-input" class="input-text" placeholder="Ülke İsmi" oninput="updateCountryName()">
-        
-        <div id="group-pills" style="margin-top:15px; display:flex; flex-wrap:wrap; gap:5px;"></div>
-        <button class="btn-main" style="background:#222; color:#aaa; margin:15px 0;" onclick="addGroup()">+ Yeni Örgüt Ekle</button>
-        
-        <div id="edit-form" style="display:none; border-top: 1px solid #333; padding-top:10px;">
-           <label class="field-label">Örgüt İsmi</label>
-           <input type="text" id="org-name" class="input-text">
-           
-           <label class="field-label">Kategori</label>
-           <div class="btn-group" id="cat-group">
-             <button class="btn-opt" onclick="setCat('Cihatçı')">Cihatçı</button>
-             <button class="btn-opt" onclick="setCat('Ayrılıkçı')">Ayrılıkçı</button>
-             <button class="btn-opt" onclick="setCat('Diğer')">Diğer</button>
-           </div>
-
-           <label class="field-label">Durum</label>
-           <div class="btn-group" id="stat-group">
-             <button class="btn-opt" onclick="setStat('Aktif')">Aktif</button>
-             <button class="btn-opt" onclick="setStat('Pasif')">Pasif</button>
-             <button class="btn-opt" onclick="setStat('Bilinmiyor')">Bilinmiyor</button>
-           </div>
-
-           <div class="tabs" id="tab-bar"></div>
-           <div id="editor" class="rich-editor" contenteditable="true"></div>
-           
-           <button class="btn-main" onclick="applyChanges()">BİLGİLERİ HAFIZAYA KAYDET</button>
-           <button style="background:none; border:none; color:var(--pasif); cursor:pointer; margin-top:15px; width:100%; font-size:11px;" onclick="deleteOrg()">Örgütü Tamamen Sil</button>
+  <div id="country-modal" class="modal">
+    <div class="editor-panel">
+      <div class="editor-header">
+        <div>
+          <h2 id="modal-country-name" class="editor-title">Ülke Adı</h2>
+          <small style="color:#666;">Bu ülkedeki örgütleri yönetiyorsunuz</small>
+        </div>
+        <div>
+            <button class="action-btn" onclick="closeModal()">Kapat [ESC]</button>
         </div>
       </div>
+
+      <div class="editor-body">
+        <div class="group-list-sidebar">
+            <button class="add-new-btn" onclick="createNewGroup()">+ YENİ ÖRGÜT EKLE</button>
+            <div id="group-list-container">
+                </div>
+        </div>
+
+        <div class="form-area" id="editor-form-area" style="display:none;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Örgüt Adı</label>
+                    <input type="text" id="inp-name" placeholder="Örn: X Örgütü">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="inp-category">
+                        <option value="Cihatçı">Cihatçı</option>
+                        <option value="Ayrılıkçı">Ayrılıkçı</option>
+                        <option value="Diğer">Diğer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Durum</label>
+                    <select id="inp-status">
+                        <option value="Aktif">Aktif</option>
+                        <option value="Pasif">Pasif</option>
+                        <option value="Bilinmiyor">Bilinmiyor</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="detail-tabs">
+                <div class="d-tab active" onclick="switchTab('olusum')">Oluşumu</div>
+                <div class="d-tab" onclick="switchTab('amac')">Amaç</div>
+                <div class="d-tab" onclick="switchTab('yonetim')">Yönetim</div>
+                <div class="d-tab" onclick="switchTab('metot')">Taktikler</div>
+                <div class="d-tab" onclick="switchTab('eylem')">Eylemler</div>
+                <div class="d-tab" onclick="switchTab('finans')">Finans</div>
+                <div class="d-tab" onclick="switchTab('iliski')">İlişkiler</div>
+                <div class="d-tab" onclick="switchTab('diger')">Diğer</div>
+                <div class="d-tab" onclick="switchTab('kaynak')">Kaynakça</div>
+            </div>
+
+            <div class="tab-content-area">
+                <textarea id="txt-olusum" class="tab-pane" placeholder="Örgütün oluşum süreci..."></textarea>
+                <textarea id="txt-amac" class="tab-pane hidden" placeholder="Nihai hedef ve ideoloji..."></textarea>
+                <textarea id="txt-yonetim" class="tab-pane hidden" placeholder="Lider kadrosu ve yapılanma..."></textarea>
+                <textarea id="txt-metot" class="tab-pane hidden" placeholder="Kullandıkları eylem metotları..."></textarea>
+                <textarea id="txt-eylem" class="tab-pane hidden" placeholder="Gerçekleştirdikleri önemli eylemler..."></textarea>
+                <textarea id="txt-finans" class="tab-pane hidden" placeholder="Gelir kaynakları..."></textarea>
+                <textarea id="txt-iliski" class="tab-pane hidden" placeholder="Devletler veya diğer gruplarla ilişkiler..."></textarea>
+                <textarea id="txt-diger" class="tab-pane hidden" placeholder="Ekstra bilgiler..."></textarea>
+                <textarea id="txt-kaynak" class="tab-pane hidden" placeholder="Kullanılan kaynaklar..."></textarea>
+            </div>
+
+            <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+                <button class="action-btn btn-danger" onclick="deleteCurrentGroup()" style="width:auto;">Sil</button>
+                <button class="action-btn btn-primary" onclick="saveCurrentGroup()" style="width:auto; padding-left:30px; padding-right:30px;">KAYDET</button>
+            </div>
+
+        </div>
+        
+        <div id="empty-state" style="flex:1; display:flex; align-items:center; justify-content:center; color:#555; flex-direction:column;">
+            <div style="font-size:40px; margin-bottom:10px;">✎</div>
+            <div>Soldan bir örgüt seçin veya yeni oluşturun.</div>
+        </div>
+
+      </div>
     </div>
   </div>
-</div>
+
+  <div id="toast">Kaydedildi!</div>
 
 <script>
-let data = {};
-let curC = null, curG = null, curT = 0, currentFilter = 'Tümü';
+    // ──────────────────────────────────────────────
+    // VERİ YÖNETİMİ
+    // ──────────────────────────────────────────────
+    let mainData = {}; // Tüm JSON verisi burada tutulur
+    let currentCountryId = null;
+    let currentGroupIndex = -1; // -1: Yeni Kayıt
 
-const keys = ["olusum_sureci", "nihai_hedef", "yonetim_yapisi", "eylem_metotlari", "eylemler", "finansman_kaynaklari", "grup_iliskileri", "diger_bilgiler", "kaynakca"];
-const labels = ["Oluşum", "Hedef", "Yönetim", "Metot", "Eylemler", "Finans", "İlişkiler", "Bilgi", "Kaynak"];
+    // Başlangıçta boş bir obje veya localden çekebilirdik ama 
+    // kullanıcı yüklesin istiyoruz.
+    
+    function loadJsonFile(input) {
+        const file = input.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                mainData = JSON.parse(e.target.result);
+                updateStats();
+                highlightCountriesWithData();
+                showToast("JSON Başarıyla Yüklendi!");
+            } catch (err) {
+                alert("Dosya okunamadı veya JSON formatı hatalı!");
+                console.error(err);
+            }
+        };
+        reader.readAsText(file);
+    }
 
-function init() {
-    const container = document.getElementById('paths-container');
-    // PATH Verilerinizi buraya yapıştırın. Örn: <path id="TR" d="..." />
-    container.innerHTML = `
- <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
+    function downloadJson() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(mainData, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "trdata.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+        showToast("JSON İndirildi!");
+    }
+
+    function updateStats() {
+        let counts = { cihat: 0, ayrilik: 0, diger: 0, total: 0 };
+        
+        Object.values(mainData).forEach(country => {
+            if(country.groups) {
+                country.groups.forEach(g => {
+                    counts.total++;
+                    if(g.kategori === 'Cihatçı') counts.cihat++;
+                    else if(g.kategori === 'Ayrılıkçı') counts.ayrilik++;
+                    else counts.diger++;
+                });
+            }
+        });
+
+        document.getElementById('stat-cihat').textContent = counts.cihat;
+        document.getElementById('stat-ayrilik').textContent = counts.ayrilik;
+        document.getElementById('stat-diger').textContent = counts.diger;
+        document.getElementById('stat-total').textContent = counts.total;
+    }
+
+    function highlightCountriesWithData() {
+        document.querySelectorAll('svg path').forEach(path => {
+            path.classList.remove('has-data');
+            if(mainData[path.id] && mainData[path.id].groups && mainData[path.id].groups.length > 0) {
+                path.classList.add('has-data');
+            }
+        });
+    }
+
+    // ──────────────────────────────────────────────
+    // HARİTA MANTIĞI (PAN & ZOOM)
+    // ──────────────────────────────────────────────
+    const mapContainer = document.getElementById('map-container');
+    const transformGroup = document.getElementById('map-transform-group');
+    const tooltip = document.getElementById('tooltip');
+    
+    let scale = 1, pX = 0, pY = 0, isPanning = false, startX = 0, startY = 0;
+
+    mapContainer.addEventListener('mousedown', e => {
+        if(e.button !== 0) return;
+        isPanning = true;
+        startX = e.clientX - pX;
+        startY = e.clientY - pY;
+        mapContainer.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mousemove', e => {
+        if(!isPanning) return;
+        e.preventDefault();
+        pX = e.clientX - startX;
+        pY = e.clientY - startY;
+        updateTransform();
+    });
+
+    window.addEventListener('mouseup', () => { isPanning = false; mapContainer.style.cursor = 'grab'; });
+
+    mapContainer.addEventListener('wheel', e => {
+        e.preventDefault();
+        const xs = (e.clientX - pX) / scale;
+        const ys = (e.clientY - pY) / scale;
+        const delta = -e.deltaY;
+        const factor = delta > 0 ? 1.1 : 0.9;
+        let newScale = scale * factor;
+        if(newScale < 0.5) newScale = 0.5;
+        if(newScale > 15) newScale = 15; // Admin detay için yüksek zoom
+        pX = e.clientX - xs * newScale;
+        pY = e.clientY - ys * newScale;
+        scale = newScale;
+        updateTransform();
+    });
+
+    function updateTransform() {
+        transformGroup.style.transform = `translate(${pX}px, ${pY}px) scale(${scale})`;
+    }
+    
+    function resetZoom() {
+        scale = 1; pX = 0; pY = 0;
+        updateTransform();
+    }
+
+    // Harita Etkileşimi (Click & Hover)
+    // ÖNEMLİ: index.html'deki pathlerin buraya kopyalanması gerekiyor.
+   <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
       <path id="BI" data-name="Burundi" data-id="BI" d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
       <path id="BJ" data-name="Benin" data-id="BJ" d="m 340,356 -9.3,-8 -4.3,0.1 -4.1,4 -2.6,4.2 -6,1.2 -2.5,6.1 -4.1,1.6 -1.6,7.2 3.7,4.1 4.3,4.9 0.4,6.8 2.5,2.8 -0.5,31.8 3,9.5 10.1,-1.6 0.6,-22.3 -0.3,-8.8 2.3,-8.7 3.7,-4.3 5.9,-8.5 -1.3,-3.7 2.4,-5.6 -2.8,-8.2 0.5,-4.6 z" />
       <path id="BF" data-name="Burkina Faso" data-id="BF" d="m 300.7,310.8 -7.8,0 -3,-2.6 -6.7,1.9 -11.3,5.8 -2.3,4.3 -9.4,6.2 -1.7,3.6 -5.1,2.8 -5.8,-1.9 -3.4,3.4 -1.8,9.5 -9.7,11.4 0.3,4.7 -3.4,5.9 0.8,8 5.5,3 2.1,4.6 5.4,2.9 4.3,-3.4 5.7,-0.6 8.3,3.6 -1.6,-10.4 0.3,-7.9 21.1,-0.6 5.4,1 3.9,-2.2 5.6,1.1 10.7,0.3 4.1,-1.6 2.5,-6.1 6,-1.2 2.6,-4.2 0.3,-9.5 -14,-3.1 -0.4,-6.7 -6.9,-9 -1.6,-6.3 1,-6.7 z" />
@@ -194,179 +532,211 @@ function init() {
       <path id="ZM" data-name="Zambia" data-id="ZM" d="m 671.3,636 -4.1,-1.1 0.7,-3 -2.1,-0.6 -16.4,2.3 -3.3,1.7 -3.6,8.8 2.6,6.1 -2.5,16.4 -1.9,13.9 3.2,2.4 8.4,5.4 3.4,-2.5 0.6,14.9 -9.3,-0.1 -4.8,-7.6 -4.3,-5.9 -9.2,-1.9 -2.6,-7.3 -7.5,4.4 -9.7,-2 -3.9,-6.2 -7.7,-1.3 -5.7,0.3 -0.6,-4.3 -4.2,-0.3 1.2,4.3 -1.5,6.7 2,6.5 -2,5.2 1,4.7 -25.3,-0.1 -1.6,44 7.8,11.3 7.6,8.6 9.9,-3.1 7.8,0.8 4.7,3.1 0,1.2 2.2,1 13.4,1.5 3.8,1.6 4.1,-0.3 7,-9 10.9,-11.4 4.4,-1 1.7,-4.8 7,-5.5 9.3,-1.9 -0.8,-9.9 37.1,-11.4 -6.2,-3.6 4.1,-12.8 4,-4.8 -2,-11.5 2.7,-11.2 2.2,-3.8 -2.8,-11.7 -5.6,-6.2 -6.8,-4.1 -7.7,-2.4 -4.8,-2.3 -0.6,-0.4 0,0 0.9,2.3 -2,0.8 -2.6,-2.9 z" />
       <path id="ZW" data-name="Zimbabwe" data-id="ZW" d="m 669.1,825.1 13.4,-15.7 3.6,-9.9 1.9,-1.3 1.7,-8.1 -1.7,-4.1 1,-10.4 2.8,-9.6 0.8,-17.5 -6.1,-4.4 -5.7,-1 -2.5,-3.4 -5.5,-3 -10,0.3 -0.6,-5.1 -9.3,1.9 -7,5.5 -1.7,4.8 -4.4,1 -10.9,11.4 -7,9 -4.1,0.3 -3.8,-1.6 -13.4,-1.5 4.2,11.1 2.3,2.4 3.5,8 13,15.2 5.1,1.5 -0.2,4.9 3.1,8.8 9.2,2.1 7.3,6.2 4.9,0.2 5.7,2.3 4.1,-1.6 6.3,1.3 z" />
       <path id="SO" data-name="Somalia" data-id="SO" d="m 832.6,372.8 -5.7,-5.8 -2.5,-5.7 -4.1,-2.6 -4.2,7.4 -2.5,4.9 4.8,7.7 4.6,6.6 4.8,5 40.3,16.4 10.3,-0.1 -33.5,41.5 -15.9,0.6 -10.7,9.8 -7.8,0.2 -3.3,4.4 -10.5,15.7 0.4,50.4 7.2,11.4 2.7,-3.3 2.9,-7.3 13.4,-16.7 11.4,-10.6 18.1,-13.7 12.1,-11.2 14.1,-18.9 10.1,-15.5 10,-20.2 7,-17.7 5.4,-15.5 2.9,-14.9 2.4,-5 -0.4,-7.3 0.8,-8 -0.5,-3.9 -4.6,0.1 -5.5,4.7 -6.4,1.4 -5.5,2.1 -3.9,0.2 0,0 -6.9,0.5 -4.2,2.6 -6,0.9 -10.5,4.3 -13.2,1.6 -11.3,3.5 -6.1,0 z" />
-    </svg>    `; 
+    </svg>
+    // Sayfa yüklendiğinde çalışacak:
+    document.addEventListener('DOMContentLoaded', () => {
+        // Eğer kullanıcı henüz pathleri yapıştırmadıysa konsola uyarı verelim
+        const paths = document.querySelectorAll('svg path');
+        if(paths.length < 5) {
+           // Demo için geçici path koymuyorum, kullanıcı yapıştıracak.
+           console.warn("Lütfen admin.html içindeki SVG alanına path verilerini yapıştırın.");
+        }
 
-    document.querySelectorAll('path').forEach(p => {
-        p.onclick = (e) => { e.stopPropagation(); openCountry(p.id); };
-        p.onmouseenter = (e) => showTip(e, p.id);
-        p.onmousemove = moveTip;
-        p.onmouseleave = hideTip;
-    });
+        paths.forEach(path => {
+            // Hover Tooltip
+            path.addEventListener('mouseover', e => {
+                const id = path.id;
+                const name = path.getAttribute('data-name');
+                let info = `<strong>${name}</strong>`;
+                
+                if(mainData[id] && mainData[id].groups) {
+                    info += `<br><span style="color:#4ade80">${mainData[id].groups.length} Grup Kayıtlı</span>`;
+                } else {
+                    info += `<br><span style="color:#888">Kayıt Yok</span>`;
+                }
 
-    labels.forEach((l, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'tab-btn' + (i===0?' active':'');
-        btn.innerText = l;
-        btn.onclick = () => {
-            if(curG !== null) data[curC].groups[curG][keys[curT]] = document.getElementById('editor').innerHTML;
-            curT = i; updateTabs();
-        };
-        document.getElementById('tab-bar').appendChild(btn);
-    });
-}
+                tooltip.innerHTML = info;
+                tooltip.style.display = 'block';
+            });
 
-function openCountry(id) {
-    curC = id; curG = null;
-    document.querySelectorAll('path').forEach(p => p.classList.remove('selected'));
-    const path = document.getElementById(id);
-    if(path) { path.classList.add('selected'); zoomToPath(path); }
-    
-    if(!data[id]) data[id] = { name_tr: id, groups: [] };
-    document.getElementById('country-name-input').value = data[id].name_tr;
-    document.getElementById('editor-panel').classList.add('active');
-    document.getElementById('edit-form').style.display = 'none';
-    renderPills();
-}
+            path.addEventListener('mousemove', e => {
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY + 15) + 'px';
+            });
 
-function zoomToPath(path) {
-    const svg = document.getElementById('svg-map');
-    const b = path.getBBox();
-    const pad = 20; 
-    svg.setAttribute("viewBox", `${b.x - pad} ${b.y - pad} ${b.width + pad*2} ${b.height + pad*2}`);
-}
+            path.addEventListener('mouseout', () => tooltip.style.display = 'none');
 
-function setFilter(cat, el) {
-    document.querySelectorAll('.f-tab').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    currentFilter = cat;
-    renderFilterResults();
-}
-
-function renderFilterResults() {
-    const res = document.getElementById('filter-results'); res.innerHTML = "";
-    Object.keys(data).forEach(cid => {
-        data[cid].groups.forEach((g, idx) => {
-            if(currentFilter === 'Tümü' || g.kategori === currentFilter) {
-                const d = document.createElement('div'); d.className = 'result-item';
-                d.innerHTML = `<b>${g.name_tr}</b><br><small style="color:var(--text-dim)">${data[cid].name_tr} (${g.durum || '?'})</small>`;
-                d.onclick = () => { openCountry(cid); loadGroup(idx); };
-                res.appendChild(d);
-            }
+            // Click -> Open Editor
+            path.addEventListener('click', (e) => {
+                // Sürükleme yapıyorsa tıklama sayma
+                if(Math.abs(e.movementX) > 2 || Math.abs(e.movementY) > 2) return; 
+                openCountryModal(path.id, path.getAttribute('data-name'));
+            });
         });
     });
-}
 
-function loadGroup(idx) {
-    curG = idx;
-    const g = data[curC].groups[curG];
-    document.getElementById('edit-form').style.display = 'block';
-    document.getElementById('org-name').value = g.name_tr;
-    setCat(g.kategori || 'Diğer');
-    setStat(g.durum || 'Bilinmiyor');
-    curT = 0; 
-    updateTabs();
-    renderPills();
-}
-
-function setCat(v) {
-    document.querySelectorAll('#cat-group .btn-opt').forEach(b => b.classList.toggle('active', b.innerText === v));
-}
-function setStat(v) {
-    document.querySelectorAll('#stat-group .btn-opt').forEach(b => b.classList.toggle('active', b.innerText === v));
-}
-
-function applyChanges() {
-    if(!curC || curG === null) return;
-    const g = data[curC].groups[curG];
-    g.name_tr = document.getElementById('org-name').value;
-    g.kategori = document.querySelector('#cat-group .btn-opt.active').innerText;
-    g.durum = document.querySelector('#stat-group .btn-opt.active').innerText;
-    g[keys[curT]] = document.getElementById('editor').innerHTML;
+    // ──────────────────────────────────────────────
+    // EDİTÖR / UI MANTIĞI
+    // ──────────────────────────────────────────────
+    const modal = document.getElementById('country-modal');
     
-    updateStats();
-    renderFilterResults();
-    renderPills();
-    alert("Hafızaya alındı!");
-}
+    function openCountryModal(id, name) {
+        currentCountryId = id;
+        document.getElementById('modal-country-name').textContent = mainData[id]?.name_tr || name;
+        
+        // Ülke kaydı yoksa oluştur
+        if(!mainData[id]) {
+            mainData[id] = {
+                name_tr: name,
+                groups: []
+            };
+        }
 
-function updateTabs() {
-    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === curT));
-    document.getElementById('editor').innerHTML = data[curC].groups[curG][keys[curT]] || "";
-}
-
-function addGroup() {
-    if(!data[curC]) data[curC] = { name_tr: curC, groups: [] };
-    const g = { name_tr: "Yeni Örgüt", kategori: "Diğer", durum: "Bilinmiyor" };
-    keys.forEach(k => g[k] = "");
-    data[curC].groups.push(g);
-    loadGroup(data[curC].groups.length - 1);
-}
-
-function updateCountryName() { if(curC) data[curC].name_tr = document.getElementById('country-name-input').value; }
-
-function saveJSON() {
-    if(curC && curG !== null) data[curC].groups[curG][keys[curT]] = document.getElementById('editor').innerHTML;
-    const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = "trdata.json"; a.click();
-}
-
-function handleFile(input) {
-    const reader = new FileReader();
-    reader.onload = () => { data = JSON.parse(reader.result); updateStats(); renderFilterResults(); alert("JSON Yüklendi!"); };
-    reader.readAsText(input.files[0]);
-}
-
-function updateStats() {
-    let s = { total: 0, cihat: 0, ayri: 0, diger: 0 };
-    Object.values(data).forEach(c => {
-        c.groups.forEach(g => {
-            s.total++;
-            if(g.kategori === 'Cihatçı') s.cihat++;
-            else if(g.kategori === 'Ayrılıkçı') s.ayri++;
-            else s.diger++;
-        });
-    });
-    document.getElementById('st-total').innerText = s.total;
-    document.getElementById('st-cihat').innerText = s.cihat;
-    document.getElementById('st-ayri').innerText = s.ayri;
-    document.getElementById('st-diger').innerText = s.diger;
-}
-
-function renderPills() {
-    const box = document.getElementById('group-pills'); box.innerHTML = "";
-    if(!data[curC]) return;
-    data[curC].groups.forEach((g, i) => {
-        const p = document.createElement('div');
-        p.style = `padding:6px 10px; background:${curG===i?'var(--accent)':'#222'}; color:white; border-radius:4px; font-size:11px; cursor:pointer;`;
-        p.innerText = g.name_tr;
-        p.onclick = () => loadGroup(i);
-        box.appendChild(p);
-    });
-}
-
-function showTip(e, id) {
-    const tip = document.getElementById('tooltip');
-    tip.innerHTML = `<strong>${data[id] ? data[id].name_tr : id}</strong>`;
-    tip.style.display = 'block';
-}
-function moveTip(e) { 
-    const t = document.getElementById('tooltip'); 
-    t.style.left = (e.pageX + 15) + 'px'; t.style.top = (e.pageY + 15) + 'px'; 
-}
-function hideTip() { document.getElementById('tooltip').style.display = 'none'; }
-function closePanel() { 
-    document.getElementById('editor-panel').classList.remove('active'); 
-    document.getElementById('svg-map').setAttribute("viewBox", "0 0 1000 500");
-}
-function deleteOrg() {
-    if(confirm("Bu örgütü silmek istediğinize emin misiniz?")) {
-        data[curC].groups.splice(curG, 1);
-        curG = null;
-        document.getElementById('edit-form').style.display = 'none';
-        renderPills(); updateStats(); renderFilterResults();
+        renderGroupList();
+        document.getElementById('editor-form-area').style.display = 'none';
+        document.getElementById('empty-state').style.display = 'flex';
+        modal.classList.add('active');
     }
-}
+
+    function closeModal() {
+        modal.classList.remove('active');
+        highlightCountriesWithData();
+    }
+
+    // ESC Tuşu ile kapatma
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+    function renderGroupList() {
+        const list = document.getElementById('group-list-container');
+        list.innerHTML = '';
+        const groups = mainData[currentCountryId].groups;
+        
+        groups.forEach((g, idx) => {
+            const div = document.createElement('div');
+            div.className = 'group-list-item';
+            div.innerHTML = `<strong>${g.name_tr}</strong><br><small style="color:#888">${g.kategori}</small>`;
+            div.onclick = () => loadGroupToEditor(idx);
+            if(idx === currentGroupIndex) div.classList.add('active');
+            list.appendChild(div);
+        });
+    }
+
+    function createNewGroup() {
+        currentGroupIndex = -1; // Yeni kayıt işareti
+        clearForm();
+        
+        // UI Güncelleme
+        document.getElementById('empty-state').style.display = 'none';
+        document.getElementById('editor-form-area').style.display = 'block';
+        document.querySelectorAll('.group-list-item').forEach(el => el.classList.remove('active'));
+        
+        // İlk sekmeye dön
+        switchTab('olusum');
+    }
+
+    function loadGroupToEditor(idx) {
+        currentGroupIndex = idx;
+        const g = mainData[currentCountryId].groups[idx];
+        const d = g.details || {};
+
+        document.getElementById('inp-name').value = g.name_tr;
+        document.getElementById('inp-category').value = g.kategori;
+        document.getElementById('inp-status').value = g.grup_durumu || 'Bilinmiyor';
+
+        document.getElementById('txt-olusum').value = d.olusum_sureci || '';
+        document.getElementById('txt-amac').value = d.nihai_hedef || '';
+        document.getElementById('txt-yonetim').value = d.yonetim_yapisi || '';
+        document.getElementById('txt-metot').value = d.eylem_metotlari || '';
+        document.getElementById('txt-eylem').value = d.onemli_eylemler || '';
+        document.getElementById('txt-finans').value = d.finansman_kaynaklari || '';
+        document.getElementById('txt-iliski').value = d.grup_iliskileri || '';
+        document.getElementById('txt-diger').value = d.diger_bilgiler || '';
+        document.getElementById('txt-kaynak').value = d.kaynakca || '';
+
+        // UI Güncelleme
+        document.getElementById('empty-state').style.display = 'none';
+        document.getElementById('editor-form-area').style.display = 'block';
+        renderGroupList(); // Aktif sınıfını güncellemek için tekrar render edebiliriz veya manuel class ekleyebiliriz
+        
+        // Liste itemini active yap
+        const listItems = document.querySelectorAll('.group-list-item');
+        if(listItems[idx]) listItems[idx].classList.add('active');
+
+        switchTab('olusum');
+    }
+
+    function saveCurrentGroup() {
+        const name = document.getElementById('inp-name').value.trim();
+        if(!name) { alert("Lütfen örgüt adı girin."); return; }
+
+        const groupObj = {
+            name_tr: name,
+            kategori: document.getElementById('inp-category').value,
+            grup_durumu: document.getElementById('inp-status').value,
+            details: {
+                olusum_sureci: document.getElementById('txt-olusum').value,
+                nihai_hedef: document.getElementById('txt-amac').value,
+                yonetim_yapisi: document.getElementById('txt-yonetim').value,
+                eylem_metotlari: document.getElementById('txt-metot').value,
+                onemli_eylemler: document.getElementById('txt-eylem').value,
+                finansman_kaynaklari: document.getElementById('txt-finans').value,
+                grup_iliskileri: document.getElementById('txt-iliski').value,
+                diger_bilgiler: document.getElementById('txt-diger').value,
+                kaynakca: document.getElementById('txt-kaynak').value
+            }
+        };
+
+        if(currentGroupIndex === -1) {
+            // Yeni Ekle
+            mainData[currentCountryId].groups.push(groupObj);
+            currentGroupIndex = mainData[currentCountryId].groups.length - 1;
+        } else {
+            // Güncelle
+            mainData[currentCountryId].groups[currentGroupIndex] = groupObj;
+        }
+
+        renderGroupList();
+        updateStats();
+        showToast("Kayıt Başarılı!");
+    }
+
+    function deleteCurrentGroup() {
+        if(currentGroupIndex === -1) return;
+        if(confirm("Bu örgütü silmek istediğinize emin misiniz?")) {
+            mainData[currentCountryId].groups.splice(currentGroupIndex, 1);
+            renderGroupList();
+            updateStats();
+            document.getElementById('editor-form-area').style.display = 'none';
+            document.getElementById('empty-state').style.display = 'flex';
+            currentGroupIndex = -1;
+            showToast("Örgüt Silindi.");
+        }
+    }
+
+    function clearForm() {
+        document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+        document.getElementById('inp-category').selectedIndex = 0;
+        document.getElementById('inp-status').selectedIndex = 0;
+    }
+
+    // Sekme Değiştirme
+    function switchTab(tabName) {
+        // Tab Butonları
+        document.querySelectorAll('.d-tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.d-tab[onclick*="'${tabName}'"]`).classList.add('active');
+
+        // Textarealar
+        document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+        document.getElementById(`txt-${tabName}`).classList.remove('hidden');
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
 </script>
 </body>
 </html>

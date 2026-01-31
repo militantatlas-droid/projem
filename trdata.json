@@ -26,28 +26,20 @@
   },
   "BJ": {
     "name_tr": "Benin",
-    "groups": []
-  },
-  "BF": {
-    "name_tr": "Burkina Faso",
     "groups": [
       {
-        "name_tr": "Ensar'ul İslam",
-        "kategori": "Cihadist",
+        "name_tr": "KARAKEDİ",
+        "kategori": "Ayrılıkçı",
+        "grup_durumu": "Aktif",
         "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "denemesadasjhdkasdhjkasdsad",
-          "nihai_hedef": "asdasd.",
-          "yonetim_yapisi": ".asd.",
-          "eylem_metotlari": ".asd.",
-          "onemli_eylemler": "..s.",
-          "finansman_kaynaklari": "a..",
-          "grup_iliskileri": "..s.",
-          "diger_bilgiler": "..s.",
-          "kaynakca": ".ds.."
+          "olusum_sureci": "<p>KARAKEDİTUVASDK</p>"
         }
       }
     ]
+  },
+  "BF": {
+    "name_tr": "Burkina Faso",
+    "groups": []
   },
   "BW": {
     "name_tr": "Botsvana",
@@ -195,24 +187,7 @@
   },
   "DZ": {
     "name_tr": "Cezayir",
-    "groups": [
-      {
-        "name_tr": "AQIM (İslami Mağrip El Kaidesi)",
-        "kategori": "Cihadist",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "EG": {
     "name_tr": "Mısır",
@@ -352,19 +327,7 @@
   },
   "MA": {
     "name_tr": "Fas",
-    "groups": [
-      {
-        "name_tr": "YAŞARHANÖRGÜTÜ",
-        "kategori": "Cihatçı",
-        "grup_durumu": "Aktif",
-        "details": {
-          "olusum_sureci": "<p>ASDSADSASDSADA</p>",
-          "finansman_kaynaklari": "<p>ASDSA</p>",
-          "nihai_hedef": "<p>ASDSAD</p>",
-          "yonetim_yapisi": "<p>ASDASD</p>"
-        }
-      }
-    ]
+    "groups": []
   },
   "MG": {
     "name_tr": "Madagaskar",
@@ -374,35 +337,11 @@
     "name_tr": "Mali",
     "groups": [
       {
-        "name_tr": "JNIM (Cemaat Nusret el-İslam vel-Müslimin)",
-        "kategori": "Cihadist / El-Kaide",
+        "name_tr": "KARAKEDİ",
+        "kategori": "Ayrılıkçı",
+        "grup_durumu": "Aktif",
         "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      },
-      {
-        "name_tr": "IŞİD-GS (Büyük Sahra)",
-        "kategori": "Cihadist",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
+          "olusum_sureci": "<p>KARAKEDİTUVASDK</p>"
         }
       }
     ]
@@ -444,19 +383,11 @@
     "name_tr": "Nijer",
     "groups": [
       {
-        "name_tr": "IŞİD-Batı Afrika",
-        "kategori": "Cihadist",
+        "name_tr": "KARAKEDİ",
+        "kategori": "Ayrılıkçı",
+        "grup_durumu": "Aktif",
         "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
+          "olusum_sureci": "<p>KARAKEDİTUVASDK</p>"
         }
       }
     ]
@@ -511,6 +442,14 @@
           "diger_bilgiler": "...",
           "kaynakca": "..."
         }
+      },
+      {
+        "name_tr": "KARAKEDİ",
+        "kategori": "Ayrılıkçı",
+        "grup_durumu": "Aktif",
+        "details": {
+          "olusum_sureci": "<p>KARAKEDİTUVASDK</p>"
+        }
       }
     ]
   },
@@ -537,24 +476,7 @@
   },
   "EH": {
     "name_tr": "Batı Sahra",
-    "groups": [
-      {
-        "name_tr": "Polisario Cephesi",
-        "kategori": "Ayrılıkçı / Ulusal Kurtuluş",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "SD": {
     "name_tr": "Sudan",
@@ -600,24 +522,7 @@
   },
   "SN": {
     "name_tr": "Senegal",
-    "groups": [
-      {
-        "name_tr": "MFDC (Casamance)",
-        "kategori": "Ayrılıkçı",
-        "details": {
-          "grup_durumu": "Düşük Yoğunluklu",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "SL": {
     "name_tr": "Sierra Leone",
@@ -729,9 +634,5 @@
         }
       }
     ]
-  },
-  "": {
-    "name_tr": null,
-    "groups": []
   }
 }

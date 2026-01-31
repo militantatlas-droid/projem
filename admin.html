@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>MİLİTAN ATLASI | ADMİN PANEL V4</title>
+  <title>MİLİTAN ATLASI | ADMİN PANEL V5</title>
   <style>
     :root { 
       --bg-body: #111; --bg-map: #1a1a1a; --accent: #3b82f6;
@@ -11,11 +11,9 @@
     }
     body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; overflow: hidden; height: 100vh; }
     #app { display: flex; flex-direction: column; height: 100vh; }
-    
     #header { height: 60px; background: #000; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; }
     #stats-bar { background: #0a0a0a; padding: 8px 20px; display: flex; gap: 15px; font-size: 11px; border-bottom: 1px solid #222; }
     .stat-item b { color: #fff; background: #333; padding: 2px 6px; border-radius: 3px; }
-
     #main { display: flex; flex: 1; position: relative; overflow: hidden; }
 
     /* SOL PANEL */
@@ -24,18 +22,19 @@
     .filter-btn.active { border-color: var(--accent); background: #1e293b; }
     .result-item { padding: 10px; border-bottom: 1px solid #222; font-size: 12px; cursor: pointer; color: var(--text-dim); }
 
-    /* HARİTA: Beyaz zemin, belirgin sınırlar */
-    #map-container { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: var(--bg-map); }
-    svg { width: 100%; height: 100%; }
+    /* HARİTA AYARLARI */
+    #map-container { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: var(--bg-map); padding: 50px; }
+    svg { width: 100%; height: 100%; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
     path { 
         fill: #ffffff; 
-        stroke: #333333; /* Belirgin Sınırlar */
-        stroke-width: 1.2; 
+        stroke: #000000; 
+        stroke-width: 0.5; /* İnce çizgi ama yüksek kontrast */
         transition: 0.2s; 
         cursor: pointer; 
+        vector-effect: non-scaling-stroke; /* Zoom yapınca çizgiler kalınlaşmaz */
     }
-    path:hover { fill: #f0f0f0; stroke: var(--accent); }
-    path.selected { fill: #dbeafe !important; stroke: var(--accent); stroke-width: 2.5; }
+    path:hover { fill: #f0f0f0; stroke: var(--accent); stroke-width: 2; }
+    path.selected { fill: #dbeafe !important; stroke: var(--accent); stroke-width: 3; }
 
     /* SAĞ PANEL */
     #editor-panel {
@@ -45,102 +44,68 @@
     }
     #editor-panel.active { transform: translateX(0); }
     .panel-content { flex: 1; overflow-y: auto; padding: 25px; }
-
-    .field-label { font-size: 10px; font-weight: bold; color: var(--text-dim); margin: 15px 0 5px; display: block; text-transform: uppercase; }
     .input-text { width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
-    
-    .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-    .choice-btn { background: #222; border: 1px solid #333; color: var(--text-dim); padding: 8px; border-radius: 5px; cursor: pointer; font-size: 11px; text-align: center; }
-    .choice-btn.active { border-color: var(--accent); color: #fff; background: #1e293b; }
-
     .tabs { display: flex; overflow-x: auto; gap: 5px; margin: 15px 0; border-bottom: 1px solid #222; padding-bottom: 8px; }
     .tab-btn { background: #222; color: var(--text-dim); border: none; padding: 7px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; white-space: nowrap; }
     .tab-btn.active { background: var(--accent); color: #fff; }
-
-    .rich-editor { min-height: 250px; background: #0a0a0a; border: 1px solid #333; border-radius: 5px; padding: 15px; outline: none; line-height: 1.6; font-size: 14px; color: #ddd; }
-    .pill { display: inline-block; padding: 6px 12px; background: #222; margin: 3px; border-radius: 4px; font-size: 11px; cursor: pointer; border: 1px solid #333; }
-    .pill.active { background: var(--accent); color: #fff; }
-
+    .rich-editor { min-height: 300px; background: #0a0a0a; border: 1px solid #333; border-radius: 5px; padding: 15px; outline: none; line-height: 1.6; font-size: 14px; color: #ddd; }
     .btn-main { background: var(--accent); color: #fff; border: none; padding: 14px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
     #tooltip { position: absolute; pointer-events: none; background: #000; color: #fff; padding: 8px 12px; border-radius: 5px; display: none; z-index: 3000; border: 1px solid #444; font-size: 12px; }
+    .field-label { font-size: 10px; font-weight: bold; color: var(--text-dim); margin: 15px 0 5px; display: block; text-transform: uppercase; }
   </style>
 </head>
 <body onload="init()">
 
 <div id="app">
   <div id="header">
-    <div style="font-weight: bold;">MİLİTAN ATLASI <span style="color:var(--accent)">ADMIN V4</span></div>
+    <div style="font-weight: bold;">MİLİTAN ATLASI | ADMİN <span style="color:var(--accent)">V5</span></div>
     <div>
       <input type="file" id="load-file" style="display:none" onchange="handleFile(this)">
-      <button class="choice-btn" onclick="document.getElementById('load-file').click()">VERİ YÜKLE</button>
-      <button class="choice-btn" style="margin-left: 10px; background: var(--accent); color: #fff; border:none;" onclick="saveJSON()">TRDATA.JSON İNDİR</button>
+      <button class="filter-btn" onclick="document.getElementById('load-file').click()">JSON YÜKLE</button>
+      <button class="btn-main" style="width:auto; padding: 8px 20px; margin-left:10px;" onclick="saveJSON()">TRDATA.JSON İNDİR</button>
     </div>
   </div>
 
   <div id="stats-bar">
-    <div class="stat-item">Toplam: <b id="st-total">0</b></div>
+    <div class="stat-item">Toplam Örgüt: <b id="st-total">0</b></div>
     <div class="stat-item">Cihatçı: <b id="st-cihat">0</b></div>
     <div class="stat-item">Ayrılıkçı: <b id="st-ayri">0</b></div>
-    <div class="stat-item">Devrimci: <b id="st-devrim">0</b></div>
-    <div class="stat-item">Diğer: <b id="st-diger">0</b></div>
     <div style="flex:1"></div>
-    <div class="stat-item">Aktif: <b id="st-aktif" style="background:var(--aktif)">0</b></div>
-    <div class="stat-item">Pasif: <b id="st-pasif" style="background:var(--pasif)">0</b></div>
+    <div class="stat-item">DURUM: <span id="save-status" style="color:var(--accent)">Bekliyor...</span></div>
   </div>
 
   <div id="main">
     <div id="filter-panel">
-      <div class="field-label">Filtrele</div>
-      <button class="filter-btn active" onclick="filterBy('Tümü', this)">Tüm Gruplar</button>
-      <button class="filter-btn" onclick="filterBy('Cihatçı', this)">Cihatçı</button>
-      <button class="filter-btn" onclick="filterBy('Ayrılıkçı', this)">Ayrılıkçı</button>
-      <button class="filter-btn" onclick="filterBy('Devrimci', this)">Devrimci</button>
-      <button class="filter-btn" onclick="filterBy('Diğer', this)">Diğer</button>
+      <div class="field-label">Örgüt Listesi</div>
+      <button class="filter-btn active" onclick="filterBy('Tümü', this)">Tümü</button>
       <div id="filter-results"></div>
     </div>
 
     <div id="map-container" onclick="closePanel()">
       <div id="tooltip"></div>
-      <div id="map-wrapper"><svg id="svg-map"><g id="paths-container"></g></svg></div>
+      <svg id="svg-map"><g id="paths-container"></g></svg>
     </div>
 
     <div id="editor-panel" onclick="event.stopPropagation()">
       <div class="panel-content">
-        <label class="field-label">ÜLKE ADI (ANA PROJEDE GÖRÜNECEK)</label>
-        <input type="text" id="country-name-input" class="input-text" placeholder="Örn: Suriye">
+        <label class="field-label">ÜLKE ADI</label>
+        <input type="text" id="country-name-input" class="input-text" oninput="updateCountryName()">
         
-        <div id="group-pills" style="margin-top:10px;"></div>
-        <button class="btn-main" style="background:#333; margin-bottom:20px;" onclick="addGroup()">+ Yeni Örgüt Ekle</button>
+        <div id="group-pills" style="margin-top:15px; display:flex; flex-wrap:wrap; gap:5px;"></div>
+        <button class="btn-main" style="background:#333; margin:15px 0;" onclick="addGroup()">+ Yeni Örgüt Ekle</button>
         
         <div id="edit-form" style="display:none; border-top: 1px solid #333; padding-top:15px;">
            <label class="field-label">ÖRGÜT ADI</label>
            <input type="text" id="org-name" class="input-text">
            
-           <div style="display:flex; gap:10px;">
-             <div style="flex:1">
-               <label class="field-label">İDEOLOJİ</label>
-               <div class="choice-grid" id="cat-btns">
-                 <div class="choice-btn" onclick="setTemp('kategori','Cihatçı')">Cihatçı</div>
-                 <div class="choice-btn" onclick="setTemp('kategori','Ayrılıkçı')">Ayrılıkçı</div>
-                 <div class="choice-btn" onclick="setTemp('kategori','Devrimci')">Devrimci</div>
-                 <div class="choice-btn" onclick="setTemp('kategori','Diğer')">Diğer</div>
-               </div>
-             </div>
-             <div style="flex:1">
-               <label class="field-label">DURUM</label>
-               <div class="choice-grid" id="stat-btns">
-                 <div class="choice-btn" data-val="Aktif" onclick="setTemp('durum','Aktif')">Aktif</div>
-                 <div class="choice-btn" data-val="Pasif" onclick="setTemp('durum','Pasif')">Pasif</div>
-                 <div class="choice-btn" data-val="Bilinmiyor" onclick="setTemp('durum','Bilinmiyor')">Bilinmiyor</div>
-               </div>
-             </div>
-           </div>
+           <label class="field-label">KATEGORİ (Cihatçı, Ayrılıkçı vb.)</label>
+           <input type="text" id="org-cat" class="input-text">
 
            <div class="tabs" id="tab-bar"></div>
            <div id="editor" class="rich-editor" contenteditable="true"></div>
            
-           <button class="btn-main" onclick="applyChanges()">BİLGİLERİ KAYDET</button>
-           <button style="background:none; border:none; color:var(--pasif); cursor:pointer; margin-top:10px; font-size:11px; width:100%;" onclick="deleteOrg()">Örgütü Sil</button>
+           <button class="btn-main" onclick="applyChanges()">DEĞİŞİKLİKLERİ UYGULA</button>
+           <button style="background:none; border:none; color:var(--pasif); cursor:pointer; margin-top:10px; width:100%;" onclick="deleteOrg()">Örgütü Sil</button>
         </div>
       </div>
     </div>
@@ -151,14 +116,14 @@
 let data = {};
 let curC = null, curG = null, curT = 0;
 
-// ANA PROJE İLE %100 UYUMLU ANAHTARLAR
+/* index(23).html'deki switch-case yapısı ile birebir eşleşen anahtarlar */
 const keys = ["olusum", "hedef", "yapi", "metot", "eylem", "finans", "iliski", "diger", "kaynak"];
-const labels = ["Oluşum", "Hedef", "Yönetim", "Metot", "Eylemler", "Finans", "İlişkiler", "Bilgi", "Kaynak"];
+const labels = ["Oluşum", "Hedef", "Yapı", "Metot", "Eylemler", "Finans", "İlişkiler", "Bilgi", "Kaynak"];
 
 function init() {
-  const container = document.getElementById('paths-container');
-  // PATHLERİNİZİ BURAYA EKLEYİN
-  container.innerHTML = `
+    const container = document.getElementById('paths-container');
+    // PATH VERİLERİNİ BURAYA YAPIŞTIRIN
+    container.innerHTML = `
  <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
       <path id="BI" data-name="Burundi" data-id="BI" d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
       <path id="BJ" data-name="Benin" data-id="BJ" d="m 340,356 -9.3,-8 -4.3,0.1 -4.1,4 -2.6,4.2 -6,1.2 -2.5,6.1 -4.1,1.6 -1.6,7.2 3.7,4.1 4.3,4.9 0.4,6.8 2.5,2.8 -0.5,31.8 3,9.5 10.1,-1.6 0.6,-22.3 -0.3,-8.8 2.3,-8.7 3.7,-4.3 5.9,-8.5 -1.3,-3.7 2.4,-5.6 -2.8,-8.2 0.5,-4.6 z" />
@@ -209,70 +174,78 @@ function init() {
       <path id="ZM" data-name="Zambia" data-id="ZM" d="m 671.3,636 -4.1,-1.1 0.7,-3 -2.1,-0.6 -16.4,2.3 -3.3,1.7 -3.6,8.8 2.6,6.1 -2.5,16.4 -1.9,13.9 3.2,2.4 8.4,5.4 3.4,-2.5 0.6,14.9 -9.3,-0.1 -4.8,-7.6 -4.3,-5.9 -9.2,-1.9 -2.6,-7.3 -7.5,4.4 -9.7,-2 -3.9,-6.2 -7.7,-1.3 -5.7,0.3 -0.6,-4.3 -4.2,-0.3 1.2,4.3 -1.5,6.7 2,6.5 -2,5.2 1,4.7 -25.3,-0.1 -1.6,44 7.8,11.3 7.6,8.6 9.9,-3.1 7.8,0.8 4.7,3.1 0,1.2 2.2,1 13.4,1.5 3.8,1.6 4.1,-0.3 7,-9 10.9,-11.4 4.4,-1 1.7,-4.8 7,-5.5 9.3,-1.9 -0.8,-9.9 37.1,-11.4 -6.2,-3.6 4.1,-12.8 4,-4.8 -2,-11.5 2.7,-11.2 2.2,-3.8 -2.8,-11.7 -5.6,-6.2 -6.8,-4.1 -7.7,-2.4 -4.8,-2.3 -0.6,-0.4 0,0 0.9,2.3 -2,0.8 -2.6,-2.9 z" />
       <path id="ZW" data-name="Zimbabwe" data-id="ZW" d="m 669.1,825.1 13.4,-15.7 3.6,-9.9 1.9,-1.3 1.7,-8.1 -1.7,-4.1 1,-10.4 2.8,-9.6 0.8,-17.5 -6.1,-4.4 -5.7,-1 -2.5,-3.4 -5.5,-3 -10,0.3 -0.6,-5.1 -9.3,1.9 -7,5.5 -1.7,4.8 -4.4,1 -10.9,11.4 -7,9 -4.1,0.3 -3.8,-1.6 -13.4,-1.5 4.2,11.1 2.3,2.4 3.5,8 13,15.2 5.1,1.5 -0.2,4.9 3.1,8.8 9.2,2.1 7.3,6.2 4.9,0.2 5.7,2.3 4.1,-1.6 6.3,1.3 z" />
       <path id="SO" data-name="Somalia" data-id="SO" d="m 832.6,372.8 -5.7,-5.8 -2.5,-5.7 -4.1,-2.6 -4.2,7.4 -2.5,4.9 4.8,7.7 4.6,6.6 4.8,5 40.3,16.4 10.3,-0.1 -33.5,41.5 -15.9,0.6 -10.7,9.8 -7.8,0.2 -3.3,4.4 -10.5,15.7 0.4,50.4 7.2,11.4 2.7,-3.3 2.9,-7.3 13.4,-16.7 11.4,-10.6 18.1,-13.7 12.1,-11.2 14.1,-18.9 10.1,-15.5 10,-20.2 7,-17.7 5.4,-15.5 2.9,-14.9 2.4,-5 -0.4,-7.3 0.8,-8 -0.5,-3.9 -4.6,0.1 -5.5,4.7 -6.4,1.4 -5.5,2.1 -3.9,0.2 0,0 -6.9,0.5 -4.2,2.6 -6,0.9 -10.5,4.3 -13.2,1.6 -11.3,3.5 -6.1,0 z" />
-    </svg>  `; 
+    </svg>    `; 
 
-  fitMap();
-  document.querySelectorAll('path').forEach(p => {
-    p.onclick = (e) => { e.stopPropagation(); openCountry(p.id); };
-    p.onmouseenter = (e) => showTip(e, p.id);
-    p.onmousemove = moveTip;
-    p.onmouseleave = hideTip;
-  });
+    document.querySelectorAll('path').forEach(p => {
+        p.onclick = (e) => { e.stopPropagation(); openCountry(p.id); };
+        p.onmouseenter = (e) => showTip(e, p.id);
+        p.onmousemove = moveTip;
+        p.onmouseleave = hideTip;
+    });
 
-  labels.forEach((l, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'tab-btn' + (i===0?' active':'');
-    btn.innerText = l;
-    btn.onclick = () => { if(curG!==null) data[curC].groups[curG][keys[curT]] = document.getElementById('editor').innerHTML; curT = i; updateTabs(); };
-    document.getElementById('tab-bar').appendChild(btn);
-  });
+    labels.forEach((l, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'tab-btn' + (i===0?' active':'');
+        btn.innerText = l;
+        btn.onclick = () => { switchTab(i); };
+        document.getElementById('tab-bar').appendChild(btn);
+    });
 }
 
 function openCountry(id) {
-  curC = id; curG = null;
-  document.querySelectorAll('path').forEach(p => p.classList.remove('selected'));
-  if(document.getElementById(id)) document.getElementById(id).classList.add('selected');
-  
-  if(!data[id]) data[id] = { name_tr: id, groups: [] };
-  document.getElementById('country-name-input').value = data[id].name_tr;
-  document.getElementById('editor-panel').classList.add('active');
-  document.getElementById('edit-form').style.display = 'none';
-  renderPills();
-}
-
-function applyChanges() {
-    if(!curC) return;
-    data[curC].name_tr = document.getElementById('country-name-input').value;
-
-    if(curG !== null) {
-        const g = data[curC].groups[curG];
-        g.name_tr = document.getElementById('org-name').value;
-        g.kategori = document.querySelector('#cat-btns .choice-btn.active').innerText;
-        g.durum = document.querySelector('#stat-btns .choice-btn.active').getAttribute('data-val');
-        g[keys[curT]] = document.getElementById('editor').innerHTML;
+    curC = id; curG = null;
+    document.querySelectorAll('path').forEach(p => p.classList.remove('selected'));
+    const path = document.getElementById(id);
+    if(path) {
+        path.classList.add('selected');
+        zoomToPath(path);
     }
-    updateStats();
-    alert("Kayıt Başarılı!");
+    
+    if(!data[id]) data[id] = { name_tr: id, groups: [] };
+    document.getElementById('country-name-input').value = data[id].name_tr;
+    document.getElementById('editor-panel').classList.add('active');
+    document.getElementById('edit-form').style.display = 'none';
     renderPills();
 }
 
-function showTip(e, id) {
-  const tip = document.getElementById('tooltip');
-  const name = data[id] ? data[id].name_tr : id;
-  const count = data[id] ? data[id].groups.length : 0;
-  tip.innerHTML = `<strong>${name}</strong><br>Örgüt Sayısı: ${count}`;
-  tip.style.display = 'block';
+function zoomToPath(path) {
+    const svg = document.getElementById('svg-map');
+    const b = path.getBBox();
+    const pad = 1; // Daha yakın zoom için padding düşürüldü
+    svg.setAttribute("viewBox", `${b.x - pad} ${b.y - pad} ${b.width + pad*2} ${b.height + pad*2}`);
+}
+
+function switchTab(i) {
+    if(curG !== null) {
+        data[curC].groups[curG][keys[curT]] = document.getElementById('editor').innerHTML;
+    }
+    curT = i;
+    document.querySelectorAll('.tab-btn').forEach((b, idx) => b.classList.toggle('active', idx === i));
+    document.getElementById('editor').innerHTML = data[curC].groups[curG][keys[i]] || "";
+}
+
+function applyChanges() {
+    if(!curC || curG === null) return;
+    const g = data[curC].groups[curG];
+    g.name_tr = document.getElementById('org-name').value;
+    g.kategori = document.getElementById('org-cat').value;
+    g[keys[curT]] = document.getElementById('editor').innerHTML;
+    
+    document.getElementById('save-status').innerText = "Değişiklikler işlendi!";
+    setTimeout(() => { document.getElementById('save-status').innerText = "Bekliyor..."; }, 2000);
+    renderPills();
+    updateStats();
 }
 
 function loadGroup(idx) {
-  if(curG !== null) data[curC].groups[curG][keys[curT]] = document.getElementById('editor').innerHTML;
-  curG = idx;
-  const g = data[curC].groups[curG];
-  document.getElementById('edit-form').style.display = 'block';
-  document.getElementById('org-name').value = g.name_tr;
-  refreshVisuals(g);
-  updateTabs();
-  renderPills();
+    curG = idx;
+    const g = data[curC].groups[curG];
+    document.getElementById('edit-form').style.display = 'block';
+    document.getElementById('org-name').value = g.name_tr;
+    document.getElementById('org-cat').value = g.kategori || "";
+    curT = 0; 
+    updateTabs();
+    renderPills();
 }
 
 function updateTabs() {
@@ -280,56 +253,36 @@ function updateTabs() {
     document.getElementById('editor').innerHTML = data[curC].groups[curG][keys[curT]] || "";
 }
 
-function setTemp(f, v) {
-    const s = f === 'kategori' ? '#cat-btns .choice-btn' : '#stat-btns .choice-btn';
-    document.querySelectorAll(s).forEach(b => {
-        const bv = f === 'kategori' ? b.innerText : b.getAttribute('data-val');
-        b.classList.toggle('active', bv === v);
-    });
-}
-
-function refreshVisuals(g) {
-    document.querySelectorAll('#cat-btns .choice-btn').forEach(b => b.classList.toggle('active', b.innerText === g.kategori));
-    document.querySelectorAll('#stat-btns .choice-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-val') === (g.durum || 'Bilinmiyor')));
-}
-
 function addGroup() {
-    const g = { name_tr: "Yeni Örgüt", kategori: "Diğer", durum: "Bilinmiyor" };
+    const g = { name_tr: "Yeni Örgüt", kategori: "Diğer" };
     keys.forEach(k => g[k] = "");
     data[curC].groups.push(g);
     loadGroup(data[curC].groups.length - 1);
 }
 
-function deleteOrg() {
-    if(confirm("Silmek istediğinize emin misiniz?")) {
-        data[curC].groups.splice(curG, 1);
-        curG = null;
-        document.getElementById('edit-form').style.display = 'none';
-        renderPills();
-        updateStats();
-    }
+function updateCountryName() {
+    if(curC) data[curC].name_tr = document.getElementById('country-name-input').value;
 }
 
-function updateStats() {
-    let s = { total:0, cihat:0, ayri:0, devrim:0, diger:0, aktif:0, pasif:0 };
-    Object.values(data).forEach(c => {
-        c.groups.forEach(g => {
-            s.total++;
-            if(g.kategori === 'Cihatçı') s.cihat++;
-            else if(g.kategori === 'Ayrılıkçı') s.ayri++;
-            else if(g.kategori === 'Devrimci') s.devrim++;
-            else s.diger++;
-            if(g.durum === 'Aktif') s.aktif++;
-            else if(g.durum === 'Pasif') s.pasif++;
-        });
-    });
-    document.getElementById('st-total').innerText = s.total;
-    document.getElementById('st-cihat').innerText = s.cihat;
-    document.getElementById('st-ayri').innerText = s.ayri;
-    document.getElementById('st-devrim').innerText = s.devrim;
-    document.getElementById('st-diger').innerText = s.diger;
-    document.getElementById('st-aktif').innerText = s.aktif;
-    document.getElementById('st-pasif').innerText = s.pasif;
+function saveJSON() {
+    // Kaydetmeden önce editor içeriğini aktar
+    if(curC && curG !== null) data[curC].groups[curG][keys[curT]] = document.getElementById('editor').innerHTML;
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = "trdata.json";
+    a.click();
+}
+
+function handleFile(input) {
+    const reader = new FileReader();
+    reader.onload = () => { 
+        data = JSON.parse(reader.result); 
+        updateStats(); 
+        alert("Veriler Yüklendi!"); 
+    };
+    reader.readAsText(input.files[0]);
 }
 
 function renderPills() {
@@ -338,50 +291,48 @@ function renderPills() {
     data[curC].groups.forEach((g, i) => {
         const p = document.createElement('div');
         p.className = 'pill' + (curG === i ? ' active' : '');
+        p.style = "padding:6px 10px; background:#222; border:1px solid #444; border-radius:4px; font-size:11px; cursor:pointer;";
+        if(curG === i) p.style.borderColor = "var(--accent)";
         p.innerText = g.name_tr;
         p.onclick = () => loadGroup(i);
         box.appendChild(p);
     });
 }
 
-function fitMap() {
-    const svg = document.getElementById('svg-map');
-    const b = document.getElementById('paths-container').getBBox();
-    if(b.width > 0) { svg.setAttribute("viewBox", `${b.x-2} ${b.y-2} ${b.width+4} ${b.height+4}`); }
-}
-
-function handleFile(input) {
-    const reader = new FileReader();
-    reader.onload = () => { data = JSON.parse(reader.result); updateStats(); alert("Veriler Yüklendi!"); fitMap(); };
-    reader.readAsText(input.files[0]);
-}
-
-function saveJSON() {
-    const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = "trdata.json"; a.click();
+function updateStats() {
+    let t = 0;
+    Object.values(data).forEach(c => t += c.groups.length);
+    document.getElementById('st-total').innerText = t;
 }
 
 function filterBy(cat, el) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
     const res = document.getElementById('filter-results'); res.innerHTML = "";
     Object.keys(data).forEach(cid => {
         data[cid].groups.forEach((g, idx) => {
-            if(cat === 'Tümü' || g.kategori === cat) {
-                const d = document.createElement('div'); d.className = 'result-item';
-                d.innerHTML = `<b>${g.name_tr}</b> <br><small>${data[cid].name_tr}</small>`;
-                d.onclick = () => { openCountry(cid); loadGroup(idx); };
-                res.appendChild(d);
-            }
+            const d = document.createElement('div'); d.className = 'result-item';
+            d.innerHTML = `<b>${g.name_tr}</b><br><small>${data[cid].name_tr}</small>`;
+            d.onclick = () => { openCountry(cid); loadGroup(idx); };
+            res.appendChild(d);
         });
     });
 }
 
-function closePanel() { document.getElementById('editor-panel').classList.remove('active'); document.querySelectorAll('path').forEach(p => p.classList.remove('selected')); }
-function moveTip(e) { const t = document.getElementById('tooltip'); t.style.left = (e.pageX + 15) + 'px'; t.style.top = (e.pageY + 15) + 'px'; }
+function showTip(e, id) {
+    const tip = document.getElementById('tooltip');
+    const name = data[id] ? data[id].name_tr : id;
+    tip.innerHTML = `<strong>${name}</strong>`;
+    tip.style.display = 'block';
+}
+function moveTip(e) { 
+    const t = document.getElementById('tooltip'); 
+    t.style.left = (e.pageX + 15) + 'px'; t.style.top = (e.pageY + 15) + 'px'; 
+}
 function hideTip() { document.getElementById('tooltip').style.display = 'none'; }
+function closePanel() { 
+    document.getElementById('editor-panel').classList.remove('active'); 
+    const svg = document.getElementById('svg-map');
+    svg.removeAttribute("viewBox"); // Haritayı sıfırla
+}
 </script>
 </body>
 </html>

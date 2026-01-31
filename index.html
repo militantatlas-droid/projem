@@ -355,8 +355,8 @@
             <div class="l-tab active" onclick="showLongTabContent('olusum')">Oluşumu ve Gelişimi</div>
             <div class="l-tab" onclick="showLongTabContent('amac')">Amaç ve Nihai Hedef</div>
             <div class="l-tab" onclick="showLongTabContent('yonetim')">Yönetim ve Yapılanma</div>
-            <div class="l-tab" onclick="showLongTabContent('metot')">Metot</div>
-            <div class="l-tab" onclick="showLongTabContent('eylem')">Kullandıkları Eylem Taktikleri</div>
+            <div class="l-tab" onclick="showLongTabContent('metot')">Kullandıkları Eylem Taktikleri</div>
+            <div class="l-tab" onclick="showLongTabContent('eylem')">Eylemler</div>
             <div class="l-tab" onclick="showLongTabContent('finans')">Kaynak Temini</div>
             <div class="l-tab" onclick="showLongTabContent('iliski')">Diğer Gruplarla İlişkiler</div>
             <div class="l-tab" onclick="showLongTabContent('diger')">Diğer Bilgiler</div>
@@ -755,13 +755,13 @@ function showLongTabContent(key) {
     const noData = "<i style='color:#777;'>Bilgi girişi yapılmamış.</i>";
 
     switch(key) {
-        case 'olusum': title = "Oluşum Süreci"; text = d.olusum_sureci; break;
-        case 'amac': title = "Amaç ve Hedef"; text = d.nihai_hedef; break;
-        case 'yonetim': title = "Yönetim Yapısı"; text = d.yonetim_yapisi; break;
-        case 'metot': title = "Eylem Metotları"; text = d.eylem_metotlari; break;
-        case 'eylem': title = "Önemli Eylemler"; text = d.onemli_eylemler; break;
-        case 'finans': title = "Finansman"; text = d.finansman_kaynaklari; break;
-        case 'iliski': title = "İlişkiler"; text = d.grup_iliskileri; break;
+        case 'olusum': title = "Oluşumu ve Gelişimi"; text = d.olusum_sureci; break;
+        case 'amac': title = "Amaç ve Nihai Hedef"; text = d.nihai_hedef; break;
+        case 'yonetim': title = "Yönetim ve Yapılanma"; text = d.yonetim_yapisi; break;
+        case 'metot': title = "Kullandıkları Eylem Taktikleri"; text = d.eylem_metotlari; break;
+        case 'eylem': title = "Eylemler"; text = d.onemli_eylemler; break;
+        case 'finans': title = "Kaynak Temini"; text = d.finansman_kaynaklari; break;
+        case 'iliski': title = "Diğer Gruplarla İlişkiler"; text = d.grup_iliskileri; break;
         case 'diger': title = "Diğer Bilgiler"; text = d.diger_bilgiler; break;
         case 'kaynak': title = "Kaynakça"; text = d.kaynakca; break;
     }

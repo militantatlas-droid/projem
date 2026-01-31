@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MİLİTAN ATLASI</title>
+  <title>MİLİTAN ATLASI | Mobil Optimize</title>
   <style>
     /* ─── TEMEL AYARLAR ─── */
     * {
@@ -491,12 +491,6 @@
 
   <div id="container">
 
-    <a href="https://militantatlas-droid.github.io/militantatlascom" id="back-to-home" title="Ana Sayfaya Dön">
-      <svg fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M15 19l-7-7 7-7" />
-      </svg>
-    </a>
-
     <div class="zoom-controls">
       <button class="zoom-btn" id="zoom-in" title="Yakınlaştır">+</button>
       <button class="zoom-btn" id="zoom-out" title="Uzaklaştır">-</button>
@@ -900,19 +894,19 @@
     // Veri Yükleme
     // Veri Yükleme (LocalStorage Entegrasyonu)
     function loadFromStorage() {
-      const s = localStorage.getItem('militan_db_v2');
-      if (s) {
-        try {
-          countryData = JSON.parse(s);
-          console.log("Veri LocalStorage'dan yüklendi.");
-        } catch (e) {
-          console.error("LocalStorage verisi bozuk:", e);
-        }
-      } else {
-        console.warn("LocalStorage'da veri bulunamadı. Admin panelden veri kaydedin.");
-      }
-      initMapInteractions();
-    }
+    fetch('trdata.json')
+        .then(response => response.json())
+        .then(data => {
+            countryData = data;
+            console.log("Veri trdata.json'dan yüklendi.");
+            updateTotalCount();
+            initMapInteractions();
+        })
+        .catch(error => {
+            console.error("JSON yüklenemedi:", error);
+            initMapInteractions();
+        });
+}
 
     // Başlat
     loadFromStorage();
@@ -1018,10 +1012,16 @@
       const filterDiv = document.getElementById('filter-buttons');
       if (mode === 'detailed') {
         filterDiv.style.display = 'flex';
-        setFilter('all'); // Varsayılan hepsi veya seçim yok
+        setFilter('all');
+        // Detaylı modda backdrop'u kaldır, haritayı aktif et
+        dom.sidebarBackdrop.style.display = 'none';
       } else {
         filterDiv.style.display = 'none';
         resetMapHighlights();
+        // Normal modda backdrop'u göster
+        if (dom.sidebar.classList.contains('active')) {
+          dom.sidebarBackdrop.style.display = 'block';
+        }
       }
 
       // Placeholder Ayarı
@@ -1299,4 +1299,157 @@
     function openLongModal() {
       dom.groupModal.classList.remove("active");
       dom.longModal.classList.add("active");
-   
+      showLongTabContent('olusum');
+    }
+
+    function showLongTabContent(key) {
+      document.querySelectorAll(".l-tab").forEach(t => t.classList.remove("active"));
+      const activeTab = document.querySelector(`.l-tab[onclick*="'${key}'"]`);
+      if (activeTab) activeTab.classList.add("active");
+
+      const d = currentGroup.details || {};
+      let title = "", text = "";
+      const noData = "<i style='color:#777;'>Bilgi girişi yapılmamış.</i>";
+
+      switch (key) {
+        case 'olusum': title = "Oluşumu ve Gelişimi"; text = d.olusum_sureci; break;
+        case 'amac': title = "Amaç ve Nihai Hedef"; text = d.nihai_hedef; break;
+        case 'yonetim': title = "Yönetim ve Yapılanma"; text = d.yonetim_yapisi; break;
+        case 'metot': title = "Kullandıkları Eylem Taktikleri"; text = d.eylem_metotlari; break;
+        case 'eylem': title = "Eylemler"; text = d.onemli_eylemler; break;
+        case 'finans': title = "Kaynak Temini"; text = d.finansman_kaynaklari; break;
+        case 'iliski': title = "Diğer Gruplarla İlişkiler"; text = d.grup_iliskileri; break;
+        case 'diger': title = "Diğer Bilgiler"; text = d.diger_bilgiler; break;
+        case 'kaynak': title = "Kaynakça"; text = d.kaynakca; break;
+      }
+      dom.longDetailBody.innerHTML = `<h3>${title}</h3>${text || noData}`;
+    }
+
+    // Navigasyon Yardımcıları
+    function openSidebar() {
+      dom.sidebar.classList.add("active");
+
+      // Detaylı modda backdrop'u gösterme, haritayı aktif bırak
+      if (searchMode === 'detailed') {
+        dom.sidebarBackdrop.style.display = "none";
+      } else {
+        dom.sidebarBackdrop.style.display = "block";
+      }
+
+      dom.searchFab.classList.add("hidden");
+      const badge = document.getElementById('total-badge');
+      if (badge) badge.style.display = 'none';
+
+      if (!['country', 'group', 'detailed'].includes(searchMode)) setSearchMode('country');
+      else runSearch();
+    }
+
+    function goToCountry(id, name) {
+      resetApplicationState();
+      selectCountry(id, name, null);
+    }
+
+    function goToGroup(cid, idx) {
+      resetApplicationState();
+
+      currentCountryId = cid;
+      const cData = countryData[cid];
+      if (cData) {
+        dom.countryTitle.textContent = cData.name_tr;
+        let html = "";
+        cData.groups.forEach((g, i) => html += `<div class="group-item" onclick="openGroupDetail(${i})">${g.name_tr}</div>`);
+        dom.countryGroups.innerHTML = html;
+      }
+
+      openGroupDetail(idx);
+    }
+
+    function selectCountry(id, name, pathEl) {
+      if (activePath) activePath.classList.remove("active");
+      const target = pathEl || document.getElementById(id);
+      if (target) {
+        target.classList.add("active");
+        activePath = target;
+      }
+      currentCountryId = id;
+      const cData = countryData[id];
+      const dispName = cData ? (cData.name_tr || name) : name;
+
+      dom.countryTitle.textContent = dispName;
+      let html = "";
+
+      // Detaylı modda ve aktif filtre varsa sadece o kategorideki grupları göster
+      let groupsToShow = [];
+      if (cData && cData.groups && cData.groups.length > 0) {
+        if (searchMode === 'detailed' && activeFilterCategory && activeFilterCategory !== 'all') {
+          let targetCategory = "";
+          if (activeFilterCategory === 'cihat') targetCategory = "Cihatçı";
+          else if (activeFilterCategory === 'ayrilik') targetCategory = "Ayrılıkçı";
+          else targetCategory = "Diğer";
+
+          cData.groups.forEach((g, idx) => {
+            const cat = g.kategori || "Diğer";
+            if (cat === targetCategory || (targetCategory === "Diğer" && cat !== "Cihatçı" && cat !== "Ayrılıkçı")) {
+              groupsToShow.push({ g, idx });
+            }
+          });
+        } else {
+          // Normal mod: tüm grupları göster
+          cData.groups.forEach((g, idx) => groupsToShow.push({ g, idx }));
+        }
+
+        if (groupsToShow.length > 0) {
+          groupsToShow.forEach(({ g, idx }) => {
+            let dotColor = "#888";
+            if (g.kategori === "Cihatçı") dotColor = "#ef4444";
+            else if (g.kategori === "Ayrılıkçı") dotColor = "#eab308";
+            else dotColor = "#3b82f6";
+
+            html += `<div class="group-item" onclick="openGroupDetail(${idx})" style="border-left-color:${dotColor};">
+                            ${g.name_tr} 
+                            <span style="float:right;font-size:10px;color:#aaa;background:#333;padding:2px 6px;border-radius:4px;">${g.kategori || "Diğer"}</span>
+                         </div>`;
+          });
+        } else {
+          html = "<p style='text-align:center;color:#666;padding:20px;'>Bu kategoride grup bulunamadı.</p>";
+        }
+      } else {
+        html = "<p style='text-align:center;color:#666;padding:20px;'>Kayıtlı grup bulunamadı.</p>";
+      }
+      dom.countryGroups.innerHTML = html;
+      dom.countryModal.classList.add("active");
+    }
+    // ──────────────────────────────────────────────
+    // MOBİL SWIPE MANTIĞI (KAPATMAK İÇİN)
+    // ──────────────────────────────────────────────
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    dom.sidebar.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    dom.sidebar.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+      // Sağdan sola kaydırırsan (Sidebar sağda olduğu için, kapatmak için SAĞA kaydırman lazım)
+      // Sidebar right:0, yani ekranın sağında. Kapatmak için +X yönünde (SAĞA) kaydırılmalı.
+      if (touchEndX > touchStartX + 100) { // 100px eşik değeri
+        resetApplicationState(); // Kapat
+      }
+    }
+    function backToCountry() {
+      dom.groupModal.classList.remove("active");
+      dom.countryModal.classList.add("active");
+    }
+    function closeLongModal() {
+      dom.longModal.classList.remove("active");
+      dom.groupModal.classList.add("active");
+    }
+  </script>
+</body>
+
+</html>

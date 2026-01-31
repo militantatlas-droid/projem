@@ -354,19 +354,14 @@
     "name_tr": "Fas",
     "groups": [
       {
-        "name_tr": "DENEMEÖRGÜT1",
-        "kategori": "Ayrılıkçı",
-        "grup_durumu": "Pasif",
+        "name_tr": "YAŞARHANÖRGÜTÜ",
+        "kategori": "Cihatçı",
+        "grup_durumu": "Aktif",
         "details": {
-          "olusum_sureci": "BURAYI DENEME AMACIYLA YAZIYORUM ",
-          "nihai_hedef": "BURAYI DENEME AMACIYLA YAZIYORUM ",
-          "yonetim_yapisi": "BURAYI DENEME AMACIYLA YAZIYORUM ",
-          "eylem_metotlari": "BURAYI DENEME AMACIYLA YAZIYORUM ",
-          "onemli_eylemler": "BURAYI DENEME AMACIYLA YAZIYORUM ",
-          "finansman_kaynaklari": "BURAYI DENEME AMACIYLA YAZIYORUM ",
-          "grup_iliskileri": "BURAYI DENEME AMACIYLA YAZIYORUM ",
-          "diger_bilgiler": "BURAYI DENEME AMACIYLA YAZIYORUM ",
-          "kaynakca": "BURAYI DENEME AMACIYLA YAZIYORUM "
+          "olusum_sureci": "<p>ASDSADSASDSADA</p>",
+          "finansman_kaynaklari": "<p>ASDSA</p>",
+          "nihai_hedef": "<p>ASDSAD</p>",
+          "yonetim_yapisi": "<p>ASDASD</p>"
         }
       }
     ]
@@ -688,24 +683,7 @@
   },
   "ZA": {
     "name_tr": "Güney Afrika",
-    "groups": [
-      {
-        "name_tr": "DENEMEÖRGÜT1",
-        "kategori": "Ayrılıkçı",
-        "grup_durumu": "Pasif",
-        "details": {
-          "olusum_sureci": "1454",
-          "nihai_hedef": "",
-          "yonetim_yapisi": "",
-          "eylem_metotlari": "",
-          "onemli_eylemler": "",
-          "finansman_kaynaklari": "",
-          "grup_iliskileri": "",
-          "diger_bilgiler": "",
-          "kaynakca": ""
-        }
-      }
-    ]
+    "groups": []
   },
   "ZM": {
     "name_tr": "Zambiya",
@@ -751,5 +729,9 @@
         }
       }
     ]
+  },
+  "": {
+    "name_tr": null,
+    "groups": []
   }
 }

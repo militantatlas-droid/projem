@@ -2,13 +2,13 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>MİLİTAN ATLASI | YAZAR PANELİ PRO</title>
+  <title>MİLİTAN ATLASI | YAZAR PANELİ</title>
   <style>
     :root { 
       --accent: #3b82f6; 
-      --bg-dark: #121212; /* Açık Siyah / Antrasit */
+      --bg-dark: #121212; 
       --panel-bg: #ffffff; 
-      --map-land: #ffffff; /* Harita Beyaz */
+      --map-land: #ffffff; 
       --map-stroke: #cbd5e1;
       --text-main: #1e293b;
     }
@@ -22,22 +22,7 @@
       height: 100vh; 
     }
 
-    /* GİRİŞ EKRANI */
-    #login-screen {
-      position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 10000;
-    }
-    .login-box {
-      background: #1e1e1e; padding: 40px; border-radius: 16px; border: 1px solid #333; width: 320px; text-align: center;
-    }
-    .login-box input { 
-      width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 8px; 
-    }
-    .btn-login { 
-      background: var(--accent); color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px;
-    }
-
-    /* ANA YAPI */
-    #app { display: none; flex-direction: column; height: 100vh; }
+    #app { display: flex; flex-direction: column; height: 100vh; }
     #header { 
       height: 60px; background: #1a1a1a; border-bottom: 1px solid #333; 
       display: flex; align-items: center; justify-content: space-between; padding: 0 20px; 
@@ -45,22 +30,15 @@
 
     #main { display: flex; flex: 1; position: relative; overflow: hidden; background: var(--bg-dark); }
 
-    /* HARİTA KONTEYNER */
-    #map-container { 
-      flex: 1; position: relative; display: flex; align-items: center; justify-content: center; padding: 20px;
-    }
-    #map-wrapper { 
-      width: 100%; height: 100%; max-width: 1200px; display: flex; align-items: center; justify-content: center;
-    }
+    /* HARİTA */
+    #map-container { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    #map-wrapper { width: 100%; height: 100%; max-width: 1200px; display: flex; align-items: center; justify-content: center; }
     svg { width: 100%; height: auto; max-height: 90vh; }
-    path { 
-      fill: var(--map-land); stroke: var(--map-stroke); stroke-width: 0.4; 
-      transition: all 0.2s ease; cursor: pointer; 
-    }
+    path { fill: var(--map-land); stroke: var(--map-stroke); stroke-width: 0.4; transition: all 0.2s ease; cursor: pointer; }
     path:hover { fill: #f8fafc; stroke: var(--accent); stroke-width: 1; }
     path.selected { fill: #e0f2fe; stroke: var(--accent); stroke-width: 1.5; }
 
-    /* EDİTÖR PANELİ (SIDEBAR) */
+    /* EDİTÖR PANELİ */
     #editor-panel {
       width: 500px; background: var(--panel-bg); color: var(--text-main);
       position: absolute; right: 0; top: 0; bottom: 0; z-index: 500;
@@ -68,7 +46,6 @@
       box-shadow: -10px 0 30px rgba(0,0,0,0.5); display: flex; flex-direction: column;
     }
     #editor-panel.active { transform: translateX(0); }
-
     .panel-content { flex: 1; overflow-y: auto; padding: 25px; }
 
     /* TOOLTIP */
@@ -78,46 +55,27 @@
       z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid var(--accent);
     }
 
-    /* YAZAR ARAÇLARI */
+    /* SEKMELER VE EDİTÖR */
     .tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 15px 0; }
-    .tab-btn { 
-      padding: 6px 10px; font-size: 11px; background: #f1f5f9; border: 1px solid #e2e8f0; 
-      border-radius: 4px; cursor: pointer; font-weight: 600; 
-    }
-    .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    
+    .tab-btn { padding: 6px 10px; font-size: 11px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer; font-weight: 600; }
+    .tab-btn.active { background: var(--accent); color: #fff; }
     .editor-toolbar { background: #f8fafc; padding: 8px; border: 1px solid #e2e8f0; border-bottom: none; border-radius: 8px 8px 0 0; display: flex; gap: 8px; }
-    .rich-editor { 
-      min-height: 250px; background: #fff; border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px; padding: 15px; outline: none; line-height: 1.6;
-    }
+    .rich-editor { min-height: 250px; background: #fff; border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px; padding: 15px; outline: none; line-height: 1.6; }
     
     .pill { display: inline-block; padding: 5px 12px; background: #f1f5f9; margin: 3px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid #cbd5e1; }
     .pill.active { background: var(--accent); color: #fff; }
-
     .btn { padding: 10px 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-    .btn-save { background: var(--accent); color: #fff; }
-    .btn-add { background: #10b981; color: #fff; width: 100%; margin-bottom: 15px; }
   </style>
 </head>
-<body>
-
-<div id="login-screen">
-  <div class="login-box">
-    <h2>MİLİTAN ATLASI</h2>
-    <p style="color: #888; font-size: 13px;">Sistem Erişim Kilidi</p>
-    <input type="text" id="user" placeholder="Kullanıcı Adı">
-    <input type="password" id="pass" placeholder="Şifre">
-    <button class="btn-login" onclick="login()">GİRİŞ YAP</button>
-  </div>
-</div>
+<body onload="init()">
 
 <div id="app">
   <div id="header">
-    <div style="font-weight: 800; letter-spacing: 1px;">MİLİTAN ATLASI <span style="color:var(--accent)">EDITOR</span></div>
+    <div style="font-weight: 800; letter-spacing: 1px;">MİLİTAN ATLASI <span style="color:var(--accent)">EDİTÖR</span></div>
     <div>
       <input type="file" id="load-file" style="display:none" onchange="handleFile(this)">
       <button class="btn" style="background:#444; color:#fff; margin-right:10px" onclick="document.getElementById('load-file').click()">JSON YÜKLE</button>
-      <button class="btn btn-save" onclick="saveJSON()">JSON İNDİR (KAYDET)</button>
+      <button class="btn" style="background:var(--accent); color:#fff" onclick="saveJSON()">JSON KAYDET</button>
     </div>
   </div>
 
@@ -135,13 +93,13 @@
       <div class="panel-content">
         <h2 id="country-title" style="margin-top:0">Ülke Seçilmedi</h2>
         <div id="group-pills"></div>
-        <button class="btn btn-add" onclick="addGroup()">+ Yeni Örgüt Ekle</button>
+        <button class="btn" style="background:#10b981; color:#fff; width:100%; margin-bottom:15px;" onclick="addGroup()">+ Yeni Örgüt Ekle</button>
 
         <div id="edit-form" style="display:none; border-top: 1px solid #eee; padding-top: 20px;">
-          <label style="font-size:12px; font-weight:bold; color:#64748b">ÖRGÜT ADI</label>
+          <label style="font-size:11px; font-weight:bold; color:#64748b">ÖRGÜT ADI</label>
           <input type="text" id="org-name" style="width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:6px;" oninput="sync()">
           
-          <label style="font-size:12px; font-weight:bold; color:#64748b">KATEGORİ</label>
+          <label style="font-size:11px; font-weight:bold; color:#64748b">KATEGORİ</label>
           <input type="text" id="org-cat" style="width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:6px;" oninput="sync()">
 
           <div class="tabs" id="tab-bar"></div>
@@ -149,7 +107,7 @@
           <div class="editor-toolbar">
             <button onclick="cmd('bold')"><b>B</b></button>
             <button onclick="cmd('italic')"><i>I</i></button>
-            <button onclick="cmd('createLink', prompt('Link URL:'))">🔗</button>
+            <button onclick="cmd('createLink', prompt('URL:'))">🔗</button>
             <button onclick="cmd('insertUnorderedList')">• Liste</button>
           </div>
           <div id="editor" class="rich-editor" contenteditable="true" oninput="sync()"></div>
@@ -162,23 +120,14 @@
 </div>
 
 <script>
-const AUTH = { u: "admin", p: "militan123" };
 let data = {};
 let curC = null, curG = null, curT = 0;
 const tabs = ["Oluşum ve Gelişimi", "Amaç ve Nihai Hedef", "Yönetim ve Yapılanma", "Eylem Taktikleri", "Eylemler", "Kaynak Temini", "Diğer Gruplarla İlişkiler", "Diğer Bilgiler", "Kaynakça"];
 const keys = ["olusum", "amach", "yonetim", "taktik", "eylem", "kaynak", "iliski", "diger", "ref"];
 
-function login() {
-  if(document.getElementById('user').value === AUTH.u && document.getElementById('pass').value === AUTH.p) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    init();
-  } else { alert("Hatalı Giriş!"); }
-}
-
 function init() {
   const container = document.getElementById('paths-container');
-  // Buraya elindeki tüm <path> verilerini ekle. Örnek TR:
+  // Buraya tüm dünya pathlerini eklemelisin.
   container.innerHTML = `<path id="TR" d="M 610,210 L 690,210 L 690,250 L 610,250 Z" />`; 
    <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
       <path id="BI" data-name="Burundi" data-id="BI" d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
@@ -239,10 +188,8 @@ function init() {
     p.addEventListener('click', e => { e.stopPropagation(); openCountry(p.id); });
   });
 
-  // ESC Tuşu Kontrolü
   window.addEventListener('keydown', e => { if(e.key === "Escape") closePanel(); });
 
-  // Tab butonlarını oluştur
   const bar = document.getElementById('tab-bar');
   tabs.forEach((t, i) => {
     const btn = document.createElement('button');
@@ -333,14 +280,14 @@ function saveJSON() {
   const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = "militan_data_yeni.json";
+  a.download = "militan_data.json";
   a.click();
 }
 
 function showTip(e, id) {
   const tip = document.getElementById('tooltip');
   const count = data[id]?.groups?.length || 0;
-  tip.innerHTML = `<strong>${id}</strong><br>Kayıtlı Örgüt: ${count}`;
+  tip.innerHTML = `<strong>${id}</strong><br>Örgüt: ${count}`;
   tip.style.display = 'block';
 }
 function moveTip(e) {

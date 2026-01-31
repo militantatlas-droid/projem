@@ -892,24 +892,30 @@
     };
 
     // Veri Yükleme
-    // Veri Yükleme (LocalStorage Entegrasyonu)
-    function loadFromStorage() {
-    fetch('trdata.json')
-        .then(response => response.json())
-        .then(data => {
-            countryData = data;
-            console.log("Veri trdata.json'dan yüklendi.");
-            updateTotalCount();
-            initMapInteractions();
+    // Veri Yükleme (JSON Dosyasından)
+    function loadFromJSON() {
+      fetch('trdata.json')
+        .then(response => {
+          if (!response.ok) throw new Error("JSON dosyası bulunamadı veya yüklenemedi.");
+          return response.json();
         })
-        .catch(error => {
-            console.error("JSON yüklenemedi:", error);
-            initMapInteractions();
+        .then(data => {
+          countryData = data;
+          console.log("Veri trdata.json dosyasından yüklendi.");
+          initMapInteractions();
+          // Eğer arama yapılmışsa güncelle
+          if (dom.searchInput.value) runSearch();
+          updateTotalCount();
+        })
+        .catch(err => {
+          console.error("Veri yükleme hatası:", err);
+          // Hata durumunda kullanıcıyı bilgilendir
+          alert("Veri yüklenemedi: " + err.message + "\nLütfen dosyayı bir sunucu üzerinden (localhost) açtığınızdan veya trdata.json dosyasının mevcut olduğundan emin olun.");
         });
-}
+    }
 
     // Başlat
-    loadFromStorage();
+    loadFromJSON();
 
     function initMapInteractions() {
       document.querySelectorAll("svg path").forEach(path => {
@@ -1437,19 +1443,4 @@
     function handleSwipe() {
       // Sağdan sola kaydırırsan (Sidebar sağda olduğu için, kapatmak için SAĞA kaydırman lazım)
       // Sidebar right:0, yani ekranın sağında. Kapatmak için +X yönünde (SAĞA) kaydırılmalı.
-      if (touchEndX > touchStartX + 100) { // 100px eşik değeri
-        resetApplicationState(); // Kapat
-      }
-    }
-    function backToCountry() {
-      dom.groupModal.classList.remove("active");
-      dom.countryModal.classList.add("active");
-    }
-    function closeLongModal() {
-      dom.longModal.classList.remove("active");
-      dom.groupModal.classList.add("active");
-    }
-  </script>
-</body>
-
-</html>
+      if (touchEndX > touchStartX + 100) { /

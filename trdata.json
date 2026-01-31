@@ -1,24 +1,7 @@
 {
   "AO": {
     "name_tr": "Angola",
-    "groups": [
-      {
-        "name_tr": "FLEC (Cabinda)",
-        "kategori": "Ayrılıkçı",
-        "details": {
-          "grup_durumu": "Aktif/Pasif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "BI": {
     "name_tr": "Burundi",
@@ -26,16 +9,7 @@
   },
   "BJ": {
     "name_tr": "Benin",
-    "groups": [
-      {
-        "name_tr": "KARAKEDİ",
-        "kategori": "Ayrılıkçı",
-        "grup_durumu": "Aktif",
-        "details": {
-          "olusum_sureci": "<p>KARAKEDİTUVASDK</p>"
-        }
-      }
-    ]
+    "groups": []
   },
   "BF": {
     "name_tr": "Burkina Faso",
@@ -47,40 +21,7 @@
   },
   "CF": {
     "name_tr": "Orta Afrika Cumhuriyeti",
-    "groups": [
-      {
-        "name_tr": "Seleka",
-        "kategori": "İsyancı Koalisyon",
-        "details": {
-          "grup_durumu": "Dağıldı/Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      },
-      {
-        "name_tr": "Anti-Balaka",
-        "kategori": "Milist Güç",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "CI": {
     "name_tr": "Fildişi Sahili",
@@ -88,98 +29,15 @@
   },
   "CM": {
     "name_tr": "Kamerun",
-    "groups": [
-      {
-        "name_tr": "Boko Haram (Kamerun Kolu)",
-        "kategori": "Cihadist",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      },
-      {
-        "name_tr": "Ambazonya Savunma Güçleri",
-        "kategori": "Ayrılıkçı",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "CD": {
     "name_tr": "Demokratik Kongo Cum.",
-    "groups": [
-      {
-        "name_tr": "M23 Hareketi",
-        "kategori": "İsyancı",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      },
-      {
-        "name_tr": "ADF (Müttefik Demokratik Güçler)",
-        "kategori": "Cihadist / İsyancı",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "CG": {
     "name_tr": "Kongo Cumhuriyeti",
-    "groups": [
-      {
-        "name_tr": "Ninja Milisleri",
-        "kategori": "Milis",
-        "details": {
-          "grup_durumu": "Pasif/Terhis",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "DJ": {
     "name_tr": "Cibuti",
@@ -191,24 +49,7 @@
   },
   "EG": {
     "name_tr": "Mısır",
-    "groups": [
-      {
-        "name_tr": "Sina Vilayeti (IŞİD)",
-        "kategori": "Cihadist",
-        "details": {
-          "grup_durumu": "Aktif/Zayıflamış",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "ER": {
     "name_tr": "Eritre",
@@ -216,40 +57,7 @@
   },
   "ET": {
     "name_tr": "Etiyopya",
-    "groups": [
-      {
-        "name_tr": "TPLF (Tigray Halk Kurtuluş Cephesi)",
-        "kategori": "Etnik Ayrılıkçı / Siyasi",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      },
-      {
-        "name_tr": "OLA (Oromo Kurtuluş Ordusu)",
-        "kategori": "Ayrılıkçı",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "GA": {
     "name_tr": "Gabon",
@@ -277,24 +85,7 @@
   },
   "KE": {
     "name_tr": "Kenya",
-    "groups": [
-      {
-        "name_tr": "El-Şebab (Kenya Hücreleri)",
-        "kategori": "Cihadist",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "LR": {
     "name_tr": "Liberya",
@@ -302,24 +93,7 @@
   },
   "LY": {
     "name_tr": "Libya",
-    "groups": [
-      {
-        "name_tr": "LNA (Libya Ulusal Ordusu - Hafter)",
-        "kategori": "Silahlı Güç",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "LS": {
     "name_tr": "Lesotho",
@@ -337,35 +111,19 @@
     "name_tr": "Mali",
     "groups": [
       {
-        "name_tr": "KARAKEDİ",
-        "kategori": "Ayrılıkçı",
+        "name_tr": "X ÖRGÜTÜ",
+        "kategori": "Cihatçı",
         "grup_durumu": "Aktif",
         "details": {
-          "olusum_sureci": "<p><strong>KARAKEDİTUVASDK</strong></p><p><strong><em>KARAKEDİÖRGÜTÜŞUDUR</em></strong></p><p><br></p><p><a href=\"https://main.un.org/securitycouncil/en/content/jamaa-nusrat-ul-islam-wa-al-muslimin-jnim\" target=\"_blank\">KAYNAK</a></p>"
+          "olusum_sureci": "<p>SSSSSSSSSSSSSSSSS</p><p><strong>AAAAAAAAAAAAAAAAAA</strong></p>",
+          "nihai_hedef": "<p>ASDASD</p><p><br></p><p><br></p><ol><li>ASDSAD</li><li>SAD</li><li>SAD</li><li><br></li></ol>"
         }
       }
     ]
   },
   "MZ": {
     "name_tr": "Mozambik",
-    "groups": [
-      {
-        "name_tr": "IŞİD-Mozambik (El-Şebab)",
-        "kategori": "Cihadist",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "MR": {
     "name_tr": "Moritanya",
@@ -381,98 +139,15 @@
   },
   "NE": {
     "name_tr": "Nijer",
-    "groups": [
-      {
-        "name_tr": "KARAKEDİ",
-        "kategori": "Ayrılıkçı",
-        "grup_durumu": "Aktif",
-        "details": {
-          "olusum_sureci": "<p>KARAKEDİTUVASDK</p>"
-        }
-      }
-    ]
+    "groups": []
   },
   "NG": {
     "name_tr": "Nijerya",
-    "groups": [
-      {
-        "name_tr": "Boko Haram (JAS)",
-        "kategori": "Cihadist",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      },
-      {
-        "name_tr": "ISWAP (IŞİD Batı Afrika)",
-        "kategori": "Cihadist",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      },
-      {
-        "name_tr": "IPOB (Biafra Yerli Halkları)",
-        "kategori": "Ayrılıkçı",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      },
-      {
-        "name_tr": "KARAKEDİ",
-        "kategori": "Ayrılıkçı",
-        "grup_durumu": "Aktif",
-        "details": {
-          "olusum_sureci": "<p>KARAKEDİTUVASDK</p>"
-        }
-      }
-    ]
+    "groups": []
   },
   "RW": {
     "name_tr": "Ruanda",
-    "groups": [
-      {
-        "name_tr": "FDLR",
-        "kategori": "İsyancı",
-        "details": {
-          "grup_durumu": "Aktif (DRC merkezli)",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "EH": {
     "name_tr": "Batı Sahra",
@@ -480,45 +155,11 @@
   },
   "SD": {
     "name_tr": "Sudan",
-    "groups": [
-      {
-        "name_tr": "HDK (Hızlı Destek Kuvvetleri)",
-        "kategori": "Paramiliter",
-        "details": {
-          "grup_durumu": "Aktif (Savaş Halinde)",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "SS": {
     "name_tr": "Güney Sudan",
-    "groups": [
-      {
-        "name_tr": "SPLM-IO",
-        "kategori": "İsyancı / Siyasi",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "SN": {
     "name_tr": "Senegal",
@@ -534,24 +175,7 @@
   },
   "TD": {
     "name_tr": "Çad",
-    "groups": [
-      {
-        "name_tr": "FACT",
-        "kategori": "İsyancı",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "TG": {
     "name_tr": "Togo",
@@ -567,24 +191,7 @@
   },
   "UG": {
     "name_tr": "Uganda",
-    "groups": [
-      {
-        "name_tr": "LRA (Tanrı'nın Direniş Ordusu)",
-        "kategori": "Dini / İsyancı",
-        "details": {
-          "grup_durumu": "Zayıflamış",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
   },
   "ZA": {
     "name_tr": "Güney Afrika",
@@ -600,39 +207,10 @@
   },
   "SO": {
     "name_tr": "Somali",
-    "groups": [
-      {
-        "name_tr": "El-Şebab",
-        "kategori": "Cihadist",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      },
-      {
-        "name_tr": "IŞİD-Somali",
-        "kategori": "Cihadist",
-        "details": {
-          "grup_durumu": "Aktif",
-          "olusum_sureci": "...",
-          "nihai_hedef": "...",
-          "yonetim_yapisi": "...",
-          "eylem_metotlari": "...",
-          "onemli_eylemler": "...",
-          "finansman_kaynaklari": "...",
-          "grup_iliskileri": "...",
-          "diger_bilgiler": "...",
-          "kaynakca": "..."
-        }
-      }
-    ]
+    "groups": []
+  },
+  "": {
+    "name_tr": null,
+    "groups": []
   }
 }

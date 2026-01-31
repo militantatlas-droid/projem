@@ -2,575 +2,348 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MİLİTAN ATLASI | HARİTALI YÖNETİM</title>
+  <title>MİLİTAN ATLASI | YAZAR VE EDİTÖR PANELİ</title>
   <style>
-    /* ─── TEMEL TASARIM ─── */
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #111;
-      color: #eee;
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
+    :root { --accent: #4ade80; --bg: #0f0f0f; --panel: #1a1a1a; --border: #333; }
+    body { font-family: sans-serif; background: var(--bg); color: #eee; margin: 0; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
+    
     /* ÜST BAR */
-    #top-bar {
-      height: 50px;
-      background: #252525;
-      border-bottom: 1px solid #333;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      z-index: 100;
-    }
-    .brand { color: #4ade80; font-weight: bold; font-size: 18px; }
+    #header { height: 60px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; }
+    .logo { color: var(--accent); font-weight: bold; font-size: 20px; letter-spacing: 1px; }
 
-    /* ANA KONTEYNER (3 SÜTUN) */
-    #main-container {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-      position: relative;
-    }
+    #main { display: flex; flex: 1; position: relative; overflow: hidden; }
 
-    /* 1. SOL PANEL: LİSTE */
-    #sidebar {
-      width: 300px;
-      background: #1a1a1a;
-      border-right: 1px solid #333;
-      display: flex;
-      flex-direction: column;
-      z-index: 50;
-    }
-    .sidebar-header { padding: 10px; border-bottom: 1px solid #333; background: #222; }
-    .search-input { 
-      width: 100%; padding: 8px; background: #000; border: 1px solid #444; color: #fff; border-radius: 4px; 
-    }
-    #group-list { flex: 1; overflow-y: auto; }
-    
-    .list-item {
-      padding: 10px; border-bottom: 1px solid #2a2a2a; cursor: pointer; border-left: 3px solid transparent;
-    }
-    .list-item:hover { background: #252525; }
-    .list-item.active { background: #2a2a2a; border-left-color: #4ade80; }
-    .item-name { display: block; font-weight: bold; color: #ddd; }
-    .item-meta { font-size: 11px; color: #888; }
+    /* HARİTA ALANI */
+    #map-container { flex: 1; background: #050505; position: relative; cursor: grab; }
+    svg { width: 100%; height: 100%; }
+    path { fill: #252525; stroke: #000; stroke-width: 0.8; transition: 0.2s; cursor: pointer; }
+    path:hover { fill: #333; stroke: var(--accent); }
+    path.selected { fill: #1a3a2a; stroke: var(--accent); stroke-width: 2; }
 
-    /* 2. ORTA PANEL: HARİTA */
-    #map-area {
-      flex: 1;
-      background: #050505;
-      position: relative;
-      overflow: hidden;
-    }
-    #map-wrapper { width: 100%; height: 100%; cursor: grab; }
-    #map-wrapper:active { cursor: grabbing; }
-    
-    svg path {
-      fill: #2a2a2a; /* Varsayılan Boş Ülke */
-      stroke: #000;
-      stroke-width: 1;
-      transition: fill 0.3s;
-      cursor: pointer;
-    }
-    svg path:hover { fill: #444; }
-    svg path.has-data { fill: #1f5f33; } /* Verisi olan ülke (Koyu Yeşil) */
-    svg path.has-data:hover { fill: #4ade80; }
-    
-    svg path.selected { 
-      stroke: #fff; 
-      stroke-width: 2; 
-      fill: #4ade80 !important; /* Seçili Ülke (Parlak) */
+    /* BİLGİ KUTUSU (Tooltip) */
+    #tooltip {
+      position: absolute; pointer-events: none; background: rgba(0,0,0,0.9);
+      border: 1px solid var(--accent); padding: 10px; border-radius: 5px;
+      font-size: 13px; display: none; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
     }
 
-    /* 3. SAĞ PANEL: EDİTÖR (Kayan Panel) */
+    /* SAĞ EDİTÖR PANELİ */
     #editor-panel {
-      width: 400px;
-      background: #1f1f1f;
-      border-left: 1px solid #333;
-      display: flex;
-      flex-direction: column;
-      position: absolute;
-      right: -400px; /* Başlangıçta gizli */
-      top: 0; bottom: 0;
-      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 60;
-      box-shadow: -5px 0 20px rgba(0,0,0,0.5);
+      width: 500px; background: var(--panel); border-left: 1px solid var(--border);
+      display: flex; flex-direction: column; transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: absolute; right: 0; top: 0; bottom: 0; z-index: 200;
     }
-    #editor-panel.open { right: 0; }
+    #editor-panel.open { transform: translateX(0); }
 
-    .editor-header {
-      padding: 15px; background: #252525; border-bottom: 1px solid #333;
-      display: flex; justify-content: space-between; align-items: center;
+    .panel-header { padding: 20px; background: #222; border-bottom: 1px solid var(--border); }
+    .panel-content { flex: 1; overflow-y: auto; padding: 20px; }
+
+    /* SEKMELİ YAPI (YAZAR MODU) */
+    .tabs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .tab-btn { 
+      background: #252525; border: 1px solid var(--border); color: #888; 
+      padding: 6px 12px; cursor: pointer; font-size: 11px; border-radius: 3px;
     }
-    .editor-body { flex: 1; overflow-y: auto; padding: 15px; }
+    .tab-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
     /* FORM ELEMANLARI */
-    label { display: block; margin-top: 12px; font-size: 12px; color: #4ade80; font-weight: bold; }
+    label { display: block; margin-top: 15px; color: var(--accent); font-size: 12px; font-weight: bold; text-transform: uppercase; }
     input, select, textarea {
-      width: 100%; padding: 8px; margin-top: 4px;
-      background: #111; border: 1px solid #444; color: #fff; border-radius: 4px;
-      font-family: inherit; box-sizing: border-box;
+      width: 100%; padding: 10px; margin-top: 5px; background: #0a0a0a; 
+      border: 1px solid var(--border); color: #fff; border-radius: 4px; box-sizing: border-box;
     }
-    textarea { height: 80px; resize: vertical; }
-    input:focus, textarea:focus { border-color: #4ade80; outline: none; }
+    textarea { height: 180px; line-height: 1.5; font-family: 'Courier New', monospace; }
+    
+    /* GRUP LİSTESİ (Ülke içi) */
+    .group-selector { background: #222; padding: 10px; border-radius: 5px; margin-bottom: 20px; }
+    .group-pill { 
+      display: inline-block; padding: 5px 10px; background: #333; margin: 3px; 
+      border-radius: 3px; cursor: pointer; font-size: 12px; 
+    }
+    .group-pill.active { background: var(--accent); color: #000; }
 
     /* BUTONLAR */
-    .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-    .btn-primary { background: #4ade80; color: #000; }
-    .btn-danger { background: #ff4444; color: #fff; width: 100%; margin-top: 20px; }
-    .btn-sm { font-size: 11px; padding: 4px 8px; }
-    
-    .zoom-controls {
-      position: absolute; bottom: 20px; right: 20px;
-      display: flex; flex-direction: column; gap: 5px;
-    }
-    .zoom-btn { width: 30px; height: 30px; background: #333; color: #fff; border: 1px solid #555; cursor: pointer; }
+    .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+    .btn-save { background: var(--accent); color: #000; }
+    .btn-add { background: #2563eb; color: #fff; width: 100%; margin-top: 10px; }
+    .btn-delete { background: #dc2626; color: #fff; margin-top: 30px; font-size: 11px; opacity: 0.6; }
+    .btn-delete:hover { opacity: 1; }
 
-    /* Başlangıç Ekranı */
-    #start-screen {
-      position: absolute; inset: 0; background: rgba(0,0,0,0.95); z-index: 999;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-    .upload-box {
-      border: 2px dashed #4ade80; padding: 40px; border-radius: 10px;
-      text-align: center; color: #fff; cursor: pointer;
-    }
-    
-    .badge-country { background: #333; color: #aaa; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px;}
+    /* DOSYA YÜKLEME EKRANI */
+    #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; text-align: center; }
   </style>
 </head>
 <body>
 
-  <div id="start-screen">
-    <h1 style="color:#4ade80;">MİLİTAN ATLASI | HARİTALI EDİTÖR</h1>
-    <div class="upload-box" onclick="document.getElementById('file-input').click()">
-      <h3>📂 trdata.json Dosyasını Yükle</h3>
-      <p>Sisteme başlamak için tıklayın.</p>
+<div id="overlay">
+  <div>
+    <h1 style="color:var(--accent)">MİLİTAN ATLASI EDİTÖR V2</h1>
+    <p>Düzenlemek istediğiniz <b>trdata.json</b> dosyasını seçin.</p>
+    <input type="file" id="json-input" accept=".json" style="display:none">
+    <button class="btn btn-save" onclick="document.getElementById('json-input').click()">DOSYA YÜKLE</button>
+  </div>
+</div>
+
+<div id="header">
+  <div class="logo">MİLİTAN ATLASI | <span id="current-mode">EDİTÖR</span></div>
+  <button class="btn btn-save" onclick="downloadJSON()">💾 JSON OLARAK KAYDET</button>
+</div>
+
+<div id="main">
+  <div id="map-container">
+    <div id="tooltip"></div>
+    <div id="map-wrapper">
+       <svg id="main-svg" viewBox="0 0 1000 500">
+         <g id="map-layer"></g>
+       </svg>
     </div>
-    <input type="file" id="file-input" accept=".json" onchange="loadJSON(this)" style="display:none;">
-    <br>
-    <button class="btn btn-primary" onclick="createNewData()">Sıfırdan Başla</button>
   </div>
 
-  <div id="top-bar">
-    <div class="brand">🗺️ MAP ADMIN</div>
-    <div>
-      <span id="status-msg" style="font-size:12px; color:#888; margin-right:15px;"></span>
-      <button class="btn btn-primary" onclick="downloadJSON()">💾 KAYDET VE İNDİR</button>
-    </div>
-  </div>
-
-  <div id="main-container">
-    
-    <div id="sidebar">
-      <div class="sidebar-header">
-        <input type="text" id="list-search" class="search-input" placeholder="Örgüt veya Ülke Ara..." oninput="renderList(this.value)">
-        <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:12px; color:#aaa;" id="filter-info">Tüm Gruplar</span>
-          <button class="btn btn-primary btn-sm" id="btn-add-global" onclick="addNewGroupDialog()">+ EKLE</button>
+  <div id="editor-panel">
+    <div class="panel-header">
+      <h2 id="edit-country-name" style="margin:0; color:var(--accent);">Ülke Seçilmedi</h2>
+      <div id="group-list-area" class="group-selector">
         </div>
-      </div>
-      <div id="group-list">
-        </div>
+      <button class="btn btn-add" onclick="addNewGroup()">+ Yeni Örgüt Ekle</button>
     </div>
 
-    <div id="map-area">
-      <div id="map-wrapper">
-        <svg id="svg-map" viewBox="0 0 1000 1000" style="width:100%; height:100%; display:block;">
-            <g id="map-transform-group">
-               <path id="TR" data-name="Turkey" d="M 618.3,270 L 620,270 ... (Buraya uzun SVG path kodları gelecek ama senin için JS ile kısa yol yapacağım, aşağıya bak)" />
-               
-               <path id="AO" data-name="Angola" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z" />
-               <path id="TR" data-name="Turkey" d="M 650,250 L 660,260 L 640,260 Z" style="display:none;"/> </g>
-        </svg>
+    <div class="panel-content" id="editor-fields" style="display:none;">
+      <label>Örgüt Adı</label>
+      <input type="text" id="f-name" oninput="syncData()">
+
+      <label>Kategori</label>
+      <select id="f-cat" onchange="syncData()">
+        <option value="Terör Örgütü">Terör Örgütü</option>
+        <option value="Milis Gücü">Milis Gücü</option>
+        <option value="İsyancı Grup">İsyancı Grup</option>
+        <option value="Paramiliter">Paramiliter</option>
+      </select>
+
+      <div class="tabs" style="margin-top:20px;">
+        <button class="tab-btn active" onclick="showTab(0)">Oluşum</button>
+        <button class="tab-btn" onclick="showTab(1)">Hedef</button>
+        <button class="tab-btn" onclick="showTab(2)">Yönetim</button>
+        <button class="tab-btn" onclick="showTab(3)">Taktik</button>
+        <button class="tab-btn" onclick="showTab(4)">Eylemler</button>
+        <button class="tab-btn" onclick="showTab(5)">Kaynak</button>
+        <button class="tab-btn" onclick="showTab(6)">İlişkiler</button>
+        <button class="tab-btn" onclick="showTab(7)">Diğer</button>
+        <button class="tab-btn" onclick="showTab(8)">Kaynakça</button>
       </div>
-      <div class="zoom-controls">
-        <button class="zoom-btn" onclick="manualZoom(1.2)">+</button>
-        <button class="zoom-btn" onclick="manualZoom(0.8)">-</button>
-        <button class="zoom-btn" onclick="resetZoom()">⟲</button>
+
+      <div id="tab-container">
+        <div class="tab-content active"><label>Oluşumu ve Gelişimi</label><textarea id="f-olusum" oninput="syncData()"></textarea></div>
+        <div class="tab-content"><label>Amaç ve Nihai Hedef</label><textarea id="f-hedef" oninput="syncData()"></textarea></div>
+        <div class="tab-content"><label>Yönetim ve Yapılanma</label><textarea id="f-yonetim" oninput="syncData()"></textarea></div>
+        <div class="tab-content"><label>Kullandıkları Eylem Taktikleri</label><textarea id="f-taktik" oninput="syncData()"></textarea></div>
+        <div class="tab-content"><label>Eylemler</label><textarea id="f-eylem" oninput="syncData()"></textarea></div>
+        <div class="tab-content"><label>Kaynak Temini</label><textarea id="f-kaynak" oninput="syncData()"></textarea></div>
+        <div class="tab-content"><label>Diğer Gruplarla İlişkiler</label><textarea id="f-iliski" oninput="syncData()"></textarea></div>
+        <div class="tab-content"><label>Diğer Bilgiler</label><textarea id="f-diger" oninput="syncData()"></textarea></div>
+        <div class="tab-content"><label>Kaynakça (Linkler vb.)</label><textarea id="f-ref" oninput="syncData()" placeholder="Örn: [1] Haber Linki..."></textarea></div>
       </div>
+
+      <button class="btn btn-delete" onclick="deleteCurrentGroup()">BU ÖRGÜTÜ SİL</button>
     </div>
-
-    <div id="editor-panel">
-      <div class="editor-header">
-        <h3 style="margin:0; color:#4ade80;">GRUP DÜZENLE</h3>
-        <button class="btn btn-sm" onclick="closeEditor()">X</button>
-      </div>
-      <div class="editor-body" id="form-area">
-         <label>Görünen Ad</label>
-         <input type="text" id="inp-name" oninput="updateData('name_tr', this.value)">
-
-         <label>Kategori</label>
-         <select id="inp-cat" onchange="updateData('kategori', this.value)">
-             <option value="Terör Örgütü">Terör Örgütü</option>
-             <option value="Milis Gücü">Milis Gücü</option>
-             <option value="İsyancı Grup">İsyancı Grup</option>
-             <option value="Paramiliter">Paramiliter</option>
-             <option value="Bilinmiyor">Bilinmiyor</option>
-         </select>
-
-         <label>Durum</label>
-         <input type="text" id="inp-status" oninput="updateDetail('grup_durumu', this.value)">
-
-         <label>Oluşum Süreci</label>
-         <textarea oninput="updateDetail('olusum_sureci', this.value)" id="txt-olusum"></textarea>
-
-         <label>Amaç / Hedef</label>
-         <textarea oninput="updateDetail('nihai_hedef', this.value)" id="txt-amac"></textarea>
-         
-         <label>Yönetim Yapısı</label>
-         <textarea oninput="updateDetail('yonetim_yapisi', this.value)" id="txt-yonetim"></textarea>
-         
-         <label>Eylem Metotları</label>
-         <textarea oninput="updateDetail('eylem_metotlari', this.value)" id="txt-metot"></textarea>
-
-         <label>İlişkiler</label>
-         <textarea oninput="updateDetail('grup_iliskileri', this.value)" id="txt-iliski"></textarea>
-
-         <button class="btn btn-danger" onclick="deleteGroup()">SİL</button>
-      </div>
-    </div>
-
   </div>
+</div>
 
 <script>
-    // ─── HARİTA PATH VERİLERİ (Senin Dosyandan) ───
-    const mapPathsHTML = `
-      <path id="AO" data-name="Angola" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z" />
-      <path id="BI" data-name="Burundi" d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
-      <path id="BJ" data-name="Benin" d="m 340,356 -9.3,-8 -4.3,0.1 -4.1,4 -2.6,4.2 -6,1.2 -2.5,6.1 -4.1,1.6 -1.6,7.2 3.7,4.1 4.3,4.9 0.4,6.8 2.5,2.8 -0.5,31.8 3,9.5 10.1,-1.6 0.6,-22.3 -0.3,-8.8 2.3,-8.7 3.7,-4.3 5.9,-8.5 -1.3,-3.7 2.4,-5.6 -2.8,-8.2 0.5,-4.6 z" />
-      <path id="BF" data-name="Burkina Faso" d="m 300.7,310.8 -7.8,0 -3,-2.6 -6.7,1.9 -11.3,5.8 -2.3,4.3 -9.4,6.2 -1.7,3.6 -5.1,2.8 -5.8,-1.9 -3.4,3.4 -1.8,9.5 -9.7,11.4 0.3,4.7 -3.4,5.9 0.8,8 5.5,3 2.1,4.6 5.4,2.9 4.3,-3.4 5.7,-0.6 8.3,3.6 -1.6,-10.4 0.3,-7.9 21.1,-0.6 5.4,1 3.9,-2.2 5.6,1.1 10.7,0.3 4.1,-1.6 2.5,-6.1 6,-1.2 2.6,-4.2 0.3,-9.5 -14,-3.1 -0.4,-6.7 -6.9,-9 -1.6,-6.3 1,-6.7 z" />
-      <path id="BW" data-name="Botswana" d="m 600.6,762.7 -2.2,-1 -6.9,3.1 -3.6,0 -7.9,5.4 -4.4,-5.7 -18.7,4.9 -9,0.4 -1.9,49.3 -11.8,0.5 -1.4,40.4 3.2,2 6.5,13.2 -1.5,8.4 2.5,4.9 8.5,-1.4 6.2,-6.2 5.8,-4.2 3.2,-6.6 6,-3.2 4.9,1.7 5.5,3.9 9.6,0.6 7.8,-3.2 1.4,-4.3 2.4,-6.6 6.5,-1.1 3.9,-5.2 4.4,-9.3 11.2,-10.3 17.3,-10.2 -7.3,-6.2 -9.2,-2.1 -3.1,-8.8 0.2,-4.9 -5.1,-1.5 -13,-15.2 -3.5,-8 -2.3,-2.4 -4.2,-11.1 z" />
-      <path id="CF" data-name="Central African Rep." d="m 587,398.1 -1,-0.7 -4.2,-4 -0.9,-4.3 1.9,-5.7 -0.1,-5.7 -7.2,-8.6 -1.5,-5.9 -7.7,2.3 -6,5.6 -8.6,15.1 -11.3,6.4 -11.8,-0.8 -3.4,1.2 1.2,4.9 -6.3,4.8 -5.1,5.4 -15.3,5.3 -3,-3.1 -2.1,-0.3 -2.2,3.6 -10,1 -6.1,14 -2.9,2.6 -0.8,10.7 1.2,5.8 -0.9,4.1 5.8,7.3 1,4.9 4.6,7.2 5.6,4.4 0.6,6.3 1.3,4 6.3,-12.8 7.3,-7.4 8.2,2.4 7.9,0.7 1,-9.6 4.7,-7.1 6.5,-4.4 10.1,4.7 7.8,5.1 9,1.4 9.1,2.7 3.6,-8.4 1.6,-1.1 5.6,1.4 13.5,-6.9 4.9,3 3.9,-0.5 1.8,-3.3 4.5,-1.2 9.2,1.4 7.9,0.4 4,-1.5 -2,-4.4 -9.2,-5.5 -3.2,-8.3 -5.2,-6 -8.3,-7.2 -0.1,-4.5 -6.8,-5.5 -8.4,-5.4 z" />
-      <path id="CI" data-name="Côte d'Ivoire" d="m 230.4,373.8 -5,2.1 -2.9,1.7 -1.8,-5.9 -3.5,1.6 -2.1,-0.3 -2.3,4 -9.4,-0.1 -3.3,-2.1 -1.6,1.3 -2.5,1.1 -1,4.7 2.8,5.7 3,11.1 -4.6,1.6 -1.1,1.9 0.9,2.7 -0.8,6.1 -1.9,0 -0.6,4 1.2,6.7 -2.7,6.1 3.6,3.8 3.8,0.9 5.2,5.8 0.3,5.5 -1.1,1.7 -1,11.4 2.3,0.4 12.1,-5.1 8.5,-4 14.5,-2.4 7.8,-0.2 8.5,2.7 5.6,-0.1 0.5,-5.5 -5.2,-11.9 3.2,-15.6 5.1,-11.6 -3.2,-19.7 -8.3,-3.6 -5.7,0.6 -4.3,3.4 -5.4,-2.9 -2.1,-4.6 -5.5,-3 z" />
-      <path id="CM" data-name="Cameroon" d="m 477.5,366.6 0.4,-9.2 -1,-9.1 -4.9,-8.9 -3.4,0.8 -0.4,4.4 4.9,5.5 -1.3,2.5 -0.5,4.6 -10.2,10.7 -3.1,8.8 -1.6,7.2 -2.6,3.1 -2.4,9.7 -6.4,5.7 -1.9,7 -2.7,5.6 -1.1,5.7 -8.3,4.7 -6.9,-5.7 -4.6,0.2 -7.2,8.1 -3.6,0.1 -5.7,13.4 -3.1,9.8 -0.1,3.8 3.1,2 2.5,6.2 5.6,2.3 4.8,9.2 -1.8,10.9 19.9,0.3 5.8,-0.9 7.4,1.9 7.3,-1.8 1.5,0.7 15.4,0.6 9.9,3.6 9.7,3.3 0.9,-7.5 -1.3,-4 -0.6,-6.3 -5.6,-4.4 -4.6,-7.2 -1,-4.9 -5.8,-7.3 0.9,-4.1 -1.2,-5.8 0.8,-10.7 2.9,-2.6 6.1,-14 1.8,-3.7 -3.9,-9.6 -1.8,-5.7 -5.3,-2.3 -7.2,-8.1 2.5,-6.5 5.6,1.3 3.4,-0.9 6.8,0.1 -6.8,-12.6 z" />
-      <path id="CD" data-name="Dem. Rep. Congo" d="m 618.3,446 -9.2,-1.4 -4.5,1.2 -1.8,3.3 -3.9,0.5 -4.9,-3 -13.5,6.9 -5.6,-1.4 -1.6,1.1 -3.6,8.4 -9.1,-2.7 -9,-1.4 -7.8,-5.1 -10.1,-4.7 -6.5,4.4 -4.7,7.1 -1,9.6 -0.7,8.4 -3.6,7.4 -2.4,8.6 -1.5,12.3 0.7,7.8 -2,4.8 -0.3,5.1 -1.4,4.4 -8.1,6.7 -5.6,7.1 -5.3,13.4 0.3,11.4 -3.1,4.4 -7.2,6.8 -7.2,8.7 -4.5,-2.5 -0.8,-3.9 -6.6,-0.1 -4.2,5.3 -3.2,-1.4 -4.5,2.9 -2,3.5 -0.4,6 -3.1,1.5 1.6,4.3 5.1,-1.9 3.5,0.3 4.3,-1.7 36,0.2 2.9,10.3 3.5,8.3 2.7,4.5 4.6,7.2 8.1,-1.1 4,-1.9 6.7,1.9 1.9,-3.4 3.1,-8.1 7.6,-0.5 0.7,-2.4 6.2,-0.1 -1.1,5 14.8,-0.1 0.1,8.7 2.4,5.3 -1.9,8.4 0.8,8.5 3.9,5.1 -0.9,16.5 3,-1.3 5.3,0.3 7.6,-2 5.5,0.8 4.2,0.3 0.6,4.3 5.7,-0.3 7.7,1.3 3.9,6.2 9.7,2 7.5,-4.4 2.6,7.3 9.2,1.9 4.3,5.9 4.8,7.6 9.3,0.1 -0.6,-14.9 -3.4,2.5 -8.4,-5.4 -3.2,-2.4 1.9,-13.9 2.5,-16.4 -2.6,-6.1 3.6,-8.8 3.3,-1.7 16.4,-2.3 2.1,0.6 0.6,-2.3 -3.4,-3.7 -1.5,-7.6 -7.3,-7.6 -4.1,-9.9 2.3,-5.8 -3.2,-7.8 2.4,-22.1 0.1,0.2 -0.1,-2.4 -3,-6.3 1.2,-7.6 1.7,-1 0.5,-8.3 3.5,-3.8 0.1,-10.5 2.9,-5.3 0.6,-11.1 2.6,-6.4 4.6,-7.2 4.7,-3.7 3.9,-4.9 -4.9,-1.9 0.6,-16.1 0,0 -10.9,-9.2 -2.9,-5.9 -6.8,2.9 -5.7,-0.9 -3.2,2.3 -5.5,-1.7 -7.5,-11.4 -4,1.5 -7.9,-0.4 z" />
-      <path id="CG" data-name="Congo" d="m 521.5,468.8 -7.9,-0.7 -8.2,-2.4 -7.3,7.4 -6.3,12.8 -0.9,7.5 -9.7,-3.3 -9.9,-3.6 -15.4,-0.6 -0.9,6.1 3.4,7.1 9.1,-1.1 3.1,2.7 -5.3,16.1 5.8,8.2 1.3,10.8 -1.6,9.2 -3.7,6.5 -10.8,-0.6 -6.5,-6.6 -1,6.1 -8.3,1.7 -4.2,3.5 4.6,9.1 -9.3,7.7 9.9,14.6 5,-6 3.7,-2.3 4.6,4.8 3.2,1.4 4.2,-5.3 6.6,0.1 0.8,3.9 4.5,2.5 7.2,-8.7 7.2,-6.8 3.1,-4.4 -0.3,-11.4 5.3,-13.4 5.6,-7.1 8.1,-6.7 1.4,-4.4 0.3,-5.1 2,-4.8 -0.7,-7.8 1.5,-12.3 2.4,-8.6 3.6,-7.4 0.7,-8.4 z" />
-      <path id="DJ" data-name="Djibouti" d="m 820.3,358.7 -5.3,-3.8 6.8,-3.3 0.1,-5.7 -3,-4.3 -3.6,3.4 -5.2,-1.2 -4,6.1 -3.9,6.5 1.1,3.8 0.3,4.2 6.8,0.2 2.9,-0.9 2.8,2.4 4.2,-7.4 z" />
-      <path id="DZ" data-name="Algeria" d="M 392.4,5.7 384.6,6.5 379.8,3.3 367.6,3.4 357,8.9 351.2,6.8 332.3,8 l -19.4,2.5 -11,4.3 -7.2,5.8 -12.4,2.4 -11.1,7.7 4.2,9 0.7,8.4 3.9,14.7 3.1,2.9 -2.2,5.4 -15.2,2.3 -5.4,5.1 -6.7,1.2 -0.6,10.2 -13.8,5.4 -4.6,7 -9.6,3.7 -11.8,2.1 -19.2,10.2 -0.2,16.3 0,1 -0.3,2.7 44.1,33.5 40,30.2 40.4,30.2 2.9,6.4 7.5,4 5.5,2.2 0.2,8.8 13.3,-1.3 16.9,-6.2 34.5,-27.1 40.5,-26.4 -5.4,-8.7 -9.6,-6.4 -5.5,2.5 -4.3,-7.7 -0.6,-5.9 -7.2,-10.1 4.6,-5.8 -1.3,-8.7 1.4,-7.6 -1,-6.3 1.8,-11.3 -0.8,-6.4 -4.1,-12.2 -5.7,-24.7 -7.3,-5.6 -0.2,-3.3 -9.7,-8.3 -1.3,-10.4 7,-7.8 2.4,-11.6 -2.3,-13.4 2.2,-7.2 z" />
-      <path id="EG" data-name="Egypt" d="m 628.8,88.1 -11.9,-4 -11.5,-3.7 -15.6,0.2 -3.7,6.6 2.2,5.9 -2.4,8.5 4.2,11.2 2.9,49.2 2.2,50.9 48.1,0 46.4,0 47.4,0 -2.2,-2.8 -14.7,-12.4 -0.9,-9 2.2,-2.4 -11.6,-15.3 -4.4,-7.9 -4.9,-7.5 -10.5,-21.6 -8.4,-13.9 -6.1,-14.5 1.1,-1.3 10.1,19.8 5.8,6.2 4.3,4.4 2.5,-2.4 2.7,-7.2 1.6,-10.4 2.8,-5.6 -1.5,-3.5 -8.5,-20.1 0,0 -5.4,3.4 -9.2,-0.8 -9.6,-3.2 -2.3,4.5 -3.8,-6.8 -8.5,-1.8 -10.2,1.2 -4.5,3.9 -8.6,4.4 -5.6,-2.2 z" />
-      <path id="ER" data-name="Eritrea" d="m 777.6,303.8 -7,-6.8 -4,-12.7 -7.8,-16 -5.7,7.9 -8.8,2.3 -3.6,4.2 -0.7,9.2 -4.3,20.3 1.5,5.6 14.3,2.9 3.3,-10.4 7.6,6.3 7,-3.2 3,2.9 8.3,0.1 10.8,5.6 3.4,4.8 5.5,4.4 5.4,8.1 4.3,4.5 5.2,1.2 3.6,-3.4 -6.2,-4.2 -4,-4.7 -6.9,-8 -7.1,-7.9 -17.1,-13 z" />
-      <path id="ET" data-name="Ethiopia" d="m 754.8,310.3 -3.3,10.4 -14.3,-2.9 -1.4,11.9 -4.5,13.6 -7.1,6.8 -4.8,10.6 -1.1,5.7 -5.6,3.8 -3.3,14.5 0.1,1.7 0.4,10.8 -1.8,4.2 -6.4,0.3 -4,7.9 7.5,1 6.3,6.7 2.2,5.6 5.7,3.2 7.4,15 6.4,2.4 0.1,7.7 4.2,4.6 8.5,0 15.7,11.7 3.8,0.2 2.9,-0.4 2.7,1.6 8.2,1.1 3.5,-5.8 11.1,-5.8 4.9,4.7 8.4,0 3.3,-4.4 7.8,-0.2 10.7,-9.8 15.9,-0.6 33.5,-41.5 -10.3,0.1 -40.3,-16.4 -4.8,-5 -4.6,-6.6 -4.8,-7.7 2.5,-4.9 -2.8,-2.4 -2.9,0.9 -6.8,-0.2 -0.3,-4.2 -1.1,-3.8 3.9,-6.5 4,-6.1 -4.3,-4.5 -5.4,-8.1 -5.5,-4.4 -3.4,-4.8 -10.8,-5.6 -8.3,-0.1 -3,-2.9 -7,3.2 -7.6,-6.3 z" />
-      <path id="GA" data-name="Gabon" d="m 455.9,485.9 -1.5,-0.7 -7.3,1.8 -7.4,-1.9 -5.8,0.9 0.1,16.7 -17.7,-0.2 -4.2,0.8 -2.4,10.3 -3,10.1 -2.7,4.4 -0.3,4.6 7.3,14.3 8.1,11.4 12.5,14 9.3,-7.7 -4.6,-9.1 4.2,-3.5 8.3,-1.7 1,-6.1 6.5,6.6 10.8,0.6 3.7,-6.5 1.6,-9.2 -1.3,-10.8 -5.8,-8.2 5.3,-16.1 -3.1,-2.7 -9.1,1.1 -3.4,-7.1 0.9,-6.1 z" />
-      <path id="GH" data-name="Ghana" d="m 296.4,364.9 -5.6,-1.1 -3.9,2.2 -5.4,-1 -21.1,0.6 -0.3,7.9 1.6,10.4 3.2,19.7 -5.1,11.6 -3.2,15.6 5.2,11.9 -0.5,5.5 10.9,3.9 11,-4 6.7,-4.7 19.2,-8.1 -2.8,-4.9 -3.2,-8.8 -1,-6.8 2.7,-12.5 -3,-5 -1.2,-10.9 0,-10.1 -5.1,-7.1 0.9,-4.3 z" />
-      <path id="GN" data-name="Guinea" d="m 156.4,345.2 -1.8,0.7 -6.6,-1.1 -0.9,1.6 -2.7,0.3 -8.7,-3.4 -5.8,-0.1 -0.3,4.7 -1.3,1.4 0.9,4.6 -1.9,1.8 -2.7,0.1 -3.2,2.3 -3.7,-0.3 -5.5,6.8 3.6,2.2 1.7,3.1 1.3,6.1 3,2.7 3.1,1.8 4.7,5.4 5.3,8.2 6.5,-6.1 1.5,-3.8 2.1,-3 3.3,-0.3 2.9,-2.6 9.7,0 3.3,5 2.6,5.8 -0.4,4 1.9,3.6 -0.1,5.1 3.3,-0.8 2.6,-0.3 3.2,-1.6 5.1,8.5 -0.9,5.6 2.4,2.9 3.4,0.1 2.6,-5.6 3.4,0.4 1.9,0 0.8,-6.1 -0.9,-2.7 1.1,-1.9 4.6,-1.6 -3,-11.1 -2.8,-5.7 1,-4.7 2.5,-1.1 -3.7,-4 0.7,-4.1 -1.6,-1.6 -2.6,1.3 0.6,-4.5 2.5,-3.5 -5,-5.8 -1.4,-3.8 -2.7,-3.1 -2.4,-0.3 -2.9,1.9 -4,1.8 -3.3,3 -5.2,-1.1 -3.3,-3.5 -2,-0.4 -3.2,1.8 -2,0 -0.6,-5 z" />
-      <path id="GM" data-name="Gambia" d="m 91.9,335.4 11,0.2 3,-1.9 2.2,-0.1 4.5,-3.2 5.2,2.9 5.2,0.3 5.3,-3.1 -2.4,-4 -4,2.3 -3.8,-0.1 -4.7,-3.4 -3.8,0.2 -2.8,3.3 -13.2,0.4 -1.7,6.2 z" />
-      <path id="GW" data-name="Guinea-Bissau" d="m 129.9,343.2 -22.4,-0.6 -3.3,1.6 -4,-0.5 -6.5,2.3 0.7,2.9 3.7,3 -0.1,2.1 2.7,3.9 5.1,0.9 6.4,5.8 5.5,-6.8 3.7,0.3 3.2,-2.3 2.7,-0.1 1.9,-1.8 -0.9,-4.6 1.3,-1.4 0.3,-4.7 z" />
-      <path id="GQ" data-name="Eq. Guinea" d="m 433.9,486 -19.9,-0.3 -4.1,15.5 2.2,2.1 4.2,-0.8 17.7,0.2 -0.1,-16.7 z" />
-      <path id="KE" data-name="Kenya" d="m 807.2,463.1 -8.4,0 -4.9,-4.7 -11.1,5.8 -3.5,5.8 -8.2,-1.1 -2.7,-1.6 -2.9,0.4 -3.8,-0.2 -15.7,-11.7 -8.5,0 -4.2,-4.6 -0.1,-7.7 -6.4,-2.4 -8.1,9.1 -7.4,8.3 5.9,9.6 1.5,7 5.5,15.8 -4.4,10.1 -5.9,9.2 -3.5,5.6 0,0.7 2.9,5.2 -0.8,10.3 44.1,28.2 0.7,8 17.3,13.8 5,-4.6 2.5,-9.2 4,-5.5 1.9,-9.8 4.6,-1 3.1,-5.8 8.6,-5.5 -7.2,-11.4 -0.4,-50.4 10.5,-15.7 z" />
-      <path id="LR" data-name="Liberia" d="m 193.3,411 -3.4,-0.4 -2.6,5.6 -3.4,-0.1 -2.4,-2.9 0.9,-5.6 -5.1,-8.5 -3.2,1.6 -2.6,0.3 -5.7,6.5 -5.5,7.5 -0.7,4 -2.9,4.4 8.1,8.9 10.4,7.6 11,10.5 12.6,6.6 3.2,-0.1 1,-11.4 1.1,-1.7 -0.3,-5.5 -5.2,-5.8 -3.8,-0.9 -3.6,-3.8 2.7,-6.1 -1.2,-6.7 0.6,-4 z" />
-      <path id="LY" data-name="Libya" d="m 589.8,80.6 -3.1,-4.5 -11.7,-1.6 -3.9,-2.4 -4.4,0 -4.4,-6.2 -15.9,-2.8 -7.9,1.8 -7.9,6.5 -3.3,6.7 3.4,10.6 -5.3,6.3 -5.5,3.6 L 507,91.7 490.3,86 479.7,83.3 473.6,71 l -15.7,-6.1 -9.8,-2.3 -4.8,1.2 -13.8,-4.8 -0.3,10.6 -5.6,4 -3.4,4.4 -7.9,5.3 1.5,5.7 -0.9,5.8 -5.6,3.2 4.1,12.2 0.8,6.4 -1.8,11.3 1,6.3 -1.4,7.6 1.3,8.7 -4.6,5.8 7.2,10.1 0.6,5.9 4.3,7.7 5.5,-2.5 9.6,6.4 5.4,8.7 19,6 6.9,7.5 8.3,-5.1 11.9,-7.6 48.4,26.5 48.7,26.5 -0.1,-5.8 13.8,0 -1,-27.7 -2.2,-50.9 -2.9,-49.2 -4.2,-11.2 2.4,-8.5 -2.2,-5.9 3.7,-6.6 z" />
-      <path id="LS" data-name="Lesotho" d="m 625.3,939.9 2.5,-4.4 6.7,-2.2 2.4,-4.5 4.1,-6.7 -3.8,-4.2 -4.8,-4.2 -5.7,2.8 -6.8,5.4 -6.9,8.7 8,10.6 4.3,-1.3 z" />
-      <path id="MA" data-name="Morocco" d="m 271.2,30.7 -5,-0.1 -11.9,-3.1 -11,0.9 -6.8,-5.9 -8.5,-0.1 -3.8,8.6 -8,14.5 -8.7,5.7 -11.8,6.4 -7.7,9.3 -1.8,7.3 -4.8,11.8 2.5,17.2 -10.1,11.5 -6,3.7 -9.6,9.4 -11,1.6 -6.1,5.3 -0.2,0.2 -7.9,14.1 -8.1,5.1 -4.5,8.5 -0.5,7.4 -3.4,8.1 -4,2.2 -6.9,8.8 -4.4,9.8 0.7,4.6 -4.1,7.3 -4.7,3.7 -0.8,6.4 0.2,0.1 27,-1.1 1.6,-5 5,-6.2 4.4,-19.1 16.9,-15 6,-17.4 3.7,-1.1 4.2,-10.8 10,-1.4 4.2,1.8 5.4,0 3.9,-3.2 7.3,-0.4 -0.1,-7.5 0,0 1.8,0 0.2,-16.3 19.2,-10.2 11.8,-2.1 9.6,-3.7 4.6,-7 13.8,-5.4 0.6,-10.2 6.7,-1.2 5.4,-5.1 15.2,-2.3 2.2,-5.4 -3.1,-2.9 -3.9,-14.7 -0.7,-8.4 -4.2,-9 z" />
-      <path id="MG" data-name="Madagascar" d="m 902.9,704.8 -2.5,-9.1 -3,-5.9 -3.9,-5.9 -4.3,6.2 -0.7,8.3 -7.1,9.6 -5.1,-1.7 1.3,6 -4,6.9 -10.4,8.5 -7.3,7.9 -5.4,0.2 -4.6,2.5 -6.9,2.8 -6,0.6 -2.2,8.7 -4.7,7.8 0.2,12.7 1.7,8.7 2.4,6.6 -1.7,8.8 -6.4,10.5 -0.3,4.6 -5.7,2.4 -2.8,10 0.4,9.9 3.4,11 -0.1,12.3 2.6,7.3 9.1,5 6.5,3.5 10.9,-5.8 9.9,-3.3 6.8,-16.1 6.1,-19.2 9.3,-26.2 7.3,-19.1 5.9,-16.1 1.6,-11.7 3.5,-3.2 1.5,-5.9 -1.7,-10.2 2.6,-4.1 3.5,8.1 2.4,-4.1 1.7,-6.6 -2.8,-6.5 -1,-16.7 z" />
-      <path id="ML" data-name="Mali" d="m 347.4,252.3 -13.3,1.3 -0.2,-8.8 -5.5,-2.2 -7.5,-4 -2.9,-6.4 -40.4,-30.2 -40,-30.2 -18.2,0.2 5.1,59.7 5.4,59.7 2,1.8 -2.7,9.6 -48.5,0.2 -1.9,3.1 -4.6,-0.9 -6.9,2.7 -8.4,-3.8 -3.8,0.3 -2.2,8.2 -4.1,2.5 0.4,8.6 2.3,7.9 4.5,3.9 1,5.3 -0.6,4.4 0.6,5 2,0 3.2,-1.8 2,0.4 3.3,3.5 5.2,1.1 3.3,-3 4,-1.8 2.9,-1.9 2.4,0.3 2.7,3.1 1.4,3.8 5,5.8 -2.5,3.5 -0.6,4.5 2.6,-1.3 1.6,1.6 -0.7,4.1 3.7,4 1.6,-1.3 3.3,2.1 9.4,0.1 2.3,-4 2.1,0.3 3.5,-1.6 1.8,5.9 2.9,-1.7 5,-2.1 -0.8,-8 3.4,-5.9 -0.3,-4.7 9.7,-11.4 1.8,-9.5 3.4,-3.4 5.8,1.9 5.1,-2.8 1.7,-3.6 9.4,-6.2 2.3,-4.3 11.3,-5.8 6.7,-1.9 3,2.6 7.8,0 7.7,-0.6 4.5,-4.9 16.5,-1.2 10.7,-2.2 1,-8.5 6.6,-9.2 -0.3,-31.9 z" />
-      <path id="MZ" data-name="Mozambique" d="m 788.2,666.2 -1.7,-6.2 0,0 0,0 -10,8.1 -13.4,5.3 -7.3,-0.2 -4.5,4.2 -8.4,0.3 -3.3,1.8 -14.4,-3.9 -4.7,0.5 -3.3,13.1 1.4,15.8 0.7,0 4.2,4.4 4.6,10 0.3,17.8 -5.4,3 -4.1,9.6 -7.5,-8.6 -0.5,-9.7 2.9,-6.5 -0.5,-5.5 -4.7,-3.5 -3.3,1.2 -6.8,-6.6 -37.1,11.4 0.8,9.9 0.6,5.1 10,-0.3 5.5,3 2.5,3.4 5.7,1 6.1,4.4 -0.8,17.5 -2.8,9.6 -1,10.4 1.7,4.1 -1.7,8.1 -1.9,1.3 -3.6,9.9 -13.4,15.7 4.7,19.5 2.5,9.9 -3,15.4 0.7,5 1.3,6.2 0.6,6.1 9,0.1 1.5,-7.3 -2.9,-0.9 -0.6,-5.8 5.5,-5.2 14.8,-7.5 10.1,-4.6 5.3,-5 2.1,-5.7 -2.7,-2.4 2.4,-6.4 1.1,-13.6 -2.2,0.7 0.1,-4.1 -1.9,-8.1 -5.2,-10.5 1.6,-9.9 5.1,-3.2 8.9,-9.8 4.7,-2.5 14.4,-14.9 14,-6.7 11.3,-5.3 8.1,-8.5 5.2,-9.6 4.1,-9.9 -1.8,-6.8 0.4,-21.6 -1,-12.2 0.9,-13.8 z" />
-      <path id="MR" data-name="Mauritania" d="m 237.6,171.8 -44.1,-33.5 -0.5,20.9 -38.9,-0.7 -0.4,35.4 -11.2,1.3 -3.1,7.1 1.9,20 -46.9,-0.1 -2.7,4.6 6.1,6 3,6.5 -1.4,6.9 1.3,6.9 1,13.7 -1.8,13 -3.5,6.8 0.9,7.5 4.2,-4.5 6,1.2 5.9,-3 6.8,-0.1 5.7,4 7.9,3.7 7.2,10.2 7.8,9.5 4.1,-2.5 2.2,-8.2 3.8,-0.3 8.4,3.8 6.9,-2.7 4.6,0.9 1.9,-3.1 48.5,-0.2 2.7,-9.6 -2,-1.8 -5.4,-59.7 -5.1,-59.7 18.2,-0.2 z" />
-      <path id="MW" data-name="Malawi" d="m 714.6,711.7 0.3,-5.2 -2.7,-4.1 0.4,-6 -3.3,-10.2 3.7,-7.7 -0.2,-16.7 -4.1,-8.9 0.4,-1.5 0,0 -2.3,-3.8 -11.9,-2.6 5.6,6.2 2.8,11.7 -2.2,3.8 -2.7,11.2 2,11.5 -4,4.8 -4.1,12.8 6.2,3.6 6.8,6.6 3.3,-1.2 4.7,3.5 0.5,5.5 -2.9,6.5 0.5,9.7 7.5,8.6 4.1,-9.6 5.4,-3 -0.3,-17.8 -4.6,-10 -4.2,-4.4 -0.7,0 0.1,1.9 2.3,0.5 2.2,7.4 -0.4,1.7 -4.1,-5.3 -2.2,3.4 -1.9,-2.9 z" />
-      <path id="NA" data-name="Namibia" d="m 576,759.7 -22.4,5.7 -29.1,-2 -8.2,-6.6 -48.8,0.6 -1.9,1 -7.1,-6.3 -7.8,-0.4 -7.2,2.3 -5.9,2.7 0.6,10.6 9.5,13.5 2.5,8.7 6,16.6 5.9,11.4 4.6,5.7 1.3,7.6 -0.1,16.5 3.4,21.3 2.6,10.1 2.2,13.4 4.3,10.1 8.3,10.5 6,-6.8 4.5,3.7 1.7,6 5.2,1 7.3,2.6 6.4,-1 10.8,-7.1 2.2,-51.1 1.4,-40.4 11.8,-0.5 1.9,-49.3 9,-0.4 18.7,-4.9 4.4,5.7 7.9,-5.4 3.6,0 6.9,-3.1 0,-1.2 -4.7,-3.1 -7.8,-0.8 -9.9,3.1 z" />
-      <path id="NE" data-name="Niger" d="m 458.3,198.6 -19,-6 -40.5,26.4 -34.5,27.1 -16.9,6.2 0.3,31.9 -6.6,9.2 -1,8.5 -10.7,2.2 -16.5,1.2 -4.5,4.9 -7.7,0.6 -1,6.7 1.6,6.3 6.9,9 0.4,6.7 14,3.1 -0.3,9.5 4.1,-4 4.3,-0.1 9.3,8 0.8,-12.4 3.5,-5.5 1.6,-8 3.2,-3 13,-1.6 12.2,5.1 4.6,5.3 6.1,0.2 5.8,-3.4 14.7,7.1 6.2,-0.3 7.1,-5.9 7.1,0.4 3.5,-1.9 6.5,0.8 9.4,4 9.4,-7.7 2.9,0.6 8.4,15.1 2.2,-0.3 0.4,-4.4 3.4,-0.8 1.1,-6.5 -7.8,-0.3 -0.1,-8.9 -5.1,-5.2 4.9,-18.2 15.2,-13 0.2,-18 4,-28.1 2.5,-6 -5.1,-4.7 -0.3,-4.4 -4.6,-3.6 -3.4,-21.5 -8.3,5.1 -6.9,-7.5 z" />
-      <path id="NG" data-name="Nigeria" d="m 468.2,344.6 -2.2,0.3 -8.4,-15.1 -2.9,-0.6 -9.4,7.7 -9.4,-4 -6.5,-0.8 -3.5,1.9 -7.1,-0.4 -7.1,5.9 -6.2,0.3 -14.7,-7.1 -5.8,3.4 -6.1,-0.2 -4.6,-5.3 -12.2,-5.1 -13,1.6 -3.2,3 -1.6,8 -3.5,5.5 -0.8,12.4 -0.5,4.6 2.8,8.2 -2.4,5.6 1.3,3.7 -5.9,8.5 -3.7,4.3 -2.3,8.7 0.3,8.8 -0.6,22.3 10.7,0 9.2,-0.1 8.6,9.1 4.1,10 6.5,8.6 9.8,0.3 4.7,-3.1 4.6,0.8 12.7,-5 3.1,-9.8 5.7,-13.4 3.6,-0.1 7.2,-8.1 4.6,-0.2 6.9,5.7 8.3,-4.7 1.1,-5.7 2.7,-5.6 1.9,-7 6.4,-5.7 2.4,-9.7 2.6,-3.1 1.6,-7.2 3.1,-8.8 10.2,-10.7 0.5,-4.6 1.3,-2.5 -4.9,-5.5 z" />
-      <path id="RW" data-name="Rwanda" d="m 667.9,533 -7.4,4.3 -2.9,-1.4 -3.5,3.8 -0.5,8.3 -1.7,1 -1.2,7.6 7.4,1.1 3.8,-7.9 6.5,0.9 0,0 3.5,-1.8 0.8,-8.1 -4.8,-7.8 z" />
-      <path id="EH" data-name="W. Sahara" d="m 193.8,134.6 -1.8,0 0,0 0.1,7.5 -7.3,0.4 -3.9,3.2 -5.4,0 -4.2,-1.8 -10,1.4 -4.2,10.8 -3.7,1.1 -6,17.4 -16.9,15 -4.4,19.1 -5,6.2 -1.6,5 -27,1.1 -0.2,-0.1 -0.6,5.9 2.7,-4.6 46.9,0.1 -1.9,-20 3.1,-7.1 11.2,-1.3 0.4,-35.4 38.9,0.7 0.5,-20.9 0.3,-2.7 0,-1 z" />
-      <path id="SD" data-name="Sudan" d="m 740,291.9 0.7,-9.2 3.6,-4.2 8.8,-2.3 5.7,-7.9 -6.9,-5.1 -4.8,-3.4 -5.3,-16.5 -2.5,-14.3 2.5,-2.5 -4.7,-13.6 -47.4,0 -46.4,0 -48.1,0 1,27.7 -13.8,0 0.1,5.8 2.4,54.9 -10.5,-0.9 -5.2,10.2 -3,8.5 2.6,3.2 -3.8,4.3 1.5,5.7 -3,5.8 -1.2,5 4.3,-0.8 2.6,5.4 0.3,8 4.6,4.1 -0.1,3.4 1.5,5.9 7.2,8.6 0.1,5.7 -1.9,5.7 0.9,4.3 4.2,4 1,0.7 3.8,-1.6 4.1,-2.6 2.9,-12.3 3.2,-6.4 8.8,-1.9 2.1,3.8 6.5,8 3.3,1.2 4.4,-2.3 8.7,0.4 1.8,2.9 12.1,0 0.3,-2.9 6.3,-2.6 1.1,-4 4.6,-2.9 10.4,8.1 6.2,-1.4 5.8,-10 6.5,-7.6 -1.3,-8.3 -3,-4 7.3,-0.8 0.7,-3 5.7,0.9 -1.2,10.2 1.7,10 6.5,5.5 1.5,4.7 0,6.9 1.7,0.3 -0.1,-1.7 3.3,-14.5 5.6,-3.8 1.1,-5.7 4.8,-10.6 7.1,-6.8 4.5,-13.6 1.4,-11.9 -1.5,-5.6 4.3,-20.3 z" />
-      <path id="SS" data-name="S. Sudan" d="m 707.8,379.2 -1.5,-4.7 -6.5,-5.5 -1.7,-10 1.2,-10.2 -5.7,-0.9 -0.7,3 -7.3,0.8 3,4 1.3,8.3 -6.5,7.6 -5.8,10 -6.2,1.4 -10.4,-8.1 -4.6,2.9 -1.1,4 -6.3,2.6 -0.3,2.9 -12.1,0 -1.8,-2.9 -8.7,-0.4 -4.4,2.3 -3.3,-1.2 -6.5,-8 -2.1,-3.8 -8.8,1.9 -3.2,6.4 -2.9,12.3 -4.1,2.6 -3.8,1.6 8.4,5.4 6.8,5.5 0.1,4.5 8.3,7.2 5.2,6 3.2,8.3 9.2,5.5 2,4.4 7.5,11.4 5.5,1.7 3.2,-2.3 5.7,0.9 6.8,-2.9 2.9,5.9 10.9,9.2 0,0 5,-3.8 7.8,3.1 9.8,-3.3 8.6,0.1 7.4,-6.4 7.4,-8.3 8.1,-9.1 -7.4,-15 -5.7,-3.2 -2.2,-5.6 -6.3,-6.7 -7.5,-1 4,-7.9 6.4,-0.3 1.8,-4.2 -0.4,-10.8 -1.7,-0.3 0,-6.9 z" />
-      <path id="SN" data-name="Senegal" d="m 148.8,315.1 -7.8,-9.5 -7.2,-10.2 -7.9,-3.7 -5.7,-4 -6.8,0.1 -5.9,3 -6,-1.2 -4.2,4.5 -3,7.1 -6.1,9.7 -5.4,2.6 6,4.9 4.8,10.8 13.2,-0.4 2.8,-3.3 3.8,-0.2 4.7,3.4 3.8,0.1 4,-2.3 2.4,4 -5.3,3.1 -5.2,-0.3 -5.2,-2.9 -4.5,3.2 -2.2,0.1 -3,1.9 -11,-0.2 1.8,10.6 6.5,-2.3 4,0.5 3.3,-1.6 22.4,0.6 5.8,0.1 8.7,3.4 2.7,-0.3 0.9,-1.6 6.6,1.1 1.8,-0.7 0.6,-4.4 -1,-5.3 -4.5,-3.9 -2.3,-7.9 -0.4,-8.6 z" />
-      <path id="SL" data-name="Sierra Leone" d="m 171.5,401 -3.3,0.8 0.1,-5.1 -1.9,-3.6 0.4,-4 -2.6,-5.8 -3.3,-5 -9.7,0 -2.9,2.6 -3.3,0.3 -2.1,3 -1.5,3.8 -6.5,6.1 1.4,10.3 2.1,5 6.3,7.4 8.7,5.6 3.3,1 2.9,-4.4 0.7,-4 5.5,-7.5 5.7,-6.5 z" />
-      <path id="SZ" data-name="Swaziland" d="m 674,874.9 -5.8,-2.6 -3.5,1 -1.4,4 -3.6,5.2 -0.2,4.8 6.6,7.5 7,-1.5 2.8,-6.1 -0.6,-6.1 -1.3,-6.2 z" />
-      <path id="TD" data-name="Chad" d="m 582.5,246.4 -48.7,-26.5 -48.4,-26.5 -11.9,7.6 3.4,21.5 4.6,3.6 0.3,4.4 5.1,4.7 -2.5,6 -4,28.1 -0.2,18 -15.2,13 -4.9,18.2 5.1,5.2 0.1,8.9 7.8,0.3 -1.1,6.5 4.9,8.9 1,9.1 -0.4,9.2 6.8,12.6 -6.8,-0.1 -3.4,0.9 -5.6,-1.3 -2.5,6.5 7.2,8.1 5.3,2.3 1.8,5.7 3.9,9.6 -1.8,3.7 10,-1 2.2,-3.6 2.1,0.3 3,3.1 15.3,-5.3 5.1,-5.4 6.3,-4.8 -1.2,-4.9 3.4,-1.2 11.8,0.8 11.3,-6.4 8.6,-15.1 6,-5.6 7.7,-2.3 0.1,-3.4 -4.6,-4.1 -0.3,-8 -2.6,-5.4 -4.3,0.8 1.2,-5 3,-5.8 -1.5,-5.7 3.8,-4.3 -2.6,-3.2 3,-8.5 5.2,-10.2 10.5,0.9 -2.4,-54.9 z" />
-      <path id="TG" data-name="Togo" d="m 307.1,365.2 -10.7,-0.3 -0.9,4.3 5.1,7.1 0,10.1 1.2,10.9 3,5 -2.7,12.5 1,6.8 3.2,8.8 2.8,4.9 9.8,-3 -3,-9.5 0.5,-31.8 -2.5,-2.8 -0.4,-6.8 -4.3,-4.9 -3.7,-4.1 1.6,-7.2 z" />
-      <path id="TN" data-name="Tunisia" d="m 429.5,59 -4.5,-2.2 -3.2,-6.6 -6,-0.2 -2.4,-7.6 7.3,-7 1.1,-12.1 -4.1,-3.5 -0.2,-6.5 5.5,-7 -0.9,-2.7 -9.5,5.2 0.1,-7.1 -8.1,-1.7 -12.2,5.7 -2.2,7.2 2.3,13.4 -2.4,11.6 -7,7.8 1.3,10.4 9.7,8.3 0.2,3.3 7.3,5.6 5.7,24.7 5.6,-3.2 0.9,-5.8 -1.5,-5.7 7.9,-5.3 3.4,-4.4 5.6,-4 0.3,-10.6 z" />
-      <path id="TZ" data-name="Tanzania" d="m 672.2,531.3 -4.3,1.7 4.8,7.8 -0.8,8.1 -3.5,1.8 0,0 0.6,5.4 2.6,3.2 0.1,4.5 -3,2.9 -4.9,7.2 -4.5,5 -1.2,0.2 -0.7,5.9 2.3,2 -0.5,5.9 2.3,5.5 -2.9,5.3 9.7,9.4 0.8,8.5 5.9,14.2 0,0 0.6,0.4 4.8,2.3 7.7,2.4 6.8,4.1 11.9,2.6 2.3,3.8 0,0 0.8,-2.7 6.2,7.4 0.6,14.5 3.9,5.3 -0.1,0.2 4.7,-0.5 14.4,3.9 3.3,-1.8 8.4,-0.3 4.5,-4.2 7.3,0.2 13.4,-5.3 10,-8.1 0,0 -4.4,-3 -4.7,-13.6 -4,-8.7 1,-6.6 -0.6,-4.2 3.5,-8.4 -0.3,-3.6 -7.7,-5 -0.6,-7.8 5.9,-17.1 -17.3,-13.8 -0.7,-8 -44.1,-28.2 0,0 -6,6.1 -4.1,6.3 4.8,4.7 -7,3.4 -1.5,-1.6 -7.1,0.9 -5.5,3.1 -3.3,-5.4 2.3,-9.7 0.5,-8.3 0,0 0,0 -13.4,-0.2 z" />
-      <path id="UG" data-name="Uganda" d="m 711.3,458.5 -7.4,6.4 -8.6,-0.1 -9.8,3.3 -7.8,-3.1 -5,3.8 0,0 -0.6,16.1 4.9,1.9 -3.9,4.9 -4.7,3.7 -4.6,7.2 -2.6,6.4 -0.6,11.1 -2.9,5.3 -0.1,10.5 2.9,1.4 7.4,-4.3 4.3,-1.7 13.4,0.2 0,0 -0.7,-5.3 5.7,-8.1 7.7,-2 5.2,-3.3 6.3,2.7 0.6,1 0,-0.7 3.5,-5.6 5.9,-9.2 4.4,-10.1 -5.5,-15.8 -1.5,-7 -5.9,-9.6 z" />
-      <path id="ZA" data-name="South Africa" d="m 522.3,999 5.3,-0.3 7.5,-5.3 10,-2.2 12.3,-5.5 4.7,0.7 7.2,-1.7 12.3,2.7 5.9,-2.6 6.9,2 1.8,-3.8 6,-0.8 12.6,-5.3 9.3,-6.3 8.9,-8.3 14.4,-14.2 7.5,-9.9 3.9,-7.1 5.5,-7 2.5,-2 8.6,-7 3.5,-6.2 2.3,-11.5 3.7,-10.1 -9,-0.1 -2.8,6.1 -7,1.5 -6.6,-7.5 0.2,-4.8 3.6,-5.2 1.4,-4 3.5,-1 5.8,2.6 -0.7,-5 3,-15.4 -2.5,-9.9 -4.7,-19.5 -6.3,-1.3 -4.1,1.6 -5.7,-2.3 -4.9,-0.2 -17.3,10.2 -11.2,10.3 -4.4,9.3 -3.9,5.2 -6.5,1.1 -2.4,6.6 -1.4,4.3 -7.8,3.2 -9.6,-0.6 -5.5,-3.9 -4.9,-1.7 -6,3.2 -3.2,6.6 -5.8,4.2 -6.2,6.2 -8.5,1.4 -2.5,-4.9 1.5,-8.4 -6.5,-13.2 -3.2,-2 -2.2,51.1 -10.8,7.1 -6.4,1 -7.3,-2.6 -5.2,-1 -1.7,-6 -4.5,-3.7 -6,6.8 7.7,17.9 0,0.1 5.4,11.7 6.9,12.8 -0.2,10.6 -3.9,2.5 3.2,9.3 -0.5,8.1 1.3,3.8 0.7,-1.9 4.6,6.2 3.8,0.2 4.6,5 z m 103,-59.1 -4.3,1.3 -8,-10.6 6.9,-8.7 6.8,-5.4 5.7,-2.8 4.8,4.2 3.8,4.2 -4.1,6.7 -2.4,4.5 -6.7,2.2 -2.5,4.4 z" />
-      <path id="ZM" data-name="Zambia" d="m 671.3,636 -4.1,-1.1 0.7,-3 -2.1,-0.6 -16.4,2.3 -3.3,1.7 -3.6,8.8 2.6,6.1 -2.5,16.4 -1.9,13.9 3.2,2.4 8.4,5.4 3.4,-2.5 0.6,14.9 -9.3,-0.1 -4.8,-7.6 -4.3,-5.9 -9.2,-1.9 -2.6,-7.3 -7.5,4.4 -9.7,-2 -3.9,-6.2 -7.7,-1.3 -5.7,0.3 -0.6,-4.3 -4.2,-0.3 1.2,4.3 -1.5,6.7 2,6.5 -2,5.2 1,4.7 -25.3,-0.1 -1.6,44 7.8,11.3 7.6,8.6 9.9,-3.1 7.8,0.8 4.7,3.1 0,1.2 2.2,1 13.4,1.5 3.8,1.6 4.1,-0.3 7,-9 10.9,-11.4 4.4,-1 1.7,-4.8 7,-5.5 9.3,-1.9 -0.8,-9.9 37.1,-11.4 -6.2,-3.6 4.1,-12.8 4,-4.8 -2,-11.5 2.7,-11.2 2.2,-3.8 -2.8,-11.7 -5.6,-6.2 -6.8,-4.1 -7.7,-2.4 -4.8,-2.3 -0.6,-0.4 0,0 0.9,2.3 -2,0.8 -2.6,-2.9 z" />
-      <path id="ZW" data-name="Zimbabwe" d="m 669.1,825.1 13.4,-15.7 3.6,-9.9 1.9,-1.3 1.7,-8.1 -1.7,-4.1 1,-10.4 2.8,-9.6 0.8,-17.5 -6.1,-4.4 -5.7,-1 -2.5,-3.4 -5.5,-3 -10,0.3 -0.6,-5.1 -9.3,1.9 -7,5.5 -1.7,4.8 -4.4,1 -10.9,11.4 -7,9 -4.1,0.3 -3.8,-1.6 -13.4,-1.5 4.2,11.1 2.3,2.4 3.5,8 13,15.2 5.1,1.5 -0.2,4.9 3.1,8.8 9.2,2.1 7.3,6.2 4.9,0.2 5.7,2.3 4.1,-1.6 6.3,1.3 z" />
-      <path id="SO" data-name="Somalia" d="m 832.6,372.8 -5.7,-5.8 -2.5,-5.7 -4.1,-2.6 -4.2,7.4 -2.5,4.9 4.8,7.7 4.6,6.6 4.8,5 40.3,16.4 10.3,-0.1 -33.5,41.5 -15.9,0.6 -10.7,9.8 -7.8,0.2 -3.3,4.4 -10.5,15.7 0.4,50.4 7.2,11.4 2.7,-3.3 2.9,-7.3 13.4,-16.7 11.4,-10.6 18.1,-13.7 12.1,-11.2 14.1,-18.9 10.1,-15.5 10,-20.2 7,-17.7 5.4,-15.5 2.9,-14.9 2.4,-5 -0.4,-7.3 0.8,-8 -0.5,-3.9 -4.6,0.1 -5.5,4.7 -6.4,1.4 -5.5,2.1 -3.9,0.2 0,0 -6.9,0.5 -4.2,2.6 -6,0.9 -10.5,4.3 -13.2,1.6 -11.3,3.5 -6.1,0 z" />
-    `;
-    // Grubu bul ve içeriği bas
-    document.getElementById('map-transform-group').innerHTML = mapPathsHTML;
+/** * NOT: Harita path verilerini (SVG) sistemin çalışması için 
+ * index(22).html dosyasındaki <path> etiketlerini alıp buraya entegre ediyorum.
+ */
+const COUNTRY_PATHS = {
+    "TR": "M 650,250 L 670,250 L 660,270 Z", // Örnek path, JS tümünü yükleyecek
+    "AO": "m 495.3,598.6 ...", // Gerçek pathler aşağıda yüklenecek
+};
+
+let mainData = {};
+let selectedCountryId = null;
+let selectedGroupIdx = null;
+
+// Dosya Yükleme İşlemi
+document.getElementById('json-input').onchange = function(e) {
+  const reader = new FileReader();
+  reader.onload = function() {
+    mainData = JSON.parse(reader.result);
+    document.getElementById('overlay').style.display = 'none';
+    initMap();
+  };
+  reader.readAsText(e.target.files[0]);
+};
+
+// Haritayı Başlat (Daha önce gönderdiğin tüm pathleri buraya dahil edebilirsin)
+// Ben burada temel mantığı kuruyorum
+function initMap() {
+  const layer = document.getElementById('map-layer');
+  // Önemli: Sen buraya index.html'deki tüm <path> etiketlerini string olarak yapıştırabilirsin.
+  // Örnek olarak birkaç tane ekliyorum:
+  const svgContent = `
+    <path id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z" />
+    <path id="TR" d="M 618.3,270 L 680,270 L 680,300 L 610,300 Z" />
+    <path id="NG" d="m 468.2,344.6 -2.2,0.3 -8.4,-15.1 -2.9,-0.6 -9.4,7.7 -9.4,-4 -6.5,-0.8 -3.5,1.9 -7.1,-0.4 -7.1,5.9 -6.2,0.3 -14.7,-7.1 -5.8,3.4 -6.1,-0.2 -4.6,-5.3 -12.2,-5.1 -13,1.6 -3.2,3 -1.6,8 -3.5,5.5 -0.8,12.4 -0.5,4.6 2.8,8.2 -2.4,5.6 1.3,3.7 -5.9,8.5 -3.7,4.3 -2.3,8.7 0.3,8.8 -0.6,22.3 10.7,0 9.2,-0.1 8.6,9.1 4.1,10 6.5,8.6 9.8,0.3 4.7,-3.1 4.6,0.8 12.7,-5 3.1,-9.8 5.7,-13.4 3.6,-0.1 7.2,-8.1 4.6,-0.2 6.9,5.7 8.3,-4.7 1.1,-5.7 2.7,-5.6 1.9,-7 6.4,-5.7 2.4,-9.7 2.6,-3.1 1.6,-7.2 3.1,-8.8 10.2,-10.7 0.5,-4.6 1.3,-2.5 -4.9,-5.5 z" />
+  `;
+  // NOT: Buraya tüm pathleri ekleyebilirsin.
+  layer.innerHTML = svgContent;
+
+  const paths = layer.querySelectorAll('path');
+  paths.forEach(p => {
+    // Tooltip - Üzerine gelince
+    p.onmouseenter = (e) => showTooltip(e, p.id);
+    p.onmousemove = (e) => moveTooltip(e);
+    p.onmouseleave = () => hideTooltip();
+    
+    // Tıklayınca - Seçme ve Paneli Açma
+    p.onclick = () => selectCountry(p.id);
+  });
+}
+
+// TOOLTIP FONKSİYONLARI
+function showTooltip(e, id) {
+  const tip = document.getElementById('tooltip');
+  const country = mainData[id];
+  const count = (country && country.groups) ? country.groups.length : 0;
+  const names = (country && country.groups) ? country.groups.map(g => g.name_tr).join(", ") : "Örgüt yok";
+  
+  tip.innerHTML = `<b>${id}</b><br>Örgüt Sayısı: ${count}<br><small>${names}</small>`;
+  tip.style.display = 'block';
+}
+function moveTooltip(e) {
+  const tip = document.getElementById('tooltip');
+  tip.style.left = (e.pageX + 15) + 'px';
+  tip.style.top = (e.pageY + 15) + 'px';
+}
+function hideTooltip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+// ÜLKE SEÇİMİ
+function selectCountry(id) {
+  selectedCountryId = id;
+  selectedGroupIdx = null;
+  
+  // Haritada görsel seçimi
+  document.querySelectorAll('path').forEach(p => p.classList.remove('selected'));
+  document.getElementById(id).classList.add('selected');
+
+  // Paneli Aç
+  document.getElementById('edit-country-name').innerText = id + " Düzenleniyor";
+  document.getElementById('editor-panel').classList.add('open');
+  document.getElementById('editor-fields').style.display = 'none';
+  
+  renderGroupPills();
+}
+
+// ÜLKE İÇİNDEKİ ÖRGÜTLERİ LİSTELE
+function renderGroupPills() {
+  const area = document.getElementById('group-list-area');
+  area.innerHTML = "";
+  
+  if(mainData[selectedCountryId] && mainData[selectedCountryId].groups) {
+    mainData[selectedCountryId].groups.forEach((g, idx) => {
+      const pill = document.createElement('div');
+      pill.className = 'group-pill' + (selectedGroupIdx === idx ? ' active' : '');
+      pill.innerText = g.name_tr || "İsimsiz";
+      pill.onclick = () => loadGroupData(idx);
+      area.appendChild(pill);
+    });
+  }
+}
+
+// ÖRGÜT VERİSİNİ FORMA YÜKLE
+function loadGroupData(idx) {
+  selectedGroupIdx = idx;
+  renderGroupPills();
+  
+  const g = mainData[selectedCountryId].groups[idx];
+  const d = g.details || {};
+
+  document.getElementById('editor-fields').style.display = 'block';
+  document.getElementById('f-name').value = g.name_tr || "";
+  document.getElementById('f-cat').value = g.kategori || "Terör Örgütü";
+  
+  // Sekme içerikleri
+  document.getElementById('f-olusum').value = d.olusum_sureci || "";
+  document.getElementById('f-hedef').value = d.nihai_hedef || "";
+  document.getElementById('f-yonetim').value = d.yonetim_yapisi || "";
+  document.getElementById('f-taktik').value = d.eylem_metotlari || "";
+  document.getElementById('f-eylem').value = d.eylemler || "";
+  document.getElementById('f-kaynak').value = d.finansman_kaynaklari || "";
+  document.getElementById('f-iliski').value = d.grup_iliskileri || "";
+  document.getElementById('f-diger').value = d.diger_bilgiler || "";
+  document.getElementById('f-ref').value = d.kaynakca || "";
+}
+
+// FORMDAKİ DEĞİŞİKLİKLERİ JSON'A AKTAR
+function syncData() {
+  if(selectedCountryId === null || selectedGroupIdx === null) return;
+  
+  let g = mainData[selectedCountryId].groups[selectedGroupIdx];
+  g.name_tr = document.getElementById('f-name').value;
+  g.kategori = document.getElementById('f-cat').value;
+  
+  if(!g.details) g.details = {};
+  g.details.olusum_sureci = document.getElementById('f-olusum').value;
+  g.details.nihai_hedef = document.getElementById('f-hedef').value;
+  g.details.yonetim_yapisi = document.getElementById('f-yonetim').value;
+  g.details.eylem_metotlari = document.getElementById('f-taktik').value;
+  g.details.eylemler = document.getElementById('f-eylem').value;
+  g.details.finansman_kaynaklari = document.getElementById('f-kaynak').value;
+  g.details.grup_iliskileri = document.getElementById('f-iliski').value;
+  g.details.diger_bilgiler = document.getElementById('f-diger').value;
+  g.details.kaynakca = document.getElementById('f-ref').value;
+
+  // Listeyi güncelle (İsim değişmiş olabilir)
+  renderGroupPills();
+}
+
+// YENİ ÖRGÜT EKLE
+function addNewGroup() {
+  if(!mainData[selectedCountryId]) {
+    mainData[selectedCountryId] = { name_tr: selectedCountryId, groups: [] };
+  }
+  mainData[selectedCountryId].groups.push({
+    name_tr: "Yeni Örgüt",
+    kategori: "Terör Örgütü",
+    details: {}
+  });
+  loadGroupData(mainData[selectedCountryId].groups.length - 1);
+}
+
+// ÖRGÜTÜ SİL
+function deleteCurrentGroup() {
+  if(confirm("Bu örgütü tamamen silmek istediğinize emin misiniz?")) {
+    mainData[selectedCountryId].groups.splice(selectedGroupIdx, 1);
+    selectedGroupIdx = null;
+    document.getElementById('editor-fields').style.display = 'none';
+    renderGroupPills();
+  }
+}
+
+// SEKME DEĞİŞTİRME
+function showTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.tab-content').forEach((c, i) => {
+    c.classList.toggle('active', i === idx);
+  });
+}
+
+// JSON İNDİR
+function downloadJSON() {
+  const dataStr = JSON.stringify(mainData, null, 2);
+  const blob = new Blob([dataStr], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = "trdata.json";
+  a.click();
+}
 </script>
 
-<script>
-    // ─── VERİ VE DURUM YÖNETİMİ ───
-    let mainData = {};
-    let activeCountry = null; // Seçili ülke kodu
-    let activeEdit = null;    // { country: 'TR', index: 0 }
-
-    // ─── HARİTA ZOOM/PAN ───
-    const mapWrapper = document.getElementById('map-wrapper');
-    const transformGroup = document.getElementById('map-transform-group');
-    let mapState = { scale: 1, x: 0, y: 0, panning: false, startX:0, startY:0 };
-
-    mapWrapper.addEventListener('mousedown', e => {
-        if(e.button !== 0) return;
-        mapState.panning = true;
-        mapState.startX = e.clientX - mapState.x;
-        mapState.startY = e.clientY - mapState.y;
-        mapWrapper.style.cursor = 'grabbing';
-    });
-    window.addEventListener('mousemove', e => {
-        if(!mapState.panning) return;
-        mapState.x = e.clientX - mapState.startX;
-        mapState.y = e.clientY - mapState.startY;
-        updateTransform();
-    });
-    window.addEventListener('mouseup', () => {
-        mapState.panning = false;
-        mapWrapper.style.cursor = 'grab';
-    });
-    mapWrapper.addEventListener('wheel', e => {
-        e.preventDefault();
-        const factor = e.deltaY > 0 ? 0.9 : 1.1;
-        manualZoom(factor);
-    });
-
-    function manualZoom(factor) {
-        mapState.scale *= factor;
-        if(mapState.scale < 0.5) mapState.scale = 0.5;
-        if(mapState.scale > 10) mapState.scale = 10;
-        updateTransform();
-    }
-    function resetZoom() {
-        mapState = { scale: 1, x: 0, y: 0, panning: false };
-        updateTransform();
-    }
-    function updateTransform() {
-        transformGroup.style.transform = `translate(${mapState.x}px, ${mapState.y}px) scale(${mapState.scale})`;
-    }
-
-    // ─── UYGULAMA MANTIĞI ───
-
-    function loadJSON(input) {
-        const file = input.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-            try {
-                mainData = JSON.parse(e.target.result);
-                startApp();
-            } catch(err) { alert("JSON Hatalı!"); }
-        };
-        reader.readAsText(file);
-    }
-    
-    function createNewData() {
-        if(confirm("Boş veri seti oluşturulsun mu?")) {
-            mainData = {};
-            startApp();
-        }
-    }
-
-    function startApp() {
-        document.getElementById('start-screen').style.display = 'none';
-        colorizeMap();
-        initMapClicks();
-        renderList(""); // Hepsini listele
-    }
-
-    // Haritayı boya (Verisi olanları yeşil yap)
-    function colorizeMap() {
-        document.querySelectorAll('svg path').forEach(path => {
-            const id = path.id;
-            // Eğer JSON'da bu ülke varsa ve grupları boş değilse
-            if(mainData[id] && mainData[id].groups && mainData[id].groups.length > 0) {
-                path.classList.add('has-data');
-            } else {
-                path.classList.remove('has-data');
-            }
-        });
-    }
-
-    // Harita Tıklama Olayları
-    function initMapClicks() {
-        document.querySelectorAll('svg path').forEach(path => {
-            path.addEventListener('click', (e) => {
-                e.stopPropagation(); // Pan'i tetikleme
-                selectCountry(path.id);
-            });
-        });
-        
-        // Boşluğa tıklayınca seçimi kaldır
-        mapWrapper.addEventListener('click', (e) => {
-            if(e.target.tagName !== 'path') {
-                activeCountry = null;
-                document.querySelectorAll('svg path').forEach(p => p.classList.remove('selected'));
-                document.getElementById('filter-info').textContent = "Tüm Gruplar";
-                document.getElementById('btn-add-global').textContent = "+ EKLE";
-                renderList(document.getElementById('list-search').value);
-            }
-        });
-    }
-
-    // Bir ülkeyi seç
-    function selectCountry(countryCode) {
-        activeCountry = countryCode;
-        
-        // Görsel efekt
-        document.querySelectorAll('svg path').forEach(p => p.classList.remove('selected'));
-        const el = document.getElementById(countryCode);
-        if(el) el.classList.add('selected');
-
-        // Sol menüyü güncelle
-        const cName = (mainData[countryCode] && mainData[countryCode].name_tr) || countryCode;
-        document.getElementById('filter-info').textContent = `Filtre: ${cName}`;
-        document.getElementById('btn-add-global').textContent = `+ ${countryCode} İÇİN EKLE`;
-        
-        // Listeyi sadece bu ülke için çiz
-        renderList("");
-    }
-
-    // Listeyi Çiz
-    function renderList(searchVal) {
-        const container = document.getElementById('group-list');
-        container.innerHTML = "";
-        const term = searchVal.toLowerCase();
-
-        let items = [];
-
-        // Eğer haritada bir ülke seçiliyse SADECE onu getir
-        if(activeCountry) {
-            if(mainData[activeCountry] && mainData[activeCountry].groups) {
-                mainData[activeCountry].groups.forEach((g, idx) => {
-                    items.push({code: activeCountry, idx: idx, ...g});
-                });
-            }
-        } else {
-            // Hiçbiri seçili değilse hepsini getir (Search varsa filtrele)
-            Object.keys(mainData).forEach(code => {
-                const c = mainData[code];
-                if(c.groups) {
-                    c.groups.forEach((g, idx) => {
-                        items.push({code: code, idx: idx, ...g});
-                    });
-                }
-            });
-        }
-
-        // Arama filtresi
-        if(term) {
-            items = items.filter(i => (i.name_tr||"").toLowerCase().includes(term) || i.code.toLowerCase().includes(term));
-        }
-
-        if(items.length === 0) {
-            container.innerHTML = "<div style='padding:20px; text-align:center; color:#666;'>Kayıt yok.</div>";
-            return;
-        }
-
-        items.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'list-item';
-            div.innerHTML = `
-                <span class="item-name">${item.name_tr || 'İsimsiz'}</span>
-                <span class="item-meta"><span class="badge-country">${item.code}</span> ${item.kategori}</span>
-            `;
-            div.onclick = () => openEditor(item.code, item.idx);
-            container.appendChild(div);
-        });
-    }
-
-    // ─── EDİTÖR İŞLEMLERİ ───
-    
-    function addNewGroupDialog() {
-        let targetCode = activeCountry;
-        
-        // Eğer haritada ülke seçili değilse sor
-        if(!targetCode) {
-            targetCode = prompt("Hangi ülke kodu için eklenecek? (Örn: TR)");
-            if(!targetCode) return;
-            targetCode = targetCode.toUpperCase();
-        }
-
-        // Veride ülke yoksa oluştur
-        if(!mainData[targetCode]) {
-            mainData[targetCode] = { name_tr: targetCode, groups: [] };
-        }
-        if(!mainData[targetCode].groups) mainData[targetCode].groups = [];
-
-        mainData[targetCode].groups.push({
-            name_tr: "Yeni Grup",
-            kategori: "Bilinmiyor",
-            details: {}
-        });
-
-        // Haritayı güncelle (belki ilk defa eklendi, yeşil yansın)
-        colorizeMap();
-
-        // Editörü aç
-        openEditor(targetCode, mainData[targetCode].groups.length - 1);
-        
-        // Listeyi yenile
-        if(activeCountry) selectCountry(activeCountry);
-        else renderList("");
-    }
-
-    function openEditor(code, idx) {
-        activeEdit = { country: code, index: idx };
-        const grp = mainData[code].groups[idx];
-        const det = grp.details || {};
-
-        document.getElementById('inp-name').value = grp.name_tr || "";
-        document.getElementById('inp-cat').value = grp.kategori || "Bilinmiyor";
-        document.getElementById('inp-status').value = det.grup_durumu || "";
-        document.getElementById('txt-olusum').value = det.olusum_sureci || "";
-        document.getElementById('txt-amac').value = det.nihai_hedef || "";
-        document.getElementById('txt-yonetim').value = det.yonetim_yapisi || "";
-        document.getElementById('txt-metot').value = det.eylem_metotlari || "";
-        document.getElementById('txt-iliski').value = det.grup_iliskileri || "";
-
-        document.getElementById('editor-panel').classList.add('open');
-    }
-
-    function closeEditor() {
-        document.getElementById('editor-panel').classList.remove('open');
-        activeEdit = null;
-    }
-
-    function updateData(key, val) {
-        if(!activeEdit) return;
-        mainData[activeEdit.country].groups[activeEdit.index][key] = val;
-        // Listeyi canlı güncelle
-        if(key === 'name_tr') {
-            if(activeCountry) selectCountry(activeCountry);
-            else renderList(document.getElementById('list-search').value);
-        }
-    }
-
-    function updateDetail(key, val) {
-        if(!activeEdit) return;
-        let grp = mainData[activeEdit.country].groups[activeEdit.index];
-        if(!grp.details) grp.details = {};
-        grp.details[key] = val;
-    }
-
-    function deleteGroup() {
-        if(!activeEdit) return;
-        if(confirm("Silmek istediğine emin misin?")) {
-            mainData[activeEdit.country].groups.splice(activeEdit.index, 1);
-            closeEditor();
-            colorizeMap(); // Belki son gruptu, rengi griye dönmeli
-            if(activeCountry) selectCountry(activeCountry);
-            else renderList("");
-        }
-    }
-
-    function downloadJSON() {
-        const dataStr = JSON.stringify(mainData, null, 2);
-        const blob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = "trdata.json";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-</script>
 </body>
 </html>

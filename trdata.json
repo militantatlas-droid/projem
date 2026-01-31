@@ -354,7 +354,7 @@
     "name_tr": "Fas",
     "groups": [
       {
-        "name_tr": "DENEME ÖRGÜT",
+        "name_tr": "DENEMEÖRGÜT1",
         "kategori": "Ayrılıkçı",
         "grup_durumu": "Pasif",
         "details": {
@@ -688,7 +688,24 @@
   },
   "ZA": {
     "name_tr": "Güney Afrika",
-    "groups": []
+    "groups": [
+      {
+        "name_tr": "DENEMEÖRGÜT1",
+        "kategori": "Ayrılıkçı",
+        "grup_durumu": "Pasif",
+        "details": {
+          "olusum_sureci": "1454",
+          "nihai_hedef": "",
+          "yonetim_yapisi": "",
+          "eylem_metotlari": "",
+          "onemli_eylemler": "",
+          "finansman_kaynaklari": "",
+          "grup_iliskileri": "",
+          "diger_bilgiler": "",
+          "kaynakca": ""
+        }
+      }
+    ]
   },
   "ZM": {
     "name_tr": "Zambiya",

@@ -2,123 +2,469 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MİLİTAN ATLASI - PROFESYONEL PANEL</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MİLİTAN ATLASI - V2</title>
   <style>
     /* ─── TEMEL AYARLAR ─── */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: #0f0f0f; color: #eee; height: 100vh; overflow: hidden;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Daha modern font */
+      background: #111;
+      color: #eee;
+      height: 100vh;
+      overflow: hidden;
     }
     #container { display: flex; height: 100%; }
 
     /* ─── HARİTA ALANI ─── */
-    #map-area { flex: 1; position: relative; background: #151515; overflow: hidden; }
-    svg { width: 100%; height: 100%; display: block; touch-action: manipulation; }
+    #map-area {
+      flex: 1;
+      position: relative;
+      background: #1a1a1a;
+      overflow: hidden;
+      cursor: default;
+    }
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      user-select: none;
+      touch-action: manipulation;
+    }
     svg path {
-      fill: #2a2a2a; stroke: #000; stroke-width: 1.5;
-      vector-effect: non-scaling-stroke; transition: fill 0.2s;
+      fill: #ffffff;
+      stroke: #000000;
+      stroke-width: 2.0;
+      vector-effect: non-scaling-stroke;
+      pointer-events: all;
+      transition: fill 0.2s, stroke 0.2s;
     }
-    svg path:hover { fill: #4ade80 !important; cursor: pointer; }
-    svg path.active { fill: #ff4444 !important; }
-
-    /* ─── YAN PANEL (SIDEBAR) ─── */
-    #sidebar {
-      width: 400px; background: #1a1a1a; border-left: 1px solid #333;
-      padding: 20px; position: relative; overflow-y: auto; display: none;
-      box-shadow: -5px 0 20px rgba(0,0,0,0.5); z-index: 300;
+    svg path:hover {
+      fill: #4ade80 !important;
+      stroke: #000;
+      stroke-width: 2.5;
     }
-    #sidebar.active { display: block; }
+    svg path.active {
+      fill: #ff4444 !important;
+      stroke: #000;
+      stroke-width: 3.0;
+    }
 
-    /* ─── MODAL VE GENİŞ PENCERELER ─── */
-    .modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-      display: none; align-items: center; justify-content: center; z-index: 1000;
+    /* ─── TOOLTIP ─── */
+    .tooltip {
+      position: absolute;
+      background: rgba(0,0,0,0.92);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      pointer-events: none;
+      z-index: 100;
+      max-width: 280px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+      display: none;
       backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .tooltip.visible { display: block; }
+    .tooltip strong {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: #4ade80;
+    }
+
+    /* ─── SIDEBAR (YAN MENÜ) ─── */
+    #sidebar {
+      width: 340px;
+      background: #1f1f1f;
+      border-left: 1px solid #333;
+      color: #ddd;
+      padding: 20px;
+      position: relative;
+      overflow-y: auto;
+      display: none;
+      transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+      transform: translateX(100%);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.6);
+      z-index: 300;
+    }
+    #sidebar.active { display: block; transform: translateX(0); }
+
+    #sidebar-close {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 28px; height: 28px;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 20px;
+      line-height: 26px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 310;
+    }
+    #sidebar-close:hover { background: #666; transform: scale(1.08); }
+
+    /* ─── ARAMA KUTUSU ─── */
+    #search-container { margin-bottom: 18px; position: relative; z-index: 305; }
+    #search-input {
+      width: 100%;
+      padding: 12px 36px 12px 12px;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      color: white;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+    #search-input::placeholder { color: #888; }
+    #clear-search {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 18px;
+      cursor: pointer;
+      display: none;
+    }
+    
+    .suggestion-item {
+      padding: 12px 14px;
+      background: #2a2a2a;
+      margin: 6px 0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 4px solid #4ade80;
+    }
+    .suggestion-item:hover {
+      background: #333;
+      transform: translateX(4px);
+      box-shadow: 0 2px 10px rgba(74,222,128,0.2);
+    }
+
+    /* ─── BUTONLAR VE NAVİGASYON ─── */
+    #search-button {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 72px;
+      height: 72px;
+      background: #4ade80;
+      color: #111;
+      border: none;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(74,222,128,0.6);
+      z-index: 150;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 6px;
+      line-height: 1.15;
+    }
+    #search-button:hover { transform: scale(1.15); background: #00ff88; }
+    #search-button.hidden { opacity: 0; pointer-events: none; transform: scale(0.7); }
+
+    #back-to-home {
+      position: fixed;
+      top: 16px; left: 16px;
+      z-index: 500;
+      width: 44px; height: 44px;
+      display: flex;
+      align-items: center; justify-content: center;
+      background: rgba(30, 30, 30, 0.85);
+      color: #4ade80;
+      border: 1px solid #444;
+      border-radius: 50%;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    #back-to-home:hover {
+      background: rgba(74, 222, 128, 0.18);
+      color: #ffffff;
+      transform: translateY(-2px);
+      border-color: #4ade80;
+    }
+    #back-to-home svg { width: 24px; height: 24px; stroke: currentColor; }
+
+    #sidebar-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 250;
+      opacity: 0;
+      transition: opacity 0.4s;
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+    }
+
+    /* ─── MODAL GENEL STİLLERİ ─── */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85); /* Arka planı biraz daha koyulaştırdık */
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 400;
+      backdrop-filter: blur(5px);
+      padding: 20px; /* Kenarlardan boşluk */
     }
     .modal.active { display: flex; }
 
-    /* ANA BİLGİ PENCERESİ */
+    /* Modal içeriği için ortak temel */
     .modal-content {
-      background: #1f1f1f; border: 1px solid #444; border-radius: 12px;
-      width: 95%; max-width: 550px; padding: 25px; position: relative;
-      max-height: 90vh; overflow-y: auto;
+      background: #1f1f1f;
+      border: 1px solid #444;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px; /* Standart modal genişliği */
+      padding: 24px;
+      position: relative;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+      color: #eee;
+      max-height: 90vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* DEV DETAY PENCERESİ (PC VE MOBİL İÇİN BÜYÜTÜLDÜ) */
+    .modal-close, .modal-back {
+      position: absolute;
+      top: 14px;
+      background: #333;
+      color: #ccc;
+      border: none;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 20px;
+      line-height: 36px;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-close { right: 16px; }
+    .modal-back   { left: 16px; }
+
+    .modal-close:hover, .modal-back:hover {
+      background: #555;
+      color: white;
+      transform: scale(1.1);
+    }
+    .modal h2 { 
+      margin: 0 0 20px 0; 
+      color: #4ade80; 
+      padding: 0 45px; /* Butonların altında kalmasın diye padding */
+      text-align: center;
+      line-height: 1.3;
+      font-size: 1.5rem;
+    }
+
+    /* ─── ÜLKE GRUP LİSTESİ ─── */
+    .group-item {
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+      display: block;
+      padding: 16px;
+      margin: 10px 0;
+      background: #2a2a2a;
+      border-radius: 8px;
+      border-left: 5px solid #4ade80;
+      transition: all 0.2s;
+    }
+    .group-item:hover { 
+        background: #333; 
+        padding-left: 20px; 
+        transform: translateX(2px);
+    }
+
+    /* ─── YENİLENEN SEKME (TAB) YAPISI - BUTON IZGARASI ─── */
+    /* Hem küçük modal hem büyük modal için geçerli */
+    .tabs, .long-detail-tabs {
+      display: flex;
+      flex-wrap: wrap; /* Yan yana sığmazsa aşağı iner */
+      justify-content: center; /* Ortalar */
+      gap: 8px; /* Butonlar arası boşluk */
+      margin-bottom: 20px;
+      border-bottom: none; /* Alt çizgiyi kaldırdık */
+      padding-bottom: 0;
+    }
+
+    .tab, .l-tab {
+      flex: 1 1 auto; /* Esnek genişlik */
+      min-width: 100px; /* Çok küçülmesin */
+      text-align: center;
+      padding: 10px 15px;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 6px; /* Köşeleri yuvarla */
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      color: #aaa;
+      white-space: normal; /* Metin gerekirse alt satıra geçsin */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tab:hover, .l-tab:hover {
+      background: #333;
+      color: #fff;
+      border-color: #666;
+    }
+
+    .tab.active, .l-tab.active {
+      background: #4ade80;
+      color: #111;
+      border-color: #4ade80;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+    }
+
+    /* Sekme İçerik Alanı */
+    .tab-content {
+      padding: 16px;
+      background: #262626;
+      border-radius: 8px;
+      min-height: 140px;
+      border: 1px solid #333;
+    }
+
+    /* ─── BÜYÜK DETAY MODALI (OKUMA PANELİ) ─── */
     #long-detail-modal .modal-content {
-      width: 95%; max-width: 1300px; /* PC'de devasa genişlik */
-      height: 90vh; display: flex; flex-direction: column;
+      /* Okuma Paneli Stili */
+      width: 95%; /* Ekrana yayıl */
+      max-width: 900px; /* PC'de çok yayılma, okuma kolaylığı için sınır */
+      height: 90vh; /* Ekranın %90'ını kapla */
+      max-height: none; /* Önceki kısıtlamayı kaldır */
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
     }
-
-    /* ─── SEKME YAPILARI (Geliştirilmiş) ─── */
-    .tabs {
-      display: flex; gap: 5px; margin-bottom: 15px; background: #2a2a2a;
-      padding: 5px; border-radius: 8px;
-    }
-    .tab {
-      flex: 1; padding: 12px 5px; text-align: center; background: transparent;
-      border: none; color: #888; cursor: pointer; border-radius: 6px;
-      font-weight: bold; font-size: 14px; transition: 0.3s;
-    }
-    .tab.active { background: #4ade80; color: #111; }
-
-    /* DETAY PENCERESİ İÇİNDEKİ 9 SEKME (GRID YAPI) */
-    .long-detail-tabs {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px;
-    }
-    .l-tab {
-      padding: 10px; background: #2a2a2a; color: #ccc; text-align: center;
-      border-radius: 5px; cursor: pointer; font-size: 13px; border: 1px solid #444;
-    }
-    .l-tab.active { background: #4ade80; color: #111; border-color: #4ade80; font-weight: bold; }
-
+    
+    /* Detay içeriğinin kaydırılabilir alanı */
     .detail-body {
-      flex: 1; overflow-y: auto; padding: 20px; background: #161616;
-      border-radius: 8px; line-height: 1.8; font-size: 16px; color: #eee;
+      flex: 1; /* Kalan tüm alanı kapla */
+      padding: 25px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      border: 1px solid #333;
+      overflow-y: auto; /* Sadece metin alanı kaysın */
+      
+      /* Tipografi (Okuma Kolaylığı) */
+      font-size: 16px;
+      line-height: 1.7;
+      color: #e0e0e0;
+      font-weight: 400;
+      text-align: justify; /* Blok nizam */
     }
 
-    /* ─── MOBİL UYUMLULUK (TAM OTURAKLI YAPI) ─── */
+    /* Scrollbar Tasarımı (Detay Paneli İçin) */
+    .detail-body::-webkit-scrollbar { width: 8px; }
+    .detail-body::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 4px; }
+    .detail-body::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+    .detail-body::-webkit-scrollbar-thumb:hover { background: #4ade80; }
+
+    /* Başlıklar ve Paragraflar için boşluklar */
+    .detail-body p { margin-bottom: 15px; }
+    .detail-body ul { margin-left: 20px; margin-bottom: 15px; }
+    .detail-body h3 { color: #4ade80; margin-top: 20px; margin-bottom: 10px; }
+
+    /* ─── MEDIA QUERIES (RESPONSIVE) ─── */
     @media (max-width: 768px) {
       #container { flex-direction: column; }
-      #sidebar {
-        width: 100%; position: fixed; bottom: 0; left: 0; right: 0;
-        height: 60vh; border-radius: 20px 20px 0 0; transform: translateY(100%);
-        transition: 0.4s; display: block;
-      }
-      #sidebar.active { transform: translateY(0); }
+      #map-area { flex: 1 1 60%; }
       
-      .modal-content { width: 98%; padding: 15px; }
-      #long-detail-modal .modal-content { height: 98vh; width: 100%; border-radius: 0; }
-
-      .long-detail-tabs {
-        grid-template-columns: repeat(2, 1fr); /* Mobilde yan yana 2'li butonlar */
-        font-size: 12px;
+      #sidebar {
+          width: 100%; 
+          height: auto;
+          max-height: 70%;
+          min-height: 40%;
+          position: fixed; 
+          bottom: 0; 
+          left: 0; 
+          right: 0;
+          transform: translateY(100%);
+          border-left: none; 
+          border-top: 1px solid #444;
+          z-index: 300;
+          border-radius: 15px 15px 0 0;
       }
-      .tab { font-size: 12px; padding: 10px 2px; }
-    }
 
-    /* ─── DİĞER BİLEŞENLER ─── */
-    .close-btn {
-      position: absolute; top: 15px; right: 15px; background: #444;
-      color: white; border: none; width: 30px; height: 30px; border-radius: 50%;
-      cursor: pointer; z-index: 10;
+      #sidebar.active { transform: translateY(0); }
+      #search-button { bottom: 30px; right: 20px; }
+      
+      /* Mobilde Modal Ayarları */
+      .modal { padding: 10px; }
+      .modal-content { 
+        padding: 20px 16px; 
+        max-height: 85vh;
+      }
+      
+      /* Okuma Paneli Mobilde */
+      #long-detail-modal .modal-content {
+        width: 100%;
+        height: 95vh;
+        padding: 16px;
+        border-radius: 12px 12px 0 0;
+        margin-top: auto; /* Alttan açılır gibi olması için */
+        margin-bottom: 0;
+      }
+
+      /* Mobilde Sekmelerin Görünümü */
+      .l-tab, .tab {
+        flex: 1 1 45%; /* Yan yana 2 tane sığsın */
+        font-size: 12px;
+        padding: 12px 5px;
+      }
+
+      .detail-body {
+        padding: 15px;
+        font-size: 15px; /* Mobilde biraz küçült */
+      }
+      
+      .modal h2 {
+        font-size: 1.3rem;
+        padding: 0 40px;
+        margin-top: 5px;
+      }
     }
-    #search-button {
-      position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px;
-      background: #4ade80; border-radius: 50%; display: flex; align-items: center;
-      justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.4); cursor: pointer;
+    
+    @media (max-width: 400px) {
+       /* Çok küçük ekranlarda sekmeler */
+       .l-tab, .tab { flex: 1 1 100%; } /* Tek sütun olsun */
     }
   </style>
 </head>
 <body>
 
 <div id="container">
+  <a href="https://militantatlas-droid.github.io/militantatlascom" id="back-to-home" aria-label="Ana Sayfaya Dön" title="Ana Sayfaya Dön" target="_self">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+    </svg>
+  </a>
+
   <div id="map-area">
-    <svg id="svg-map" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
-        <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
+    <svg id="svg-map" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+       <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
       <path id="BI" data-name="Burundi" data-id="BI" d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
       <path id="BJ" data-name="Benin" data-id="BJ" d="m 340,356 -9.3,-8 -4.3,0.1 -4.1,4 -2.6,4.2 -6,1.2 -2.5,6.1 -4.1,1.6 -1.6,7.2 3.7,4.1 4.3,4.9 0.4,6.8 2.5,2.8 -0.5,31.8 3,9.5 10.1,-1.6 0.6,-22.3 -0.3,-8.8 2.3,-8.7 3.7,-4.3 5.9,-8.5 -1.3,-3.7 2.4,-5.6 -2.8,-8.2 0.5,-4.6 z" />
       <path id="BF" data-name="Burkina Faso" data-id="BF" d="m 300.7,310.8 -7.8,0 -3,-2.6 -6.7,1.9 -11.3,5.8 -2.3,4.3 -9.4,6.2 -1.7,3.6 -5.1,2.8 -5.8,-1.9 -3.4,3.4 -1.8,9.5 -9.7,11.4 0.3,4.7 -3.4,5.9 0.8,8 5.5,3 2.1,4.6 5.4,2.9 4.3,-3.4 5.7,-0.6 8.3,3.6 -1.6,-10.4 0.3,-7.9 21.1,-0.6 5.4,1 3.9,-2.2 5.6,1.1 10.7,0.3 4.1,-1.6 2.5,-6.1 6,-1.2 2.6,-4.2 0.3,-9.5 -14,-3.1 -0.4,-6.7 -6.9,-9 -1.6,-6.3 1,-6.7 z" />
@@ -171,90 +517,489 @@
     </svg>
   </div>
 
+  <div id="tooltip" class="tooltip"></div>
+
   <div id="sidebar">
-    <button class="close-btn" onclick="closeSidebar()">×</button>
-    <h2 style="color:#4ade80; margin-bottom:15px;">Militan Atlası</h2>
-    <input type="text" id="search-input" placeholder="Ülke ara..." 
-           style="width:100%; padding:12px; background:#2a2a2a; border:1px solid #444; color:white; border-radius:8px; margin-bottom:15px;">
-    <div id="country-list"></div>
-  </div>
-</div>
-
-<div id="info-modal" class="modal">
-  <div class="modal-content">
-    <button class="close-btn" onclick="closeModal('info-modal')">×</button>
-    <h2 id="modal-country-name" style="color:#4ade80;">Ülke Adı</h2>
-    
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab(this, 'kategori')">KATEGORİ</button>
-      <button class="tab" onclick="switchTab(this, 'durum')">DURUM</button>
-      <button class="tab" onclick="openLongDetail()" style="background: #333; color: #4ade80;">DETAYLAR</button>
+    <button id="sidebar-close">×</button>
+    <div id="search-container">
+      <input type="text" id="search-input" placeholder="Ülke ara...">
+      <button id="clear-search">×</button>
     </div>
+    <div id="sidebar-content"></div>
+  </div>
 
-    <div id="tab-content-area" class="detail-body" style="min-height: 100px;">
-      Kategori içeriği burada görünecek...
+  <div id="country-modal" class="modal">
+    <div class="modal-content">
+      <button id="country-modal-close" class="modal-close">×</button>
+      <h2 id="country-modal-title">Ülke</h2>
+      <div id="country-groups"></div>
     </div>
   </div>
-</div>
 
-<div id="long-detail-modal" class="modal">
-  <div class="modal-content">
-    <button class="close-btn" onclick="closeModal('long-detail-modal')">×</button>
-    <h2 style="color:#4ade80; margin-bottom:20px;">Örgüt Detaylı Analiz Paneli</h2>
-    
-    <div class="long-detail-tabs">
-      <div class="l-tab active" onclick="switchLongTab(this, 'süreç')">Oluşum Süreci</div>
-      <div class="l-tab" onclick="switchLongTab(this, 'amaç')">Amaç ve Hedef</div>
-      <div class="l-tab" onclick="switchLongTab(this, 'yapı')">Yönetim ve Yapısı</div>
-      <div class="l-tab" onclick="switchLongTab(this, 'metot')">Eylem Metotları</div>
-      <div class="l-tab" onclick="switchLongTab(this, 'eylem')">Önemli Eylemler</div>
-      <div class="l-tab" onclick="switchLongTab(this, 'finans')">Finansman</div>
-      <div class="l-tab" onclick="switchLongTab(this, 'ilişki')">İlişkiler</div>
-      <div class="l-tab" onclick="switchLongTab(this, 'diğer')">Diğer Bilgiler</div>
-      <div class="l-tab" onclick="switchLongTab(this, 'kaynak')">Kaynakça</div>
-    </div>
+  <div id="group-detail-modal" class="modal">
+    <div class="modal-content">
+      <button id="group-detail-close" class="modal-close">×</button>
+      <button id="group-detail-back" class="modal-back">←</button>
+      <h2 id="group-detail-title">Grup Adı</h2>
 
-    <div id="long-tab-content" class="detail-body">
-      Seçilen başlığa ait uzun detaylı yazılar burada akıcı bir şekilde okunabilecek...
+      <div class="tabs">
+        <div class="tab active" data-tab="temel">KATEGORİ</div>
+        <div class="tab" data-tab="durum">DURUM</div>
+        <div class="tab" data-tab="detay">DETAY PENCERESİNİ AÇ</div>
+      </div>
+
+      <div id="tab-content" class="tab-content"></div>
     </div>
   </div>
-</div>
 
-<div id="search-button" onclick="openSidebar()">🔍</div>
+  <div id="long-detail-modal" class="modal">
+    <div class="modal-content">
+      <button id="long-detail-close" class="modal-close">×</button>
+      <button id="long-detail-back" class="modal-back">←</button>
+      <h2 id="long-detail-title">Detaylı Bilgi</h2>
+
+      <div class="long-detail-tabs">
+        <div class="l-tab active" onclick="showLongTabContent('olusum')">Oluşum Süreci</div>
+        <div class="l-tab" onclick="showLongTabContent('amac')">Amaç ve Hedef</div>
+        <div class="l-tab" onclick="showLongTabContent('yonetim')">Yönetim ve Yapısı</div>
+        <div class="l-tab" onclick="showLongTabContent('metot')">Eylem Metotları</div>
+        <div class="l-tab" onclick="showLongTabContent('eylem')">Önemli Eylemler</div>
+        <div class="l-tab" onclick="showLongTabContent('finans')">Finansman</div>
+        <div class="l-tab" onclick="showLongTabContent('iliski')">İlişkiler</div>
+        <div class="l-tab" onclick="showLongTabContent('diger')">Diğer Bilgiler</div>
+        <div class="l-tab" onclick="showLongTabContent('kaynak')">Kaynakça</div>
+      </div>
+
+      <div id="long-detail-body" class="detail-body">
+         <p style="text-align:center; color:#888;">Lütfen bir kategori seçin.</p>
+      </div>
+    </div>
+  </div>
+
+  <button id="search-button">Ülke Ara</button>
+</div>
 
 <script>
-  // Fonksiyonlar
-  function openSidebar() { document.getElementById('sidebar').classList.add('active'); }
-  function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); }
-  
-  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-  
-  function switchTab(btn, type) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-content-area').innerText = type.toUpperCase() + " bilgileri yükleniyor...";
-  }
+// ──────────────────────────────────────────────
+// DEĞİŞKENLER VE SEÇİCİLER
+// ──────────────────────────────────────────────
+let countryData = {};
+let activePath = null;
+let currentCountryId = null;
+let currentGroup = null;
 
-  function openLongDetail() {
-    closeModal('info-modal');
-    document.getElementById('long-detail-modal').classList.add('active');
-  }
+const tooltip          = document.getElementById("tooltip");
+const sidebar          = document.getElementById("sidebar");
+const sidebarContent   = document.getElementById("sidebar-content");
+const searchInput      = document.getElementById("search-input");
+const clearSearch      = document.getElementById("clear-search");
+const searchButton     = document.getElementById("search-button");
+const mapArea          = document.getElementById("map-area");
 
-  function switchLongTab(btn, type) {
-    document.querySelectorAll('.l-tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    // Burada AJAX veya veri objesinden içerik çekebilirsin
-    document.getElementById('long-tab-content').innerHTML = "<h3>" + btn.innerText + "</h3><p>Bu bölüme gelecek olan uzun metinler artık bu geniş alanda rahatça okunabilir. Mobilde butonlar 2'li ızgara yapısına geçer, PC'de ise yan yana sıralanır. Kaydırma çubuğu sadece metin alanında çalışır.</p>";
-  }
+// Modallar
+const countryModal     = document.getElementById("country-modal");
+const countryTitle     = document.getElementById("country-modal-title");
+const countryGroups    = document.getElementById("country-groups");
+const countryClose     = document.getElementById("country-modal-close");
 
-  // Harita tıklama simülasyonu
-  document.querySelectorAll('path').forEach(path => {
-    path.addEventListener('click', function() {
-      document.getElementById('modal-country-name').innerText = this.getAttribute('data-name');
-      document.getElementById('info-modal').classList.add('active');
+const groupModal       = document.getElementById("group-detail-modal");
+const groupTitle       = document.getElementById("group-detail-title");
+const groupBack        = document.getElementById("group-detail-back");
+const groupClose       = document.getElementById("group-detail-close");
+const tabContents      = document.getElementById("tab-content");
+
+// Büyük detay modalı
+const longDetailModal  = document.getElementById("long-detail-modal");
+const longDetailTitle  = document.getElementById("long-detail-title");
+const longDetailClose  = document.getElementById("long-detail-close");
+const longDetailBack   = document.getElementById("long-detail-back");
+
+// ──────────────────────────────────────────────
+// VERİ YÜKLEME
+// ──────────────────────────────────────────────
+fetch("trdata.json")
+  .then(res => res.json())
+  .then(data => {
+    countryData = data;
+    initMap();
+  })
+  .catch(err => {
+    console.error("JSON yüklenemedi:", err);
+    sidebarContent.innerHTML = `<p style="color:#ff4444; font-weight:bold;">Veri dosyası yüklenemedi (trdata.json bulunamadı).</p>`;
+    initMap();
+  });
+
+// ──────────────────────────────────────────────
+// HARİTA VE OLAYLARIN BAŞLATILMASI
+// ──────────────────────────────────────────────
+function initMap() {
+  document.querySelectorAll("svg path").forEach(path => {
+    const id = path.id;
+    if (!id) return;
+    const fallbackName = path.getAttribute("data-name") || id || "Bilinmeyen";
+
+    // Mouseover
+    path.addEventListener("mouseover", e => {
+      const country = countryData[id] || {};
+      const name = country.name_tr || fallbackName;
+      // Tooltipte sadece isim gösterelim, grup listesi kalabalık yapmasın
+      const groupCount = country.groups?.length ? `(${country.groups.length} Grup)` : "";
+      
+      tooltip.innerHTML = `<strong>${name}</strong>${groupCount}`;
+      tooltip.classList.add("visible");
+      moveTooltip(e);
+    });
+
+    path.addEventListener("mousemove", moveTooltip);
+    path.addEventListener("mouseout", () => tooltip.classList.remove("visible"));
+    
+    // Tıklama
+    path.addEventListener("click", e => {
+      e.stopPropagation();
+      activateCountry(id, fallbackName, path);
+    });
+
+    // Mobilde dokunma
+    path.addEventListener("touchend", e => {
+      e.preventDefault();
+      e.stopPropagation();
+      activateCountry(id, fallbackName, path);
+    }, { passive: false });
+  });
+
+  // Arama İşlemleri
+  searchInput.addEventListener("input", () => {
+    const term = searchInput.value.trim().toLowerCase();
+    clearSearch.style.display = term ? "block" : "none";
+    showSearchSuggestions(term);
+  });
+
+  clearSearch.addEventListener("click", () => {
+    searchInput.value = "";
+    searchInput.dispatchEvent(new Event("input"));
+    searchInput.focus();
+  });
+
+  // Klavye Kontrolleri (ESC ile kapatma)
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      if (sidebar.classList.contains("active")) closeSidebar();
+      if (countryModal.classList.contains("active")) closeCountryModal();
+      if (groupModal.classList.contains("active")) closeGroupModal();
+      if (longDetailModal.classList.contains("active")) longDetailModal.classList.remove("active");
+    }
+  });
+
+  // Dışarı tıklayınca kapatma
+  document.addEventListener("click", e => {
+    if (sidebar.classList.contains("active") && !sidebar.contains(e.target) && !searchButton.contains(e.target) && !e.target.closest(".suggestion-item")) {
+      closeSidebar();
+    }
+    if (countryModal.classList.contains("active") && e.target === countryModal) closeCountryModal();
+    if (groupModal.classList.contains("active") && e.target === groupModal) closeGroupModal();
+    if (longDetailModal.classList.contains("active") && e.target === longDetailModal) longDetailModal.classList.remove("active");
+  });
+
+  // Sidebar mobil kaydırarak kapatma
+  let touchStartY = 0;
+  sidebar.addEventListener("touchstart", e => touchStartY = e.changedTouches[0].screenY, { passive: true });
+  sidebar.addEventListener("touchend", e => {
+    if (touchStartY - e.changedTouches[0].screenY < -100) closeSidebar();
+  }, { passive: true });
+
+  document.getElementById("sidebar-close")?.addEventListener("click", closeSidebar);
+  searchButton.addEventListener("click", () => {
+    sidebar.classList.add("active");
+    searchButton.classList.add("hidden");
+    createBackdrop();
+    setTimeout(() => searchInput.focus(), 100);
+  });
+
+  // Modal Kapatma Düğmeleri
+  countryClose.addEventListener("click", closeCountryModal);
+  groupClose.addEventListener("click", closeGroupModal);
+  groupBack.addEventListener("click", closeGroupModal); // Geri tuşu da kapatır
+  longDetailClose.addEventListener("click", () => longDetailModal.classList.remove("active"));
+  longDetailBack.addEventListener("click", () => longDetailModal.classList.remove("active"));
+
+  // Küçük Modal Sekmeleri (Kategori / Durum / Detay)
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      // Aktiflik değiştir
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      showTabContent(tab.dataset.tab);
     });
   });
-</script>
+}
 
+// ──────────────────────────────────────────────
+// FONKSİYONLAR
+// ──────────────────────────────────────────────
+
+function activateCountry(id, fallbackName, pathElement = null) {
+  if (activePath) activePath.classList.remove("active");
+  const targetPath = pathElement || document.getElementById(id);
+  if (targetPath) {
+    targetPath.classList.add("active");
+    activePath = targetPath;
+  }
+  showCountryModal(id, fallbackName);
+}
+
+function showCountryModal(id, fallbackName) {
+  currentCountryId = id;
+  const country = countryData[id] || {};
+  const name = country.name_tr || fallbackName;
+
+  countryTitle.textContent = name;
+
+  let html = "";
+  if (country.groups?.length > 0) {
+    country.groups.forEach((g, index) => {
+      html += `<div class="group-item" data-group-index="${index}">${g.name_tr || "Bilinmeyen Grup"}</div>`;
+    });
+  } else {
+    html = "<p style='color:#888; text-align:center; padding:30px 0;'>Bu ülkede kayıtlı grup bilgisi bulunmuyor.</p>";
+  }
+
+  countryGroups.innerHTML = html;
+  countryModal.classList.add("active");
+
+  countryGroups.querySelectorAll(".group-item").forEach(item => {
+    item.addEventListener("click", () => {
+      const index = parseInt(item.dataset.groupIndex);
+      const group = country.groups[index];
+      if (group) {
+        currentGroup = group;
+        showGroupDetailModal(group, name);
+      }
+    });
+  });
+}
+
+function closeCountryModal() {
+  countryModal.classList.remove("active");
+  if (activePath) {
+    activePath.classList.remove("active");
+    activePath = null;
+  }
+  currentCountryId = null;
+}
+
+function showGroupDetailModal(group, countryName) {
+  groupTitle.textContent = `${group.name_tr || "Grup"}`;
+  currentGroup = group;
+  // Varsayılan olarak 'temel' sekmesini aç (KATEGORİ)
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelector('[data-tab="temel"]').classList.add("active");
+  showTabContent("temel");
+  
+  groupModal.classList.add("active");
+}
+
+function showTabContent(tabKey) {
+  if (!currentGroup) return;
+  const d = currentGroup.details || {};
+
+  if (tabKey === "detay") {
+    // Detay sekmesine tıklandı -> Büyük Modalı Aç
+    longDetailTitle.textContent = `${currentGroup.name_tr || "Grup"} — Detaylar`;
+    longDetailModal.classList.add("active");
+    // Detay açılınca varsayılan olarak ilk sekmeyi getir
+    showLongTabContent("olusum");
+
+    tabContents.innerHTML = `<p style="text-align:center; color:#4ade80; padding:40px 0; font-style:italic;">
+      Detaylı okuma paneli açıldı.
+    </p>`;
+    return;
+  }
+
+  let content = "";
+  if (tabKey === "temel") {
+      // JSON'da "kategori" alanı varsa onu yazalım, yoksa sabit bir metin
+      const cat = currentGroup.kategori || "Militan / İsyancı Grup"; 
+      content = `
+        <div style="text-align:center; padding: 20px;">
+           <span style="font-size:12px; color:#888; text-transform:uppercase; letter-spacing:1px;">KATEGORİ</span>
+           <h3 style="color:#4ade80; margin-top:10px; font-size:1.4em;">${cat}</h3>
+        </div>
+      `;
+  } else if (tabKey === "durum") {
+      content = `
+        <div style="text-align:center; padding: 20px;">
+           <span style="font-size:12px; color:#888; text-transform:uppercase; letter-spacing:1px;">MEVCUT DURUM</span>
+           <p style="font-size: 1.4em; font-weight: bold; margin-top: 15px; color: #fff;">
+             ${d.grup_durumu || "Bilinmiyor"}
+           </p>
+        </div>
+      `;
+  }
+  tabContents.innerHTML = content;
+}
+
+// 9 Sekmeli Yapı İçin İçerik Gösterici (OKUMA PANELİ)
+function showLongTabContent(tabKey) {
+  // 1. Sekmeleri temizle
+  document.querySelectorAll(".l-tab").forEach(tab => {
+    tab.classList.remove("active");
+  });
+
+  // 2. Aktif sekmeyi işaretle
+  const activeTab = document.querySelector(`.l-tab[onclick*="'${tabKey}'"]`);
+  if (activeTab) {
+    activeTab.classList.add("active");
+  }
+
+  // 3. İçeriği yazdır
+  const body = document.getElementById("long-detail-body");
+  const d = (currentGroup && currentGroup.details) ? currentGroup.details : {};
+  let content = "";
+
+  // Veri yoksa gösterilecek mesaj
+  const noDataMsg = "<p style='color:#666; font-style:italic;'>Bu başlık altında henüz bilgi girilmemiş.</p>";
+
+  switch(tabKey) {
+    case "olusum":  
+        content = `<h3>Oluşum Süreci</h3>${d.olusum_sureci || noDataMsg}`; 
+        break;
+    case "amac":    
+        content = `<h3>Amaç ve Hedef</h3>${d.nihai_hedef || noDataMsg}`; 
+        break;
+    case "yonetim": 
+        content = `<h3>Yönetim ve Yapısı</h3>${d.yonetim_yapisi || noDataMsg}`; 
+        break;
+    case "metot":   
+        content = `<h3>Eylem Metotları</h3>${d.eylem_metotlari || noDataMsg}`; 
+        break;
+    case "eylem":   
+        content = `<h3>Önemli Eylemler</h3>${d.onemli_eylemler || noDataMsg}`; 
+        break;
+    case "finans":  
+        content = `<h3>Finansman Kaynakları</h3>${d.finansman_kaynaklari || noDataMsg}`; 
+        break;
+    case "iliski":  
+        content = `<h3>Grup İlişkileri</h3>${d.grup_iliskileri || noDataMsg}`; 
+        break;
+    case "diger":   
+        content = `<h3>Diğer Bilgiler</h3>${d.diger_bilgiler || noDataMsg}`; 
+        break;
+    case "kaynak":  
+        content = `<h3>Kaynakça</h3>${d.kaynakca || noDataMsg}`; 
+        break;
+    default:        
+        content = "Seçim yapılmadı.";
+  }
+
+  // İçeriği nazikçe değiştir (Fade effect simülasyonu)
+  body.style.opacity = 0;
+  setTimeout(() => {
+      body.innerHTML = content;
+      body.style.opacity = 1;
+      // Scroll'u en üste al
+      body.scrollTop = 0;
+  }, 100);
+  body.style.transition = "opacity 0.2s ease";
+}
+
+function closeGroupModal() {
+  groupModal.classList.remove("active");
+  currentGroup = null;
+}
+
+function showSearchSuggestions(term) {
+  if (!term || term.length < 1) {
+    sidebarContent.innerHTML = "";
+    return;
+  }
+
+  let html = `<h3 style="margin: 0 0 12px 0; color:#4ade80;">Eşleşen Ülkeler:</h3>`;
+  const matches = [];
+
+  // JSON'dan ara
+  Object.keys(countryData).forEach(key => {
+    const c = countryData[key];
+    if ((c.name_tr || key).toLowerCase().includes(term)) {
+      matches.push({ id: key, name: c.name_tr || key });
+    }
+  });
+
+  // SVG'den ara (JSON'da olmayanlar için)
+  document.querySelectorAll("svg path").forEach(p => {
+    const id = p.id;
+    if (countryData[id]) return; // Zaten ekledik
+    const name = (p.getAttribute("data-name") || id).toLowerCase();
+    if (name.includes(term) && !matches.some(m => m.id === id)) {
+      matches.push({ id, name: p.getAttribute("data-name") || id });
+    }
+  });
+
+  if (matches.length === 0) {
+    html += `<p style="color:#888; padding:10px;">Sonuç bulunamadı</p>`;
+  } else {
+    matches.forEach(m => {
+      html += `
+        <div class="suggestion-item" data-id="${m.id}" data-name="${m.name.replace(/"/g,'&quot;')}">
+          ${m.name}
+        </div>`;
+    });
+  }
+
+  sidebarContent.innerHTML = html;
+  sidebar.classList.add("active");
+
+  document.querySelectorAll(".suggestion-item").forEach(el => {
+    el.addEventListener("click", e => {
+      e.stopPropagation();
+      const id = el.dataset.id;
+      const name = el.dataset.name;
+      activateCountry(id, name);
+      closeSidebar();
+    });
+  });
+}
+
+function closeSidebar() {
+  sidebar.classList.remove("active");
+  searchButton.classList.remove("hidden");
+  removeBackdrop();
+}
+
+function moveTooltip(e) {
+  const rect = mapArea.getBoundingClientRect();
+  let x = e.clientX - rect.left + 16;
+  let y = e.clientY - rect.top + 16;
+  
+  // Harita sınırlarından taşmayı engelle
+  x = Math.max(10, Math.min(x, rect.width - tooltip.offsetWidth - 10));
+  y = Math.max(10, Math.min(y, rect.height - tooltip.offsetHeight - 10));
+  
+  tooltip.style.left = `${rect.left + x}px`;
+  tooltip.style.top  = `${rect.top + y}px`;
+}
+
+function createBackdrop() {
+  let b = document.getElementById("sidebar-backdrop");
+  if (!b) {
+    b = document.createElement("div");
+    b.id = "sidebar-backdrop";
+    document.body.appendChild(b);
+    b.addEventListener("click", closeSidebar);
+  }
+  setTimeout(() => {
+    b.style.opacity = "1";
+    b.style.pointerEvents = "all";
+  }, 50);
+}
+
+function removeBackdrop() {
+  const b = document.getElementById("sidebar-backdrop");
+  if (b) {
+    b.style.opacity = "0";
+    b.style.pointerEvents = "none";
+    setTimeout(() => b.remove(), 420);
+  }
+}
+</script>
 </body>
 </html>

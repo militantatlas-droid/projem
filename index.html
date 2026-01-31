@@ -21,7 +21,7 @@
     #map-area {
       flex: 1;
       position: relative;
-      background: #1a1a1a; /* İSTEK: #1a1a1a ARKA PLAN */
+      background: #1a1a1a;
       overflow: hidden;
       cursor: default;
     }
@@ -30,21 +30,21 @@
       user-select: none; touch-action: manipulation;
     }
     svg path {
-      fill: #ffffff; /* Ülkeler varsayılan beyaz */
+      fill: #ffffff;
       stroke: #000000;
       stroke-width: 1.5;
       vector-effect: non-scaling-stroke;
       transition: fill 0.2s, stroke 0.2s;
       cursor: pointer;
     }
-    /* İSTEK: ÜZERİNE GELİNCE YEŞİL */
+    /* HOVER: YEŞİL */
     svg path:hover {
       fill: #4ade80 !important;
       stroke: #000;
       stroke-width: 2.0;
       z-index: 10;
     }
-    /* İSTEK: TIKLAYINCA KIRMIZI */
+    /* AKTİF: KIRMIZI */
     svg path.active {
       fill: #ff4444 !important;
       stroke: #fff;
@@ -54,20 +54,25 @@
     /* ─── TOOLTIP ─── */
     .tooltip {
       position: absolute;
-      background: rgba(0,0,0,0.92);
+      background: rgba(0,0,0,0.95); /* Biraz daha koyu */
       color: white;
-      padding: 10px 14px;
-      border-radius: 6px;
+      padding: 12px 16px;
+      border-radius: 8px;
       font-size: 13px;
       pointer-events: none;
       z-index: 1000;
       display: none;
-      border: 1px solid rgba(255,255,255,0.15);
-      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.2);
+      white-space: normal; /* Alt satıra geçebilsin */
+      max-width: 250px; /* Çok genişlemesin */
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
     .tooltip.visible { display: block; }
+    .tooltip-title { font-size: 14px; font-weight: bold; color: #4ade80; margin-bottom: 4px; display: block;}
+    .tooltip-sub { font-size: 11px; color: #aaa; margin-bottom: 6px; display: block; border-bottom: 1px solid #444; padding-bottom: 4px;}
+    .tooltip-list { font-size: 12px; color: #ddd; line-height: 1.4; }
 
-    /* ─── BACK HOME BUTONU (GERİ GELDİ) ─── */
+    /* ─── BACK HOME BUTONU ─── */
     #back-to-home {
       position: fixed;
       top: 20px; left: 20px;
@@ -107,7 +112,7 @@
     #search-fab.hidden { transform: scale(0); opacity: 0; pointer-events: none; }
     #search-fab svg { width: 28px; height: 28px; stroke: currentColor; stroke-width: 2.5; fill: none; }
 
-    /* ─── SIDEBAR (YAN PANEL & GELİŞMİŞ ARAMA) ─── */
+    /* ─── SIDEBAR ─── */
     #sidebar {
       width: 360px;
       background: #1f1f1f;
@@ -132,7 +137,6 @@
     #sidebar-close { background: none; border: none; color: #aaa; font-size: 28px; cursor: pointer; }
     #sidebar-close:hover { color: #fff; }
 
-    /* YENİ: ARAMA TABS (ÜLKELER | GRUPLAR) */
     .search-tabs { display: flex; background: #1a1a1a; padding: 10px 20px 0; border-bottom: 1px solid #333; }
     .search-tab {
       flex: 1; padding: 12px;
@@ -165,10 +169,10 @@
     .result-info div { font-size: 14px; font-weight: bold; color: #eee; }
     .result-info span { font-size: 12px; color: #aaa; }
 
-    /* ─── MODALLAR GENEL ─── */
+    /* ─── MODALLAR ─── */
     .modal {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.85); /* Arkaplan karartma */
+      background: rgba(0,0,0,0.85);
       display: none; align-items: center; justify-content: center;
       z-index: 2000; padding: 20px;
       backdrop-filter: blur(4px);
@@ -198,7 +202,6 @@
 
     .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
 
-    /* ÜLKE MODALI İÇİN LİSTE */
     .group-item {
       padding: 14px; margin-bottom: 10px;
       background: #2a2a2a; border-left: 4px solid #4ade80;
@@ -206,7 +209,6 @@
     }
     .group-item:hover { background: #333; transform: translateX(4px); }
 
-    /* KÜÇÜK GRUP MODALI SEKMELERİ */
     .tabs { display: flex; gap: 8px; margin-bottom: 15px; justify-content: center; }
     .tab {
       padding: 8px 15px; background: #2a2a2a; border: 1px solid #444;
@@ -214,10 +216,9 @@
     }
     .tab.active { background: #4ade80; color: #111; font-weight: bold; border-color: #4ade80; }
 
-    /* BÜYÜK (UZUN) DETAY MODALI */
+    /* BÜYÜK MODAL */
     #long-detail-modal .modal-content { max-width: 900px; height: 90vh; }
     
-    /* SENİN İSTEDİĞİN 9 SEKME YAPISI */
     .long-tabs {
       display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px;
       justify-content: center; border-bottom: 1px solid #333; padding-bottom: 10px;
@@ -239,7 +240,7 @@
     @media (max-width: 768px) {
       #sidebar { width: 100%; }
       .modal-content { width: 95%; }
-      .l-tab { flex: 1 1 30%; } /* Mobilde 3'lü sıra olsun */
+      .l-tab { flex: 1 1 30%; }
     }
   </style>
 </head>
@@ -338,7 +339,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2 id="country-title">Ülke</h2>
-        <button class="btn-close" onclick="closeAllModals()">×</button>
+        <button class="btn-close" onclick="resetApplicationState()">×</button>
       </div>
       <div class="modal-body" id="country-groups">
         </div>
@@ -350,7 +351,7 @@
       <div class="modal-header">
         <button class="btn-back" onclick="backToCountry()">←</button>
         <h2 id="group-title" style="margin-left:10px;">Grup</h2>
-        <button class="btn-close" onclick="closeAllModals()" style="margin-left:auto;">×</button>
+        <button class="btn-close" onclick="resetApplicationState()" style="margin-left:auto;">×</button>
       </div>
       <div class="modal-body">
         <div class="tabs">
@@ -367,8 +368,8 @@
     <div class="modal-content">
       <div class="modal-header">
         <button class="btn-back" onclick="closeLongModal()">←</button>
-        <h2 id="long-title" style="margin-left:10px;">Detaylı Bilgi</h2>
-        <button class="btn-close" onclick="closeAllModals()" style="margin-left:auto;">×</button>
+        <h2 id="long-detail-title" style="margin-left:10px;">Detaylı Bilgi</h2>
+        <button class="btn-close" onclick="resetApplicationState()" style="margin-left:auto;">×</button>
       </div>
       <div class="modal-body">
         <div class="long-tabs">
@@ -400,7 +401,7 @@ let countryData = {};
 let currentCountryId = null;
 let currentGroup = null;
 let activePath = null;
-let searchMode = 'country'; // 'country' veya 'group'
+let searchMode = 'country';
 
 const dom = {
     tooltip: document.getElementById("tooltip"),
@@ -423,7 +424,7 @@ const dom = {
 };
 
 // ──────────────────────────────────────────────
-// VERİ YÜKLEME VE BAŞLATMA
+// BAŞLATMA
 // ──────────────────────────────────────────────
 fetch("trdata.json")
   .then(res => res.json())
@@ -442,12 +443,28 @@ function initMap() {
         const id = path.id;
         const name = path.getAttribute("data-name") || id;
 
-        // Hover Tooltip
+        // Hover Tooltip (GELİŞMİŞ - GRUP İSİMLERİ EKLENDİ)
         path.addEventListener("mouseover", e => {
             const cData = countryData[id];
             const groupCount = cData && cData.groups ? cData.groups.length : 0;
-            let html = `<strong style="color:#4ade80;">${cData ? (cData.name_tr || name) : name}</strong>`;
-            if(groupCount > 0) html += `<br><span style="color:#bbb;font-size:11px;">(${groupCount} Grup)</span>`;
+            
+            // Başlık
+            let html = `<span class="tooltip-title">${cData ? (cData.name_tr || name) : name}</span>`;
+            
+            // Grup Sayısı ve İsim Listesi
+            if(groupCount > 0) {
+                html += `<span class="tooltip-sub">${groupCount} Grup Aktif</span>`;
+                
+                // Grupların isimlerini al (En fazla 5 tane göster, sonrası ...)
+                let groupNames = cData.groups.map(g => g.name_tr);
+                let displayNames = groupNames.slice(0, 5).join(", ");
+                if(groupNames.length > 5) displayNames += ", ...";
+                
+                html += `<div class="tooltip-list">${displayNames}</div>`;
+            } else {
+                 html += `<span style="font-size:11px;color:#777;">Kayıtlı grup yok</span>`;
+            }
+
             dom.tooltip.innerHTML = html;
             dom.tooltip.classList.add("visible");
         });
@@ -459,38 +476,18 @@ function initMap() {
 
         path.addEventListener("mouseout", () => dom.tooltip.classList.remove("visible"));
 
-        // Tıklama (Aktif Yapma) - İSTEK 1: Tıklayınca Kırmızı
         path.addEventListener("click", e => {
-            e.stopPropagation();
+            e.stopPropagation(); // Harita boşluk tıklamasını engelle
             selectCountry(id, name, path);
         });
     });
 
-    // DIŞARI TIKLAMA (İSTEK 4: HARİTA BOŞLUĞUNA TIKLAYINCA KAPANMA)
-    document.getElementById('map-area').addEventListener('click', () => {
-        closeAllModals();
-        if(activePath) {
-            activePath.classList.remove('active');
-            activePath = null;
-        }
-    });
-    
-    // Modal Dışına Tıklayınca Kapatma
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('click', (e) => {
-            if(e.target === modal) closeAllModals();
-        });
-    });
-
-    // Sidebar Kontrolleri
+    // Sidebar
     dom.searchFab.addEventListener("click", openSidebar);
-    dom.sidebarBackdrop.addEventListener("click", closeSidebar);
-    document.getElementById("sidebar-close").addEventListener("click", closeSidebar);
-    
-    // Arama Input
+    document.getElementById("sidebar-close").addEventListener("click", resetApplicationState);
     dom.searchInput.addEventListener("input", runSearch);
 
-    // Küçük Modal Sekmeleri
+    // Modal Sekmeler
     document.querySelectorAll("#group-modal .tab").forEach(t => {
         t.addEventListener("click", () => {
             document.querySelectorAll("#group-modal .tab").forEach(x => x.classList.remove("active"));
@@ -498,19 +495,64 @@ function initMap() {
             showSmallTabContent(t.dataset.tab);
         });
     });
+
+    // GLOBAL KAPATMA OLAYLARI (ESC VE DIŞARI TIKLAMA)
+    
+    // 1. ESC Tuşu
+    document.addEventListener('keydown', (e) => {
+        if(e.key === "Escape") {
+            resetApplicationState();
+        }
+    });
+
+    // 2. Harita Boşluğuna Tıklama (PC ve Mobil)
+    document.getElementById('map-area').addEventListener('click', () => {
+        resetApplicationState();
+    });
+
+    // 3. Sidebar Backdrop Tıklama
+    dom.sidebarBackdrop.addEventListener('click', () => {
+        resetApplicationState();
+    });
+
+    // 4. Modal Dışına (Backdrop) Tıklama
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if(e.target === modal) resetApplicationState();
+        });
+    });
 }
 
 // ──────────────────────────────────────────────
-// ARAMA MANTIĞI (GELİŞMİŞ - İSTEK 2)
+// ANA STATE YÖNETİMİ (KAPATMA & SIFIRLAMA)
+// ──────────────────────────────────────────────
+function resetApplicationState() {
+    // 1. Modalları Kapat
+    dom.countryModal.classList.remove("active");
+    dom.groupModal.classList.remove("active");
+    dom.longModal.classList.remove("active");
+
+    // 2. Sidebar Kapat
+    dom.sidebar.classList.remove("active");
+    dom.sidebarBackdrop.style.display = "none";
+    dom.searchFab.classList.remove("hidden");
+
+    // 3. Harita Seçimini Kaldır (Kırmızı Sönsün)
+    if(activePath) {
+        activePath.classList.remove("active");
+        activePath = null;
+    }
+    currentCountryId = null;
+}
+
+// ──────────────────────────────────────────────
+// ARAMA MANTIĞI
 // ──────────────────────────────────────────────
 function setSearchMode(mode) {
     searchMode = mode;
-    // Sekme Stilleri
     document.querySelectorAll(".search-tab").forEach(t => t.classList.remove("active"));
     const activeBtn = document.querySelector(`.search-tab[onclick*="'${mode}'"]`);
     if(activeBtn) activeBtn.classList.add("active");
-
-    // Placeholder
     dom.searchInput.placeholder = mode === 'country' ? "Ülke ara..." : "Grup ismi ara...";
     dom.searchInput.value = "";
     dom.sidebarContent.innerHTML = "";
@@ -527,21 +569,14 @@ function runSearch() {
     let html = "";
     
     if(searchMode === 'country') {
-        // ÜLKE ARAMA
         let matches = [];
-        // JSON ve SVG tarama
         const allIds = new Set([...Object.keys(countryData), ...Array.from(document.querySelectorAll('svg path')).map(p=>p.id)]);
-        
         allIds.forEach(id => {
             const cData = countryData[id];
             const pEl = document.getElementById(id);
             const name = cData ? cData.name_tr : (pEl ? pEl.getAttribute("data-name") : id);
-            
-            if(name && name.toLowerCase().includes(term)) {
-                matches.push({ id, name });
-            }
+            if(name && name.toLowerCase().includes(term)) matches.push({ id, name });
         });
-
         if(matches.length === 0) html = "<p style='color:#777;text-align:center'>Bulunamadı.</p>";
         else {
             matches.forEach(m => {
@@ -553,14 +588,21 @@ function runSearch() {
             });
         }
     } else {
-        // GRUP ARAMA
+        // GRUP ARAMA (TEKİLLEŞTİRİLMİŞ)
         let matches = [];
+        let seenGroups = new Set(); // Daha önce eklenen grup isimlerini takip et
+
         Object.keys(countryData).forEach(cid => {
             const c = countryData[cid];
             if(c.groups) {
                 c.groups.forEach((g, idx) => {
-                    if(g.name_tr && g.name_tr.toLowerCase().includes(term)) {
-                        matches.push({ cid, idx, gName: g.name_tr, cName: c.name_tr });
+                    const gName = g.name_tr;
+                    if(gName && gName.toLowerCase().includes(term)) {
+                        // Eğer bu grup ismi daha önce listede yoksa ekle
+                        if(!seenGroups.has(gName)) {
+                            seenGroups.add(gName);
+                            matches.push({ cid, idx, gName: gName, cName: c.name_tr });
+                        }
                     }
                 });
             }
@@ -573,7 +615,7 @@ function runSearch() {
                 <div class="result-item" onclick="goToGroup('${m.cid}', ${m.idx})">
                     <div class="result-info">
                         <div>${m.gName}</div>
-                        <span>${m.cName}</span>
+                        <span>(Örn: ${m.cName})</span> 
                     </div>
                     <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle></svg>
                 </div>`;
@@ -584,11 +626,13 @@ function runSearch() {
 }
 
 // ──────────────────────────────────────────────
-// SEÇİM VE MODAL İŞLEMLERİ
+// SEÇİM FONKSİYONLARI
 // ──────────────────────────────────────────────
 function selectCountry(id, name, pathEl) {
-    // Haritada Aktif Yap
+    // Mevcut seçimi temizle
     if(activePath) activePath.classList.remove("active");
+    
+    // Yeni seçimi işaretle
     const target = pathEl || document.getElementById(id);
     if(target) {
         target.classList.add("active");
@@ -601,7 +645,6 @@ function selectCountry(id, name, pathEl) {
     
     dom.countryTitle.textContent = dispName;
     
-    // Grupları Listele
     let html = "";
     if(cData && cData.groups && cData.groups.length > 0) {
         cData.groups.forEach((g, idx) => {
@@ -624,7 +667,6 @@ function openGroupDetail(idx) {
     dom.groupModal.classList.add("active");
     
     dom.groupTitle.textContent = currentGroup.name_tr;
-    // Varsayılan olarak ilk sekmeyi aç
     document.querySelector('[data-tab="temel"]').click();
 }
 
@@ -642,18 +684,13 @@ function showSmallTabContent(tab) {
     dom.tabContent.innerHTML = html;
 }
 
-// ──────────────────────────────────────────────
-// UZUN (9 SEKME) MODAL - İSTEK 4
-// ──────────────────────────────────────────────
 function openLongModal() {
     dom.groupModal.classList.remove("active");
     dom.longModal.classList.add("active");
-    // Varsayılan olarak "Oluşum" aç
     showLongTabContent('olusum');
 }
 
 function showLongTabContent(key) {
-    // Sekme Stili
     document.querySelectorAll(".l-tab").forEach(t => t.classList.remove("active"));
     const activeTab = document.querySelector(`.l-tab[onclick*="'${key}'"]`);
     if(activeTab) activeTab.classList.add("active");
@@ -678,7 +715,7 @@ function showLongTabContent(key) {
 }
 
 // ──────────────────────────────────────────────
-// YARDIMCI FONKSİYONLAR
+// YARDIMCI NAVİGASYON
 // ──────────────────────────────────────────────
 function openSidebar() {
     dom.sidebar.classList.add("active");
@@ -687,22 +724,22 @@ function openSidebar() {
     dom.searchInput.focus();
 }
 
-function closeSidebar() {
+function goToCountry(id, name) {
+    // Sidebar kapat ama tam reset atma (çünkü seçim yapacağız)
     dom.sidebar.classList.remove("active");
     dom.sidebarBackdrop.style.display = "none";
     dom.searchFab.classList.remove("hidden");
-}
-
-function goToCountry(id, name) {
-    closeSidebar();
+    
     selectCountry(id, name, null);
 }
 
 function goToGroup(cid, idx) {
-    closeSidebar();
-    // Önce ülkeyi arka planda seç
+    // Sidebar kapat
+    dom.sidebar.classList.remove("active");
+    dom.sidebarBackdrop.style.display = "none";
+    dom.searchFab.classList.remove("hidden");
+    
     selectCountry(cid, null, null); 
-    // Sonra direkt gruba git
     openGroupDetail(idx);
 }
 
@@ -714,12 +751,6 @@ function backToCountry() {
 function closeLongModal() {
     dom.longModal.classList.remove("active");
     dom.groupModal.classList.add("active");
-}
-
-function closeAllModals() {
-    dom.countryModal.classList.remove("active");
-    dom.groupModal.classList.remove("active");
-    dom.longModal.classList.remove("active");
 }
 </script>
 </body>

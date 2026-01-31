@@ -232,6 +232,34 @@
           "diger_bilgiler": "...",
           "kaynakca": "..."
         }
+      },
+      {
+        "name_tr": "ALPER MURAT",
+        "kategori": "Cihatçı",
+        "durum": "Bilinmiyor",
+        "olusum_sureci": "ALPER MURATALALPER MURATALPER MURATPER MURATALPER MURAT",
+        "nihai_hedef": "",
+        "yonetim_yapisi": "",
+        "eylem_metotlari": "",
+        "eylemler": "",
+        "finansman_kaynaklari": "",
+        "grup_iliskileri": "",
+        "diger_bilgiler": "",
+        "kaynakca": ""
+      },
+      {
+        "name_tr": "Yeni Örgüt",
+        "kategori": "Diğer",
+        "durum": "Bilinmiyor",
+        "olusum_sureci": "",
+        "nihai_hedef": "",
+        "yonetim_yapisi": "",
+        "eylem_metotlari": "",
+        "eylemler": "",
+        "finansman_kaynaklari": "",
+        "grup_iliskileri": "",
+        "diger_bilgiler": "",
+        "kaynakca": ""
       }
     ]
   },
@@ -352,41 +380,11 @@
   },
   "MA": {
     "name_tr": "Fas",
-    "groups": [
-      {
-        "name_tr": "Yeni Örgüt",
-        "kategori": "Ayrılıkçı",
-        "durum": "Bilinmiyor",
-        "olusum_sureci": "ASDSADSADSAD",
-        "nihai_hedef": "",
-        "yonetim_yapisi": "",
-        "eylem_metotlari": "",
-        "eylemler": "",
-        "finansman_kaynaklari": "",
-        "grup_iliskileri": "",
-        "diger_bilgiler": "",
-        "kaynakca": ""
-      }
-    ]
+    "groups": []
   },
   "MG": {
     "name_tr": "Madagaskar",
-    "groups": [
-      {
-        "name_tr": "ÖRNEK ÖRGÜT",
-        "kategori": "Diğer",
-        "durum": "Pasif",
-        "olusum_sureci": "<font color=\"#1a1a1a\" face=\"Georgia, serif\"><span style=\"font-size: 18px;\">asdadaDENEMEMSADAS</span></font>",
-        "nihai_hedef": "",
-        "yonetim_yapisi": "",
-        "eylem_metotlari": "",
-        "eylemler": "",
-        "finansman_kaynaklari": "",
-        "grup_iliskileri": "",
-        "diger_bilgiler": "",
-        "kaynakca": ""
-      }
-    ]
+    "groups": []
   },
   "ML": {
     "name_tr": "Mali",

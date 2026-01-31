@@ -3,29 +3,26 @@
     "name_tr": "Angola",
     "groups": [
       {
-        "name_tr": "UNITA",
+        "name_tr": "FLEC (Cabinda)",
+        "kategori": "Ayrılıkçı",
         "details": {
-          "kurulus_yili": "1966",
-          "ilk_eylem": "1975 Portekiz'e karşı büyük saldırı",
-          "grup_turu": "Milliyetçi / anti-komünist gerilla",
-          "grup_durumu": "Pasif"
+          "grup_durumu": "Aktif/Pasif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
   },
   "BI": {
     "name_tr": "Burundi",
-    "groups": [
-      {
-        "name_tr": "Palipehutu-FNL",
-        "details": {
-          "kurulus_yili": "1980",
-          "ilk_eylem": "1990'lar etnik çatışmalar",
-          "grup_turu": "Hutu milliyetçi militan grup",
-          "grup_durumu": "Pasif"
-        }
-      }
-    ]
+    "groups": []
   },
   "BJ": {
     "name_tr": "Benin",
@@ -35,48 +32,60 @@
     "name_tr": "Burkina Faso",
     "groups": [
       {
-        "name_tr": "JNIM",
+        "name_tr": "Ensar'ul İslam",
+        "kategori": "Cihadist",
         "details": {
-          "kurulus_yili": "2017",
-          "ilk_eylem": "2017 birleşme sonrası saldırılar",
-          "grup_turu": "El Kaide bağlantılı cihatçı koalisyon",
-          "grup_durumu": "Aktif"
-        }
-      },
-      {
-        "name_tr": "ISGS",
-        "details": {
-          "kurulus_yili": "2015",
-          "ilk_eylem": "2016-2017 sınır saldırıları",
-          "grup_turu": "IŞİD Sahel kolu",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "denemesadasjhdkasdhjkasdsad",
+          "nihai_hedef": "asdasd.",
+          "yonetim_yapisi": ".asd.",
+          "eylem_metotlari": ".asd.",
+          "onemli_eylemler": "..s.",
+          "finansman_kaynaklari": "a..",
+          "grup_iliskileri": "..s.",
+          "diger_bilgiler": "..s.",
+          "kaynakca": ".ds.."
         }
       }
     ]
   },
   "BW": {
-    "name_tr": "Botswana",
+    "name_tr": "Botsvana",
     "groups": []
   },
   "CF": {
     "name_tr": "Orta Afrika Cumhuriyeti",
     "groups": [
       {
-        "name_tr": "Anti-balaka",
+        "name_tr": "Seleka",
+        "kategori": "İsyancı Koalisyon",
         "details": {
-          "kurulus_yili": "2013",
-          "ilk_eylem": "2013 Seleka'ya karşı misilleme saldırıları",
-          "grup_turu": "Hristiyan milis koalisyonu",
-          "grup_durumu": "Zayıfladı / parçalı"
+          "grup_durumu": "Dağıldı/Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       },
       {
-        "name_tr": "CPC",
+        "name_tr": "Anti-Balaka",
+        "kategori": "Milist Güç",
         "details": {
-          "kurulus_yili": "2019",
-          "ilk_eylem": "2019 seçim sonrası saldırılar",
-          "grup_turu": "İsyan koalisyonu",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
@@ -89,60 +98,96 @@
     "name_tr": "Kamerun",
     "groups": [
       {
-        "name_tr": "ADF",
+        "name_tr": "Boko Haram (Kamerun Kolu)",
+        "kategori": "Cihadist",
         "details": {
-          "kurulus_yili": "1995",
-          "ilk_eylem": "2014'ten itibaren Kamerun'da eylemler",
-          "grup_turu": "IŞİD bağlantılı cihatçı grup",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       },
       {
-        "name_tr": "Ambazonia Savunma Kuvvetleri",
+        "name_tr": "Ambazonya Savunma Güçleri",
+        "kategori": "Ayrılıkçı",
         "details": {
-          "kurulus_yili": "2017",
-          "ilk_eylem": "2017 Güney Kamerun ayrılıkçı çatışmaları",
-          "grup_turu": "Ayrılıkçı silahlı grup",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
   },
   "CD": {
-    "name_tr": "Kongo DC",
+    "name_tr": "Demokratik Kongo Cum.",
     "groups": [
       {
-        "name_tr": "ADF",
+        "name_tr": "M23 Hareketi",
+        "kategori": "İsyancı",
         "details": {
-          "kurulus_yili": "1995",
-          "ilk_eylem": "1990'lar sonu Kongo'da eylemler",
-          "grup_turu": "IŞİD bağlantılı cihatçı grup",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       },
       {
-        "name_tr": "M23",
+        "name_tr": "ADF (Müttefik Demokratik Güçler)",
+        "kategori": "Cihadist / İsyancı",
         "details": {
-          "kurulus_yili": "2012",
-          "ilk_eylem": "2012 Kuzey Kivu isyanı",
-          "grup_turu": "Tutsi ağırlıklı isyancı grup",
-          "grup_durumu": "Aktif"
-        }
-      },
-      {
-        "name_tr": "CODECO",
-        "details": {
-          "kurulus_yili": "2017",
-          "ilk_eylem": "2017-2018 Lendu saldırıları",
-          "grup_turu": "Etnik milis (Lendu)",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
   },
   "CG": {
     "name_tr": "Kongo Cumhuriyeti",
-    "groups": []
+    "groups": [
+      {
+        "name_tr": "Ninja Milisleri",
+        "kategori": "Milis",
+        "details": {
+          "grup_durumu": "Pasif/Terhis",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
+        }
+      }
+    ]
   },
   "DJ": {
     "name_tr": "Cibuti",
@@ -152,12 +197,19 @@
     "name_tr": "Cezayir",
     "groups": [
       {
-        "name_tr": "AQIM",
+        "name_tr": "AQIM (İslami Mağrip El Kaidesi)",
+        "kategori": "Cihadist",
         "details": {
-          "kurulus_yili": "2007",
-          "ilk_eylem": "2007 Cezayir bombalı saldırıları",
-          "grup_turu": "El Kaide Mağrip kolu",
-          "grup_durumu": "Aktif (düşük yoğunluk)"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
@@ -166,12 +218,19 @@
     "name_tr": "Mısır",
     "groups": [
       {
-        "name_tr": "Vilayet Sina",
+        "name_tr": "Sina Vilayeti (IŞİD)",
+        "kategori": "Cihadist",
         "details": {
-          "kurulus_yili": "2014",
-          "ilk_eylem": "2014-2015 Sina Yarımadası saldırıları",
-          "grup_turu": "IŞİD Sina kolu",
-          "grup_durumu": "Zayıfladı"
+          "grup_durumu": "Aktif/Zayıflamış",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
@@ -185,20 +244,34 @@
     "groups": [
       {
         "name_tr": "TPLF (Tigray Halk Kurtuluş Cephesi)",
+        "kategori": "Etnik Ayrılıkçı / Siyasi",
         "details": {
-          "kurulus_yili": "1975",
-          "ilk_eylem": "1970'ler-1980'ler gerilla savaşı",
-          "grup_turu": "Etnik ayrılıkçı / milliyetçi hareket",
-          "grup_durumu": "Pasif (2022 barış anlaşması)"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       },
       {
-        "name_tr": "Oromo Kurtuluş Ordusu (OLA)",
+        "name_tr": "OLA (Oromo Kurtuluş Ordusu)",
+        "kategori": "Ayrılıkçı",
         "details": {
-          "kurulus_yili": "2018",
-          "ilk_eylem": "2018 sonrası Oromia çatışmaları",
-          "grup_turu": "Etnik isyancı grup",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
@@ -231,12 +304,19 @@
     "name_tr": "Kenya",
     "groups": [
       {
-        "name_tr": "Al-Shabaab",
+        "name_tr": "El-Şebab (Kenya Hücreleri)",
+        "kategori": "Cihadist",
         "details": {
-          "kurulus_yili": "2006",
-          "ilk_eylem": "2008-2010 Kenya sınır saldırıları",
-          "grup_turu": "El Kaide bağlantılı cihatçı grup",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
@@ -249,21 +329,19 @@
     "name_tr": "Libya",
     "groups": [
       {
-        "name_tr": "LNA (Hafter güçleri)",
+        "name_tr": "LNA (Libya Ulusal Ordusu - Hafter)",
+        "kategori": "Silahlı Güç",
         "details": {
-          "kurulus_yili": "2014",
-          "ilk_eylem": "2014 Tobruk merkezli operasyonlar",
-          "grup_turu": "Askeri koalisyon / yarı devlet gücü",
-          "grup_durumu": "Aktif"
-        }
-      },
-      {
-        "name_tr": "IS Libya",
-        "details": {
-          "kurulus_yili": "2014",
-          "ilk_eylem": "2015 Sirte'de IŞİD kontrolü",
-          "grup_turu": "IŞİD bağlantılı grup",
-          "grup_durumu": "Zayıfladı / dağıldı"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
@@ -284,21 +362,56 @@
     "name_tr": "Mali",
     "groups": [
       {
-        "name_tr": "JNIM",
+        "name_tr": "JNIM (Cemaat Nusret el-İslam vel-Müslimin)",
+        "kategori": "Cihadist / El-Kaide",
         "details": {
-          "kurulus_yili": "2017",
-          "ilk_eylem": "2017 birleşme sonrası saldırılar",
-          "grup_turu": "El Kaide bağlantılı cihatçı koalisyon",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       },
       {
-        "name_tr": "ISGS",
+        "name_tr": "IŞİD-GS (Büyük Sahra)",
+        "kategori": "Cihadist",
         "details": {
-          "kurulus_yili": "2015",
-          "ilk_eylem": "2016-2017 sınır saldırıları",
-          "grup_turu": "IŞİD Sahel kolu",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
+        }
+      }
+    ]
+  },
+  "MZ": {
+    "name_tr": "Mozambik",
+    "groups": [
+      {
+        "name_tr": "IŞİD-Mozambik (El-Şebab)",
+        "kategori": "Cihadist",
+        "details": {
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
@@ -319,21 +432,19 @@
     "name_tr": "Nijer",
     "groups": [
       {
-        "name_tr": "ISGS",
+        "name_tr": "IŞİD-Batı Afrika",
+        "kategori": "Cihadist",
         "details": {
-          "kurulus_yili": "2015",
-          "ilk_eylem": "2015'ten itibaren Tillabéri saldırıları",
-          "grup_turu": "IŞİD Sahel kolu",
-          "grup_durumu": "Aktif"
-        }
-      },
-      {
-        "name_tr": "JNIM",
-        "details": {
-          "kurulus_yili": "2017",
-          "ilk_eylem": "2019-2020 Nijer saldırıları",
-          "grup_turu": "El Kaide bağlantılı cihatçı koalisyon",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
@@ -342,39 +453,93 @@
     "name_tr": "Nijerya",
     "groups": [
       {
-        "name_tr": "Boko Haram",
+        "name_tr": "Boko Haram (JAS)",
+        "kategori": "Cihadist",
         "details": {
-          "kurulus_yili": "2002",
-          "ilk_eylem": "2009 Maiduguri ayaklanması",
-          "grup_turu": "Cihatçı Selefi grup",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       },
       {
-        "name_tr": "ISWAP",
+        "name_tr": "ISWAP (IŞİD Batı Afrika)",
+        "kategori": "Cihadist",
         "details": {
-          "kurulus_yili": "2016",
-          "ilk_eylem": "2016'dan sonra ayrılma saldırıları",
-          "grup_turu": "IŞİD bağlantılı cihatçı grup",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
+        }
+      },
+      {
+        "name_tr": "IPOB (Biafra Yerli Halkları)",
+        "kategori": "Ayrılıkçı",
+        "details": {
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
   },
   "RW": {
     "name_tr": "Ruanda",
-    "groups": []
+    "groups": [
+      {
+        "name_tr": "FDLR",
+        "kategori": "İsyancı",
+        "details": {
+          "grup_durumu": "Aktif (DRC merkezli)",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
+        }
+      }
+    ]
   },
   "EH": {
     "name_tr": "Batı Sahra",
     "groups": [
       {
         "name_tr": "Polisario Cephesi",
+        "kategori": "Ayrılıkçı / Ulusal Kurtuluş",
         "details": {
-          "kurulus_yili": "1973",
-          "ilk_eylem": "1975-1991 Fas'a karşı gerilla savaşı",
-          "grup_turu": "Bağımsızlık hareketi",
-          "grup_durumu": "Düşük yoğunluklu çatışma"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
@@ -383,12 +548,19 @@
     "name_tr": "Sudan",
     "groups": [
       {
-        "name_tr": "RSF (Hızlı Destek Kuvvetleri)",
+        "name_tr": "HDK (Hızlı Destek Kuvvetleri)",
+        "kategori": "Paramiliter",
         "details": {
-          "kurulus_yili": "2013",
-          "ilk_eylem": "2013 Darfur'da Janjaweed dönüşümü",
-          "grup_turu": "Yarı-askeri güç / paramiliter",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif (Savaş Halinde)",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
@@ -398,18 +570,42 @@
     "groups": [
       {
         "name_tr": "SPLM-IO",
+        "kategori": "İsyancı / Siyasi",
         "details": {
-          "kurulus_yili": "2013",
-          "ilk_eylem": "2013 Juba'dan sonra iç savaş",
-          "grup_turu": "Etnik / siyasi isyancı grup",
-          "grup_durumu": "Barış sürecinde / düşük yoğunluk"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
   },
   "SN": {
     "name_tr": "Senegal",
-    "groups": []
+    "groups": [
+      {
+        "name_tr": "MFDC (Casamance)",
+        "kategori": "Ayrılıkçı",
+        "details": {
+          "grup_durumu": "Düşük Yoğunluklu",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
+        }
+      }
+    ]
   },
   "SL": {
     "name_tr": "Sierra Leone",
@@ -424,11 +620,18 @@
     "groups": [
       {
         "name_tr": "FACT",
+        "kategori": "İsyancı",
         "details": {
-          "kurulus_yili": "2015",
-          "ilk_eylem": "2015-2021 Libye-Çad sınır çatışmaları",
-          "grup_turu": "İsyan / muhalif silahlı grup",
-          "grup_durumu": "Pasif / entegre oldu"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
@@ -439,17 +642,7 @@
   },
   "TN": {
     "name_tr": "Tunus",
-    "groups": [
-      {
-        "name_tr": "Uqba ibn Nafi",
-        "details": {
-          "kurulus_yili": "2014",
-          "ilk_eylem": "2014-2015 Chaambi Dağı saldırıları",
-          "grup_turu": "El Kaide bağlantılı grup",
-          "grup_durumu": "Zayıfladı"
-        }
-      }
-    ]
+    "groups": []
   },
   "TZ": {
     "name_tr": "Tanzanya",
@@ -459,12 +652,19 @@
     "name_tr": "Uganda",
     "groups": [
       {
-        "name_tr": "ADF",
+        "name_tr": "LRA (Tanrı'nın Direniş Ordusu)",
+        "kategori": "Dini / İsyancı",
         "details": {
-          "kurulus_yili": "1995",
-          "ilk_eylem": "1996'dan itibaren Uganda'da eylemler",
-          "grup_turu": "IŞİD bağlantılı cihatçı grup",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Zayıflamış",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]
@@ -485,12 +685,35 @@
     "name_tr": "Somali",
     "groups": [
       {
-        "name_tr": "Al-Shabaab",
+        "name_tr": "El-Şebab",
+        "kategori": "Cihadist",
         "details": {
-          "kurulus_yili": "2006",
-          "ilk_eylem": "2007 Mogadişu çatışmaları",
-          "grup_turu": "El Kaide bağlantılı cihatçı grup",
-          "grup_durumu": "Aktif"
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
+        }
+      },
+      {
+        "name_tr": "IŞİD-Somali",
+        "kategori": "Cihadist",
+        "details": {
+          "grup_durumu": "Aktif",
+          "olusum_sureci": "...",
+          "nihai_hedef": "...",
+          "yonetim_yapisi": "...",
+          "eylem_metotlari": "...",
+          "onemli_eylemler": "...",
+          "finansman_kaynaklari": "...",
+          "grup_iliskileri": "...",
+          "diger_bilgiler": "...",
+          "kaynakca": "..."
         }
       }
     ]

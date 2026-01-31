@@ -642,10 +642,32 @@ function initMap() {
     path.addEventListener("mouseover", e => {
       const country = countryData[id] || {};
       const name = country.name_tr || fallbackName;
-      // Tooltipte sadece isim gösterelim, grup listesi kalabalık yapmasın
-      const groupCount = country.groups?.length ? `(${country.groups.length} Grup)` : "";
+      const groups = country.groups || [];
+      const count = groups.length;
+
+      // Başlık kısmı: Ülke Adı + (Sayı)
+      // Örnek: Nijerya (3)
+      let headerHtml = `<strong style="font-size:15px; color:#4ade80;">${name}</strong>`;
       
-      tooltip.innerHTML = `<strong>${name}</strong>${groupCount}`;
+      if (count > 0) {
+        // Yanına sayıyı ekliyoruz
+        headerHtml += ` <span style="font-size:13px; color:#aaa; font-weight:normal;">(${count} Grup)</span>`;
+        
+        // Altına listeyi ekliyoruz
+        const listItems = groups.map(g => `
+          <div style="font-size:12px; color:#ddd; margin-top:3px; padding-left:4px;">
+            • ${g.name_tr || "İsimsiz Grup"}
+          </div>
+        `).join("");
+        
+        // Çizgi çekip listeyi basıyoruz
+        headerHtml += `<div style="margin-top:6px; border-top:1px solid #444; padding-top:6px;">${listItems}</div>`;
+      } else {
+        // Grup yoksa isteğe bağlı bilgi notu (İstersen silebilirsin)
+        // headerHtml += `<div style="font-size:11px; color:#666; margin-top:4px;">Grup kaydı yok</div>`;
+      }
+
+      tooltip.innerHTML = headerHtml;
       tooltip.classList.add("visible");
       moveTooltip(e);
     });

@@ -2,41 +2,41 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>MİLİTAN ATLASI | ADMİN PANEL V5</title>
+  <title>MİLİTAN ATLASI | ADMİN V7</title>
   <style>
     :root { 
-      --bg-body: #111; --bg-map: #1a1a1a; --accent: #3b82f6;
-      --sidebar-bg: #181818; --text-main: #eee; --text-dim: #aaa;
-      --aktif: #10b981; --pasif: #ef4444;
+      --bg-body: #0a0a0a; --bg-map: #141414; --accent: #3b82f6;
+      --sidebar-bg: #111; --text-main: #eee; --text-dim: #aaa;
+      --aktif: #10b981; --pasif: #ef4444; --bilinmiyor: #6b7280;
     }
     body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; overflow: hidden; height: 100vh; }
     #app { display: flex; flex-direction: column; height: 100vh; }
-    #header { height: 60px; background: #000; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; }
-    #stats-bar { background: #0a0a0a; padding: 8px 20px; display: flex; gap: 15px; font-size: 11px; border-bottom: 1px solid #222; }
-    .stat-item b { color: #fff; background: #333; padding: 2px 6px; border-radius: 3px; }
+    
+    /* HEADER */
+    #header { height: 60px; background: #000; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+    #stats-bar { background: #050505; padding: 10px 20px; display: flex; gap: 20px; font-size: 12px; border-bottom: 1px solid #222; }
+    .stat-box { display: flex; align-items: center; gap: 8px; }
+    .stat-box b { background: #222; padding: 2px 8px; border-radius: 4px; color: var(--accent); }
+
     #main { display: flex; flex: 1; position: relative; overflow: hidden; }
 
-    /* SOL PANEL */
-    #filter-panel { width: 260px; background: #151515; border-right: 1px solid #222; display: flex; flex-direction: column; padding: 15px; overflow-y: auto; }
-    .filter-btn { background: #222; border: 1px solid #333; color: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; cursor: pointer; text-align: left; font-size: 11px; }
-    .filter-btn.active { border-color: var(--accent); background: #1e293b; }
-    .result-item { padding: 10px; border-bottom: 1px solid #222; font-size: 12px; cursor: pointer; color: var(--text-dim); }
+    /* SOL PANEL: FİLTRELEME */
+    #filter-panel { width: 280px; background: var(--sidebar-bg); border-right: 1px solid #222; display: flex; flex-direction: column; }
+    .filter-tabs { display: flex; background: #000; padding: 5px; gap: 2px; }
+    .f-tab { flex: 1; padding: 8px 2px; font-size: 10px; border: none; background: #1a1a1a; color: var(--text-dim); cursor: pointer; text-align: center; border-radius: 3px; }
+    .f-tab.active { background: var(--accent); color: white; }
+    #filter-results { flex: 1; overflow-y: auto; padding: 10px; }
+    .result-item { padding: 10px; border-bottom: 1px solid #222; font-size: 12px; cursor: pointer; border-radius: 4px; margin-bottom: 5px; }
+    .result-item:hover { background: #1a1a1a; }
 
-    /* HARİTA AYARLARI */
-    #map-container { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: var(--bg-map); padding: 50px; }
-    svg { width: 100%; height: 100%; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
-    path { 
-        fill: #ffffff; 
-        stroke: #000000; 
-        stroke-width: 0.5; /* İnce çizgi ama yüksek kontrast */
-        transition: 0.2s; 
-        cursor: pointer; 
-        vector-effect: non-scaling-stroke; /* Zoom yapınca çizgiler kalınlaşmaz */
-    }
-    path:hover { fill: #f0f0f0; stroke: var(--accent); stroke-width: 2; }
-    path.selected { fill: #dbeafe !important; stroke: var(--accent); stroke-width: 3; }
+    /* HARİTA: Dengeli Boyut */
+    #map-container { flex: 1; background: var(--bg-map); display: flex; align-items: center; justify-content: center; padding: 30px; position: relative; }
+    svg { width: 100%; height: 100%; transition: 0.4s ease-in-out; max-width: 90%; max-height: 90%; }
+    path { fill: #fff; stroke: #333; stroke-width: 0.7; transition: 0.2s; cursor: pointer; vector-effect: non-scaling-stroke; }
+    path:hover { fill: #f0f0f0; stroke: var(--accent); stroke-width: 1.5; }
+    path.selected { fill: #dbeafe !important; stroke: var(--accent); stroke-width: 2; }
 
-    /* SAĞ PANEL */
+    /* EDİTÖR PANELİ */
     #editor-panel {
       width: 500px; background: var(--sidebar-bg); border-left: 1px solid #333;
       position: absolute; right: 0; top: 0; bottom: 0; z-index: 2000;
@@ -44,68 +44,89 @@
     }
     #editor-panel.active { transform: translateX(0); }
     .panel-content { flex: 1; overflow-y: auto; padding: 25px; }
-    .input-text { width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
-    .tabs { display: flex; overflow-x: auto; gap: 5px; margin: 15px 0; border-bottom: 1px solid #222; padding-bottom: 8px; }
-    .tab-btn { background: #222; color: var(--text-dim); border: none; padding: 7px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; white-space: nowrap; }
-    .tab-btn.active { background: var(--accent); color: #fff; }
-    .rich-editor { min-height: 300px; background: #0a0a0a; border: 1px solid #333; border-radius: 5px; padding: 15px; outline: none; line-height: 1.6; font-size: 14px; color: #ddd; }
-    .btn-main { background: var(--accent); color: #fff; border: none; padding: 14px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
-    #tooltip { position: absolute; pointer-events: none; background: #000; color: #fff; padding: 8px 12px; border-radius: 5px; display: none; z-index: 3000; border: 1px solid #444; font-size: 12px; }
+
     .field-label { font-size: 10px; font-weight: bold; color: var(--text-dim); margin: 15px 0 5px; display: block; text-transform: uppercase; }
+    .input-text { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; font-size: 14px; }
+    
+    .btn-group { display: flex; gap: 5px; margin-bottom: 10px; }
+    .btn-opt { flex: 1; padding: 8px; font-size: 11px; background: #1a1a1a; border: 1px solid #333; color: var(--text-dim); cursor: pointer; border-radius: 4px; }
+    .btn-opt.active { border-color: var(--accent); color: white; background: #1e293b; }
+
+    .tabs { display: flex; overflow-x: auto; gap: 5px; margin: 15px 0; border-bottom: 1px solid #222; padding-bottom: 8px; }
+    .tab-btn { background: #1a1a1a; color: var(--text-dim); border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; white-space: nowrap; }
+    .tab-btn.active { background: var(--accent); color: #fff; }
+
+    .rich-editor { min-height: 300px; background: #050505; border: 1px solid #222; border-radius: 6px; padding: 15px; outline: none; line-height: 1.6; font-size: 14px; color: #ddd; }
+    .btn-main { background: var(--accent); color: #fff; border: none; padding: 15px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
+    #tooltip { position: absolute; pointer-events: none; background: #000; color: #fff; padding: 8px 12px; border-radius: 5px; display: none; z-index: 3000; border: 1px solid #444; font-size: 12px; }
   </style>
 </head>
 <body onload="init()">
 
 <div id="app">
   <div id="header">
-    <div style="font-weight: bold;">MİLİTAN ATLASI | ADMİN <span style="color:var(--accent)">V5</span></div>
+    <div style="font-weight: bold; letter-spacing: 1px;">MİLİTAN ATLASI <span style="color:var(--accent)">ADMIN V7</span></div>
     <div>
       <input type="file" id="load-file" style="display:none" onchange="handleFile(this)">
-      <button class="filter-btn" onclick="document.getElementById('load-file').click()">JSON YÜKLE</button>
-      <button class="btn-main" style="width:auto; padding: 8px 20px; margin-left:10px;" onclick="saveJSON()">TRDATA.JSON İNDİR</button>
+      <button class="f-tab" style="display:inline-block; width:100px;" onclick="document.getElementById('load-file').click()">VERİ YÜKLE</button>
+      <button class="f-tab" style="display:inline-block; width:120px; background:var(--accent); color:white;" onclick="saveJSON()">TRDATA.JSON İNDİR</button>
     </div>
   </div>
 
   <div id="stats-bar">
-    <div class="stat-item">Toplam Örgüt: <b id="st-total">0</b></div>
-    <div class="stat-item">Cihatçı: <b id="st-cihat">0</b></div>
-    <div class="stat-item">Ayrılıkçı: <b id="st-ayri">0</b></div>
-    <div style="flex:1"></div>
-    <div class="stat-item">DURUM: <span id="save-status" style="color:var(--accent)">Bekliyor...</span></div>
+    <div class="stat-box">Toplam: <b id="st-total">0</b></div>
+    <div class="stat-box">Cihatçı: <b id="st-cihat">0</b></div>
+    <div class="stat-box">Ayrılıkçı: <b id="st-ayri">0</b></div>
+    <div class="stat-box">Diğer: <b id="st-diger">0</b></div>
   </div>
 
   <div id="main">
     <div id="filter-panel">
-      <div class="field-label">Örgüt Listesi</div>
-      <button class="filter-btn active" onclick="filterBy('Tümü', this)">Tümü</button>
+      <div class="filter-tabs">
+        <button class="f-tab active" onclick="setFilter('Tümü', this)">Tümü</button>
+        <button class="f-tab" onclick="setFilter('Cihatçı', this)">Cihatçı</button>
+        <button class="f-tab" onclick="setFilter('Ayrılıkçı', this)">Ayrılıkçı</button>
+        <button class="f-tab" onclick="setFilter('Diğer', this)">Diğer</button>
+      </div>
       <div id="filter-results"></div>
     </div>
 
     <div id="map-container" onclick="closePanel()">
       <div id="tooltip"></div>
-      <svg id="svg-map"><g id="paths-container"></g></svg>
+      <svg id="svg-map" viewBox="0 0 1000 500"><g id="paths-container"></g></svg>
     </div>
 
     <div id="editor-panel" onclick="event.stopPropagation()">
       <div class="panel-content">
-        <label class="field-label">ÜLKE ADI</label>
-        <input type="text" id="country-name-input" class="input-text" oninput="updateCountryName()">
+        <label class="field-label">Ülke Tanımı</label>
+        <input type="text" id="country-name-input" class="input-text" placeholder="Ülke İsmi" oninput="updateCountryName()">
         
         <div id="group-pills" style="margin-top:15px; display:flex; flex-wrap:wrap; gap:5px;"></div>
-        <button class="btn-main" style="background:#333; margin:15px 0;" onclick="addGroup()">+ Yeni Örgüt Ekle</button>
+        <button class="btn-main" style="background:#222; color:#aaa; margin:15px 0;" onclick="addGroup()">+ Yeni Örgüt Ekle</button>
         
-        <div id="edit-form" style="display:none; border-top: 1px solid #333; padding-top:15px;">
-           <label class="field-label">ÖRGÜT ADI</label>
+        <div id="edit-form" style="display:none; border-top: 1px solid #333; padding-top:10px;">
+           <label class="field-label">Örgüt İsmi</label>
            <input type="text" id="org-name" class="input-text">
            
-           <label class="field-label">KATEGORİ (Cihatçı, Ayrılıkçı vb.)</label>
-           <input type="text" id="org-cat" class="input-text">
+           <label class="field-label">Kategori</label>
+           <div class="btn-group" id="cat-group">
+             <button class="btn-opt" onclick="setCat('Cihatçı')">Cihatçı</button>
+             <button class="btn-opt" onclick="setCat('Ayrılıkçı')">Ayrılıkçı</button>
+             <button class="btn-opt" onclick="setCat('Diğer')">Diğer</button>
+           </div>
+
+           <label class="field-label">Durum</label>
+           <div class="btn-group" id="stat-group">
+             <button class="btn-opt" onclick="setStat('Aktif')">Aktif</button>
+             <button class="btn-opt" onclick="setStat('Pasif')">Pasif</button>
+             <button class="btn-opt" onclick="setStat('Bilinmiyor')">Bilinmiyor</button>
+           </div>
 
            <div class="tabs" id="tab-bar"></div>
            <div id="editor" class="rich-editor" contenteditable="true"></div>
            
-           <button class="btn-main" onclick="applyChanges()">DEĞİŞİKLİKLERİ UYGULA</button>
-           <button style="background:none; border:none; color:var(--pasif); cursor:pointer; margin-top:10px; width:100%;" onclick="deleteOrg()">Örgütü Sil</button>
+           <button class="btn-main" onclick="applyChanges()">BİLGİLERİ HAFIZAYA KAYDET</button>
+           <button style="background:none; border:none; color:var(--pasif); cursor:pointer; margin-top:15px; width:100%; font-size:11px;" onclick="deleteOrg()">Örgütü Tamamen Sil</button>
         </div>
       </div>
     </div>
@@ -114,15 +135,14 @@
 
 <script>
 let data = {};
-let curC = null, curG = null, curT = 0;
+let curC = null, curG = null, curT = 0, currentFilter = 'Tümü';
 
-/* index(23).html'deki switch-case yapısı ile birebir eşleşen anahtarlar */
-const keys = ["olusum", "hedef", "yapi", "metot", "eylem", "finans", "iliski", "diger", "kaynak"];
-const labels = ["Oluşum", "Hedef", "Yapı", "Metot", "Eylemler", "Finans", "İlişkiler", "Bilgi", "Kaynak"];
+const keys = ["olusum_sureci", "nihai_hedef", "yonetim_yapisi", "eylem_metotlari", "eylemler", "finansman_kaynaklari", "grup_iliskileri", "diger_bilgiler", "kaynakca"];
+const labels = ["Oluşum", "Hedef", "Yönetim", "Metot", "Eylemler", "Finans", "İlişkiler", "Bilgi", "Kaynak"];
 
 function init() {
     const container = document.getElementById('paths-container');
-    // PATH VERİLERİNİ BURAYA YAPIŞTIRIN
+    // PATH Verilerinizi buraya yapıştırın. Örn: <path id="TR" d="..." />
     container.innerHTML = `
  <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
       <path id="BI" data-name="Burundi" data-id="BI" d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
@@ -187,7 +207,10 @@ function init() {
         const btn = document.createElement('button');
         btn.className = 'tab-btn' + (i===0?' active':'');
         btn.innerText = l;
-        btn.onclick = () => { switchTab(i); };
+        btn.onclick = () => {
+            if(curG !== null) data[curC].groups[curG][keys[curT]] = document.getElementById('editor').innerHTML;
+            curT = i; updateTabs();
+        };
         document.getElementById('tab-bar').appendChild(btn);
     });
 }
@@ -196,10 +219,7 @@ function openCountry(id) {
     curC = id; curG = null;
     document.querySelectorAll('path').forEach(p => p.classList.remove('selected'));
     const path = document.getElementById(id);
-    if(path) {
-        path.classList.add('selected');
-        zoomToPath(path);
-    }
+    if(path) { path.classList.add('selected'); zoomToPath(path); }
     
     if(!data[id]) data[id] = { name_tr: id, groups: [] };
     document.getElementById('country-name-input').value = data[id].name_tr;
@@ -211,30 +231,29 @@ function openCountry(id) {
 function zoomToPath(path) {
     const svg = document.getElementById('svg-map');
     const b = path.getBBox();
-    const pad = 1; // Daha yakın zoom için padding düşürüldü
+    const pad = 20; 
     svg.setAttribute("viewBox", `${b.x - pad} ${b.y - pad} ${b.width + pad*2} ${b.height + pad*2}`);
 }
 
-function switchTab(i) {
-    if(curG !== null) {
-        data[curC].groups[curG][keys[curT]] = document.getElementById('editor').innerHTML;
-    }
-    curT = i;
-    document.querySelectorAll('.tab-btn').forEach((b, idx) => b.classList.toggle('active', idx === i));
-    document.getElementById('editor').innerHTML = data[curC].groups[curG][keys[i]] || "";
+function setFilter(cat, el) {
+    document.querySelectorAll('.f-tab').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    currentFilter = cat;
+    renderFilterResults();
 }
 
-function applyChanges() {
-    if(!curC || curG === null) return;
-    const g = data[curC].groups[curG];
-    g.name_tr = document.getElementById('org-name').value;
-    g.kategori = document.getElementById('org-cat').value;
-    g[keys[curT]] = document.getElementById('editor').innerHTML;
-    
-    document.getElementById('save-status').innerText = "Değişiklikler işlendi!";
-    setTimeout(() => { document.getElementById('save-status').innerText = "Bekliyor..."; }, 2000);
-    renderPills();
-    updateStats();
+function renderFilterResults() {
+    const res = document.getElementById('filter-results'); res.innerHTML = "";
+    Object.keys(data).forEach(cid => {
+        data[cid].groups.forEach((g, idx) => {
+            if(currentFilter === 'Tümü' || g.kategori === currentFilter) {
+                const d = document.createElement('div'); d.className = 'result-item';
+                d.innerHTML = `<b>${g.name_tr}</b><br><small style="color:var(--text-dim)">${data[cid].name_tr} (${g.durum || '?'})</small>`;
+                d.onclick = () => { openCountry(cid); loadGroup(idx); };
+                res.appendChild(d);
+            }
+        });
+    });
 }
 
 function loadGroup(idx) {
@@ -242,10 +261,32 @@ function loadGroup(idx) {
     const g = data[curC].groups[curG];
     document.getElementById('edit-form').style.display = 'block';
     document.getElementById('org-name').value = g.name_tr;
-    document.getElementById('org-cat').value = g.kategori || "";
+    setCat(g.kategori || 'Diğer');
+    setStat(g.durum || 'Bilinmiyor');
     curT = 0; 
     updateTabs();
     renderPills();
+}
+
+function setCat(v) {
+    document.querySelectorAll('#cat-group .btn-opt').forEach(b => b.classList.toggle('active', b.innerText === v));
+}
+function setStat(v) {
+    document.querySelectorAll('#stat-group .btn-opt').forEach(b => b.classList.toggle('active', b.innerText === v));
+}
+
+function applyChanges() {
+    if(!curC || curG === null) return;
+    const g = data[curC].groups[curG];
+    g.name_tr = document.getElementById('org-name').value;
+    g.kategori = document.querySelector('#cat-group .btn-opt.active').innerText;
+    g.durum = document.querySelector('#stat-group .btn-opt.active').innerText;
+    g[keys[curT]] = document.getElementById('editor').innerHTML;
+    
+    updateStats();
+    renderFilterResults();
+    renderPills();
+    alert("Hafızaya alındı!");
 }
 
 function updateTabs() {
@@ -254,35 +295,42 @@ function updateTabs() {
 }
 
 function addGroup() {
-    const g = { name_tr: "Yeni Örgüt", kategori: "Diğer" };
+    if(!data[curC]) data[curC] = { name_tr: curC, groups: [] };
+    const g = { name_tr: "Yeni Örgüt", kategori: "Diğer", durum: "Bilinmiyor" };
     keys.forEach(k => g[k] = "");
     data[curC].groups.push(g);
     loadGroup(data[curC].groups.length - 1);
 }
 
-function updateCountryName() {
-    if(curC) data[curC].name_tr = document.getElementById('country-name-input').value;
-}
+function updateCountryName() { if(curC) data[curC].name_tr = document.getElementById('country-name-input').value; }
 
 function saveJSON() {
-    // Kaydetmeden önce editor içeriğini aktar
     if(curC && curG !== null) data[curC].groups[curG][keys[curT]] = document.getElementById('editor').innerHTML;
-    
     const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = "trdata.json";
-    a.click();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = "trdata.json"; a.click();
 }
 
 function handleFile(input) {
     const reader = new FileReader();
-    reader.onload = () => { 
-        data = JSON.parse(reader.result); 
-        updateStats(); 
-        alert("Veriler Yüklendi!"); 
-    };
+    reader.onload = () => { data = JSON.parse(reader.result); updateStats(); renderFilterResults(); alert("JSON Yüklendi!"); };
     reader.readAsText(input.files[0]);
+}
+
+function updateStats() {
+    let s = { total: 0, cihat: 0, ayri: 0, diger: 0 };
+    Object.values(data).forEach(c => {
+        c.groups.forEach(g => {
+            s.total++;
+            if(g.kategori === 'Cihatçı') s.cihat++;
+            else if(g.kategori === 'Ayrılıkçı') s.ayri++;
+            else s.diger++;
+        });
+    });
+    document.getElementById('st-total').innerText = s.total;
+    document.getElementById('st-cihat').innerText = s.cihat;
+    document.getElementById('st-ayri').innerText = s.ayri;
+    document.getElementById('st-diger').innerText = s.diger;
 }
 
 function renderPills() {
@@ -290,37 +338,16 @@ function renderPills() {
     if(!data[curC]) return;
     data[curC].groups.forEach((g, i) => {
         const p = document.createElement('div');
-        p.className = 'pill' + (curG === i ? ' active' : '');
-        p.style = "padding:6px 10px; background:#222; border:1px solid #444; border-radius:4px; font-size:11px; cursor:pointer;";
-        if(curG === i) p.style.borderColor = "var(--accent)";
+        p.style = `padding:6px 10px; background:${curG===i?'var(--accent)':'#222'}; color:white; border-radius:4px; font-size:11px; cursor:pointer;`;
         p.innerText = g.name_tr;
         p.onclick = () => loadGroup(i);
         box.appendChild(p);
     });
 }
 
-function updateStats() {
-    let t = 0;
-    Object.values(data).forEach(c => t += c.groups.length);
-    document.getElementById('st-total').innerText = t;
-}
-
-function filterBy(cat, el) {
-    const res = document.getElementById('filter-results'); res.innerHTML = "";
-    Object.keys(data).forEach(cid => {
-        data[cid].groups.forEach((g, idx) => {
-            const d = document.createElement('div'); d.className = 'result-item';
-            d.innerHTML = `<b>${g.name_tr}</b><br><small>${data[cid].name_tr}</small>`;
-            d.onclick = () => { openCountry(cid); loadGroup(idx); };
-            res.appendChild(d);
-        });
-    });
-}
-
 function showTip(e, id) {
     const tip = document.getElementById('tooltip');
-    const name = data[id] ? data[id].name_tr : id;
-    tip.innerHTML = `<strong>${name}</strong>`;
+    tip.innerHTML = `<strong>${data[id] ? data[id].name_tr : id}</strong>`;
     tip.style.display = 'block';
 }
 function moveTip(e) { 
@@ -330,8 +357,15 @@ function moveTip(e) {
 function hideTip() { document.getElementById('tooltip').style.display = 'none'; }
 function closePanel() { 
     document.getElementById('editor-panel').classList.remove('active'); 
-    const svg = document.getElementById('svg-map');
-    svg.removeAttribute("viewBox"); // Haritayı sıfırla
+    document.getElementById('svg-map').setAttribute("viewBox", "0 0 1000 500");
+}
+function deleteOrg() {
+    if(confirm("Bu örgütü silmek istediğinize emin misiniz?")) {
+        data[curC].groups.splice(curG, 1);
+        curG = null;
+        document.getElementById('edit-form').style.display = 'none';
+        renderPills(); updateStats(); renderFilterResults();
+    }
 }
 </script>
 </body>

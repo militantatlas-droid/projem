@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,282 +11,837 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-body: #0f172a; --bg-panel: #1e293b; --accent: #8b5cf6; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; --success: #22c55e; --warning: #eab308; --danger: #ef4444; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        * { box-sizing: border-box; outline: none; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-        
-        #sidebar { width: 300px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 20; box-shadow: 4px 0 24px rgba(0,0,0,0.3); }
-        .brand { padding: 20px; font-size: 18px; font-weight: 800; color: var(--text-main); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-        .sidebar-content { padding: 20px; flex: 1; overflow-y: auto; }
-        .menu-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 10px; display: block; margin-top: 20px; }
-        .chart-container { background: #0f172a; padding: 15px; border-radius: 12px; border: 1px solid var(--border); position: relative; }
-        .action-card { background: #334155; border-radius: 8px; padding: 15px; border: 1px solid #475569; display: flex; flex-direction: column; gap: 8px; }
-        
-        .btn { width: 100%; padding: 10px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; color: white; }
-        .btn-primary { background: var(--accent); } .btn-primary:hover { filter: brightness(1.1); }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); } .btn-outline:hover { border-color: var(--text-main); color: var(--text-main); background: rgba(255,255,255,0.05); }
-        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); } .btn-danger:hover { background: var(--danger); color: white; }
+        :root {
+            --bg-body: #0f172a;
+            --bg-panel: #1e293b;
+            --accent: #8b5cf6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+        }
 
-        #main { flex: 1; position: relative; display: flex; flex-direction: column; }
-        #toolbar { height: 60px; background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: absolute; top: 0; left: 0; right: 0; z-index: 10; }
-        .search-box { position: relative; width: 300px; } .search-box input { width: 100%; background: #0f172a; border: 1px solid var(--border); padding: 8px 12px 8px 35px; border-radius: 6px; color: white; font-size: 13px; } .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 12px; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-        #map-view { width: 100%; height: 100%; background: #0b1120; overflow: hidden; cursor: grab; } #map-view:active { cursor: grabbing; }
-        svg { width: 100%; height: 100%; display: block; }
-        #map-group { transition: transform 0.1s linear; transform-origin: 0 0; }
-        path { fill: #1e293b; stroke: #0f172a; stroke-width: 1; vector-effect: non-scaling-stroke; transition: 0.2s; cursor: pointer; }
-        path:hover { fill: #334155; stroke: var(--text-muted); z-index: 5; filter: drop-shadow(0 0 8px rgba(255,255,255,0.1)); }
-        path.has-data { fill: #1e3a8a; } 
-        path.cat-cihat { fill: #7f1d1d !important; stroke: #ef4444; } 
-        path.cat-ayrilik { fill: #713f12 !important; stroke: #eab308; } 
-        path.cat-diger { fill: #1e3a8a !important; stroke: #3b82f6; }
-        
-        #tooltip { position: absolute; background: rgba(15, 23, 42, 0.95); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); color: white; font-size: 12px; display: none; pointer-events: none; z-index: 50; }
+        * {
+            box-sizing: border-box;
+            outline: none;
+        }
 
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 100; display: none; opacity: 0; transition: 0.3s; justify-content: center; align-items: center; } .overlay.active { display: flex; opacity: 1; }
-        .editor-container { background: var(--bg-body); width: 95%; height: 95%; max-width: 1400px; border-radius: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        .ed-header { padding: 15px 25px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .ed-body { display: flex; flex: 1; overflow: hidden; }
-        .ed-sidebar { width: 280px; background: #162032; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .group-list { flex: 1; overflow-y: auto; padding: 10px; }
-        .g-item { padding: 12px; margin-bottom: 5px; border-radius: 6px; background: transparent; cursor: pointer; color: var(--text-muted); font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
-        .g-item:hover { background: rgba(255,255,255,0.03); color: var(--text-main); } .g-item.active { background: #1e293b; color: white; border-left: 3px solid var(--accent); }
-        .g-dot { width: 8px; height: 8px; border-radius: 50%; background: #444; } .g-dot.cihat { background: #ef4444; } .g-dot.ayrilik { background: #eab308; } .g-dot.diger { background: #3b82f6; }
-        
-        .ed-main { flex: 1; display: flex; flex-direction: column; background: var(--bg-body); overflow: hidden; }
-        .form-area { padding: 25px; overflow-y: auto; flex: 1; }
-        .form-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; margin-bottom: 25px; }
-        .f-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; display: block; }
-        .f-input, .f-select { width: 100%; background: #1e293b; border: 1px solid var(--border); padding: 10px; border-radius: 6px; color: white; }
-        
-        .ql-toolbar { background: #1e293b; border-color: var(--border) !important; margin-top: 10px; }
-        .ql-container { background: #1a2436; border-color: var(--border) !important; height: 350px; color: #e2e8f0; font-family: 'Inter'; }
-        .ql-stroke { stroke: #94a3b8 !important; } .ql-fill { fill: #94a3b8 !important; } .ql-picker { color: #94a3b8 !important; }
-        
-        .tab-bar { display: flex; gap: 2px; padding: 0 25px; background: #1a2436; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-        .tab { padding: 12px 20px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; } .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(139, 92, 246, 0.05); }
-        #toast { position: fixed; bottom: 30px; right: 30px; background: var(--success); color: #000; padding: 12px 24px; border-radius: 8px; font-weight: 700; transform: translateY(100px); transition: 0.3s; z-index: 500; } #toast.visible { transform: translateY(0); }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+
+        #sidebar {
+            width: 300px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .brand {
+            padding: 20px;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .menu-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: block;
+            margin-top: 20px;
+        }
+
+        .chart-container {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .action-card {
+            background: #334155;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #475569;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.2s;
+            color: white;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-main);
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        #main {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #toolbar {
+            height: 60px;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            padding: 8px 12px 8px 35px;
+            border-radius: 6px;
+            color: white;
+            font-size: 13px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        #map-view {
+            width: 100%;
+            height: 100%;
+            background: #0b1120;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        #map-view:active {
+            cursor: grabbing;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        #map-group {
+            transition: transform 0.1s linear;
+            transform-origin: 0 0;
+        }
+
+        path {
+            fill: #1e293b;
+            stroke: #0f172a;
+            stroke-width: 1;
+            vector-effect: non-scaling-stroke;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        path:hover {
+            fill: #334155;
+            stroke: var(--text-muted);
+            z-index: 5;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.1));
+        }
+
+        path.has-data {
+            fill: #1e3a8a;
+        }
+
+        path.cat-cihat {
+            fill: #7f1d1d !important;
+            stroke: #ef4444;
+        }
+
+        path.cat-ayrilik {
+            fill: #713f12 !important;
+            stroke: #eab308;
+        }
+
+        path.cat-diger {
+            fill: #1e3a8a !important;
+            stroke: #3b82f6;
+        }
+
+        #tooltip {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            color: white;
+            font-size: 12px;
+            display: none;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            opacity: 0;
+            transition: 0.3s;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .editor-container {
+            background: var(--bg-body);
+            width: 95%;
+            height: 95%;
+            max-width: 1400px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .ed-header {
+            padding: 15px 25px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ed-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .ed-sidebar {
+            width: 280px;
+            background: #162032;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .group-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .g-item {
+            padding: 12px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            background: transparent;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .g-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+        }
+
+        .g-item.active {
+            background: #1e293b;
+            color: white;
+            border-left: 3px solid var(--accent);
+        }
+
+        .g-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #444;
+        }
+
+        .g-dot.cihat {
+            background: #ef4444;
+        }
+
+        .g-dot.ayrilik {
+            background: #eab308;
+        }
+
+        .g-dot.diger {
+            background: #3b82f6;
+        }
+
+        .ed-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-body);
+            overflow: hidden;
+        }
+
+        .form-area {
+            padding: 25px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .f-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            display: block;
+        }
+
+        .f-input,
+        .f-select {
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 6px;
+            color: white;
+        }
+
+        .ql-toolbar {
+            background: #1e293b;
+            border-color: var(--border) !important;
+            margin-top: 10px;
+        }
+
+        .ql-container {
+            background: #1a2436;
+            border-color: var(--border) !important;
+            height: 350px;
+            color: #e2e8f0;
+            font-family: 'Inter';
+        }
+
+        .ql-stroke {
+            stroke: #94a3b8 !important;
+        }
+
+        .ql-fill {
+            fill: #94a3b8 !important;
+        }
+
+        .ql-picker {
+            color: #94a3b8 !important;
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 2px;
+            padding: 0 25px;
+            background: #1a2436;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--success);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            transform: translateY(100px);
+            transition: 0.3s;
+            z-index: 500;
+        }
+
+        #toast.visible {
+            transform: translateY(0);
+        }
     </style>
 </head>
-<body>
-<div id="sidebar">
-    <div class="brand"><i class="fas fa-globe-africa" style="color:#8b5cf6"></i> MİLİTAN ATLASI <span style="font-size:11px; margin-left:5px; padding:2px 6px; background:#334155; border-radius:4px; font-weight:normal; color:#fff;">v2.1</span></div>
-    <div class="sidebar-content">
-        <label class="menu-label">Durum Özeti</label>
-        <div class="chart-container">
-            <canvas id="statsChart"></canvas>
-            <div style="display:flex; justify-content:space-between; margin-top:20px; text-align:center;">
-                <div><div style="font-size:20px; font-weight:800; color:white;" id="total-count">0</div><div style="font-size:10px; color:#aaa;">TOPLAM</div></div>
-                <div><div style="font-size:20px; font-weight:800; color:#ef4444;" id="cihat-count">0</div><div style="font-size:10px; color:#aaa;">CİHAT</div></div>
-                <div><div style="font-size:20px; font-weight:800; color:#eab308;" id="ayrilik-count">0</div><div style="font-size:10px; color:#aaa;">AYRILIK</div></div>
-            </div>
-        </div>
-        <label class="menu-label">Veri İşlemleri</label>
-        <div class="action-card">
-            <input type="file" id="jsonInput" accept=".json" style="display:none;" onchange="app.loadJSON(this)">
-            <button class="btn btn-outline" style="margin-bottom:10px;" onclick="document.getElementById('jsonInput').click()"><i class="fas fa-folder-open"></i> JSON Yükle</button>
-            <button class="btn btn-primary" onclick="app.downloadJSON()"><i class="fas fa-save"></i> İndir / Kaydet</button>
-            <button class="btn btn-primary" style="margin-top:10px; background:#8b5cf6;" onclick="app.openGlobalCreator()"><i class="fas fa-globe"></i> ÇOKLU / KÜRESEL EKLE</button>
-        </div>
-    </div>
-</div>
-<div id="main">
-    <div id="toolbar">
-        <div class="search-box"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Global Arama (Ctrl+K)"></div>
-        <button class="btn btn-outline" style="width:auto; height:36px;" onclick="app.resetZoom()"><i class="fas fa-compress-arrows-alt"></i> Sıfırla</button>
-    </div>
-    <div id="map-view">
-        <svg id="svg-map" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
-            <g id="map-group">
-<path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
-<path id="BI" data-name="Burundi" data-id="BI" d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
-<path id="BJ" data-name="Benin" data-id="BJ" d="m 340,356 -9.3,-8 -4.3,0.1 -4.1,4 -2.6,4.2 -6,1.2 -2.5,6.1 -4.1,1.6 -1.6,7.2 3.7,4.1 4.3,4.9 0.4,6.8 2.5,2.8 -0.5,31.8 3,9.5 10.1,-1.6 0.6,-22.3 -0.3,-8.8 2.3,-8.7 3.7,-4.3 5.9,-8.5 -1.3,-3.7 2.4,-5.6 -2.8,-8.2 0.5,-4.6 z" />
-<path id="BF" data-name="Burkina Faso" data-id="BF" d="m 300.7,310.8 -7.8,0 -3,-2.6 -6.7,1.9 -11.3,5.8 -2.3,4.3 -9.4,6.2 -1.7,3.6 -5.1,2.8 -5.8,-1.9 -3.4,3.4 -1.8,9.5 -9.7,11.4 0.3,4.7 -3.4,5.9 0.8,8 5.5,3 2.1,4.6 5.4,2.9 4.3,-3.4 5.7,-0.6 8.3,3.6 -1.6,-10.4 0.3,-7.9 21.1,-0.6 5.4,1 3.9,-2.2 5.6,1.1 10.7,0.3 4.1,-1.6 2.5,-6.1 6,-1.2 2.6,-4.2 0.3,-9.5 -14,-3.1 -0.4,-6.7 -6.9,-9 -1.6,-6.3 1,-6.7 z" />
-<path id="BW" data-name="Botswana" data-id="BW" d="m 600.6,762.7 -2.2,-1 -6.9,3.1 -3.6,0 -7.9,5.4 -4.4,-5.7 -18.7,4.9 -9,0.4 -1.9,49.3 -11.8,0.5 -1.4,40.4 3.2,2 6.5,13.2 -1.5,8.4 2.5,4.9 8.5,-1.4 6.2,-6.2 5.8,-4.2 3.2,-6.6 6,-3.2 4.9,1.7 5.5,3.9 9.6,0.6 7.8,-3.2 1.4,-4.3 2.4,-6.6 6.5,-1.1 3.9,-5.2 4.4,-9.3 11.2,-10.3 17.3,-10.2 -7.3,-6.2 -9.2,-2.1 -3.1,-8.8 0.2,-4.9 -5.1,-1.5 -13,-15.2 -3.5,-8 -2.3,-2.4 -4.2,-11.1 z" />
-<path id="CF" data-name="Central African Rep." data-id="CF" d="m 587,398.1 -1,-0.7 -4.2,-4 -0.9,-4.3 1.9,-5.7 -0.1,-5.7 -7.2,-8.6 -1.5,-5.9 -7.7,2.3 -6,5.6 -8.6,15.1 -11.3,6.4 -11.8,-0.8 -3.4,1.2 1.2,4.9 -6.3,4.8 -5.1,5.4 -15.3,5.3 -3,-3.1 -2.1,-0.3 -2.2,3.6 -10,1 -6.1,14 -2.9,2.6 -0.8,10.7 1.2,5.8 -0.9,4.1 5.8,7.3 1,4.9 4.6,7.2 5.6,4.4 0.6,6.3 1.3,4 6.3,-12.8 7.3,-7.4 8.2,2.4 7.9,0.7 1,-9.6 4.7,-7.1 6.5,-4.4 10.1,4.7 7.8,5.1 9,1.4 9.1,2.7 3.6,-8.4 1.6,-1.1 5.6,1.4 13.5,-6.9 4.9,3 3.9,-0.5 1.8,-3.3 4.5,-1.2 9.2,1.4 7.9,0.4 4,-1.5 -2,-4.4 -9.2,-5.5 -3.2,-8.3 -5.2,-6 -8.3,-7.2 -0.1,-4.5 -6.8,-5.5 -8.4,-5.4 z" />
-<path id="CI" data-name="Côte d'Ivoire" data-id="CI" d="m 230.4,373.8 -5,2.1 -2.9,1.7 -1.8,-5.9 -3.5,1.6 -2.1,-0.3 -2.3,4 -9.4,-0.1 -3.3,-2.1 -1.6,1.3 -2.5,1.1 -1,4.7 2.8,5.7 3,11.1 -4.6,1.6 -1.1,1.9 0.9,2.7 -0.8,6.1 -1.9,0 -0.6,4 1.2,6.7 -2.7,6.1 3.6,3.8 3.8,0.9 5.2,5.8 0.3,5.5 -1.1,1.7 -1,11.4 2.3,0.4 12.1,-5.1 8.5,-4 14.5,-2.4 7.8,-0.2 8.5,2.7 5.6,-0.1 0.5,-5.5 -5.2,-11.9 3.2,-15.6 5.1,-11.6 -3.2,-19.7 -8.3,-3.6 -5.7,0.6 -4.3,3.4 -5.4,-2.9 -2.1,-4.6 -5.5,-3 z" />
-<path id="CM" data-name="Cameroon" data-id="CM" d="m 477.5,366.6 0.4,-9.2 -1,-9.1 -4.9,-8.9 -3.4,0.8 -0.4,4.4 4.9,5.5 -1.3,2.5 -0.5,4.6 -10.2,10.7 -3.1,8.8 -1.6,7.2 -2.6,3.1 -2.4,9.7 -6.4,5.7 -1.9,7 -2.7,5.6 -1.1,5.7 -8.3,4.7 -6.9,-5.7 -4.6,0.2 -7.2,8.1 -3.6,0.1 -5.7,13.4 -3.1,9.8 -0.1,3.8 3.1,2 2.5,6.2 5.6,2.3 4.8,9.2 -1.8,10.9 19.9,0.3 5.8,-0.9 7.4,1.9 7.3,-1.8 1.5,0.7 15.4,0.6 9.9,3.6 9.7,3.3 0.9,-7.5 -1.3,-4 -0.6,-6.3 -5.6,-4.4 -4.6,-7.2 -1,-4.9 -5.8,-7.3 0.9,-4.1 -1.2,-5.8 0.8,-10.7 2.9,-2.6 6.1,-14 1.8,-3.7 -3.9,-9.6 -1.8,-5.7 -5.3,-2.3 -7.2,-8.1 2.5,-6.5 5.6,1.3 3.4,-0.9 6.8,0.1 -6.8,-12.6 z" />
-<path id="CD" data-name="Dem. Rep. Congo" data-id="CD" d="m 618.3,446 -9.2,-1.4 -4.5,1.2 -1.8,3.3 -3.9,0.5 -4.9,-3 -13.5,6.9 -5.6,-1.4 -1.6,1.1 -3.6,8.4 -9.1,-2.7 -9,-1.4 -7.8,-5.1 -10.1,-4.7 -6.5,4.4 -4.7,7.1 -1,9.6 -0.7,8.4 -3.6,7.4 -2.4,8.6 -1.5,12.3 0.7,7.8 -2,4.8 -0.3,5.1 -1.4,4.4 -8.1,6.7 -5.6,7.1 -5.3,13.4 0.3,11.4 -3.1,4.4 -7.2,6.8 -7.2,8.7 -4.5,-2.5 -0.8,-3.9 -6.6,-0.1 -4.2,5.3 -3.2,-1.4 -4.5,2.9 -2,3.5 -0.4,6 -3.1,1.5 1.6,4.3 5.1,-1.9 3.5,0.3 4.3,-1.7 36,0.2 2.9,10.3 3.5,8.3 2.7,4.5 4.6,7.2 8.1,-1.1 4,-1.9 6.7,1.9 1.9,-3.4 3.1,-8.1 7.6,-0.5 0.7,-2.4 6.2,-0.1 -1.1,5 14.8,-0.1 0.1,8.7 2.4,5.3 -1.9,8.4 0.8,8.5 3.9,5.1 -0.9,16.5 3,-1.3 5.3,0.3 7.6,-2 5.5,0.8 4.2,0.3 0.6,4.3 5.7,-0.3 7.7,1.3 3.9,6.2 9.7,2 7.5,-4.4 2.6,7.3 9.2,1.9 4.3,5.9 4.8,7.6 9.3,0.1 -0.6,-14.9 -3.4,2.5 -8.4,-5.4 -3.2,-2.4 1.9,-13.9 2.5,-16.4 -2.6,-6.1 3.6,-8.8 3.3,-1.7 16.4,-2.3 2.1,0.6 0.6,-2.3 -3.4,-3.7 -1.5,-7.6 -7.3,-7.6 -4.1,-9.9 2.3,-5.8 -3.2,-7.8 2.4,-22.1 0.1,0.2 -0.1,-2.4 -3,-6.3 1.2,-7.6 1.7,-1 0.5,-8.3 3.5,-3.8 0.1,-10.5 2.9,-5.3 0.6,-11.1 2.6,-6.4 4.6,-7.2 4.7,-3.7 3.9,-4.9 -4.9,-1.9 0.6,-16.1 0,0 -10.9,-9.2 -2.9,-5.9 -6.8,2.9 -5.7,-0.9 -3.2,2.3 -5.5,-1.7 -7.5,-11.4 -4,1.5 -7.9,-0.4 z" />
-<path id="CG" data-name="Congo" data-id="CG" d="m 521.5,468.8 -7.9,-0.7 -8.2,-2.4 -7.3,7.4 -6.3,12.8 -0.9,7.5 -9.7,-3.3 -9.9,-3.6 -15.4,-0.6 -0.9,6.1 3.4,7.1 9.1,-1.1 3.1,2.7 -5.3,16.1 5.8,8.2 1.3,10.8 -1.6,9.2 -3.7,6.5 -10.8,-0.6 -6.5,-6.6 -1,6.1 -8.3,1.7 -4.2,3.5 4.6,9.1 -9.3,7.7 9.9,14.6 5,-6 3.7,-2.3 4.6,4.8 3.2,1.4 4.2,-5.3 6.6,0.1 0.8,3.9 4.5,2.5 7.2,-8.7 7.2,-6.8 3.1,-4.4 -0.3,-11.4 5.3,-13.4 5.6,-7.1 8.1,-6.7 1.4,-4.4 0.3,-5.1 2,-4.8 -0.7,-7.8 1.5,-12.3 2.4,-8.6 3.6,-7.4 0.7,-8.4 z" />
-<path id="DJ" data-name="Djibouti" data-id="DJ" d="m 820.3,358.7 -5.3,-3.8 6.8,-3.3 0.1,-5.7 -3,-4.3 -3.6,3.4 -5.2,-1.2 -4,6.1 -3.9,6.5 1.1,3.8 0.3,4.2 6.8,0.2 2.9,-0.9 2.8,2.4 4.2,-7.4 z" />
-<path id="DZ" data-name="Algeria" data-id="DZ" d="M 392.4,5.7 384.6,6.5 379.8,3.3 367.6,3.4 357,8.9 351.2,6.8 332.3,8 l -19.4,2.5 -11,4.3 -7.2,5.8 -12.4,2.4 -11.1,7.7 4.2,9 0.7,8.4 3.9,14.7 3.1,2.9 -2.2,5.4 -15.2,2.3 -5.4,5.1 -6.7,1.2 -0.6,10.2 -13.8,5.4 -4.6,7 -9.6,3.7 -11.8,2.1 -19.2,10.2 -0.2,16.3 0,1 -0.3,2.7 44.1,33.5 40,30.2 40.4,30.2 2.9,6.4 7.5,4 5.5,2.2 0.2,8.8 13.3,-1.3 16.9,-6.2 34.5,-27.1 40.5,-26.4 -5.4,-8.7 -9.6,-6.4 -5.5,2.5 -4.3,-7.7 -0.6,-5.9 -7.2,-10.1 4.6,-5.8 -1.3,-8.7 1.4,-7.6 -1,-6.3 1.8,-11.3 -0.8,-6.4 -4.1,-12.2 -5.7,-24.7 -7.3,-5.6 -0.2,-3.3 -9.7,-8.3 -1.3,-10.4 7,-7.8 2.4,-11.6 -2.3,-13.4 2.2,-7.2 z" />
-<path id="EG" data-name="Egypt" data-id="EG" d="m 628.8,88.1 -11.9,-4 -11.5,-3.7 -15.6,0.2 -3.7,6.6 2.2,5.9 -2.4,8.5 4.2,11.2 2.9,49.2 2.2,50.9 48.1,0 46.4,0 47.4,0 -2.2,-2.8 -14.7,-12.4 -0.9,-9 2.2,-2.4 -11.6,-15.3 -4.4,-7.9 -4.9,-7.5 -10.5,-21.6 -8.4,-13.9 -6.1,-14.5 1.1,-1.3 10.1,19.8 5.8,6.2 4.3,4.4 2.5,-2.4 2.7,-7.2 1.6,-10.4 2.8,-5.6 -1.5,-3.5 -8.5,-20.1 0,0 -5.4,3.4 -9.2,-0.8 -9.6,-3.2 -2.3,4.5 -3.8,-6.8 -8.5,-1.8 -10.2,1.2 -4.5,3.9 -8.6,4.4 -5.6,-2.2 z" />
-<path id="ER" data-name="Eritrea" data-id="ER" d="m 777.6,303.8 -7,-6.8 -4,-12.7 -7.8,-16 -5.7,7.9 -8.8,2.3 -3.6,4.2 -0.7,9.2 -4.3,20.3 1.5,5.6 14.3,2.9 3.3,-10.4 7.6,6.3 7,-3.2 3,2.9 8.3,0.1 10.8,5.6 3.4,4.8 5.5,4.4 5.4,8.1 4.3,4.5 5.2,1.2 3.6,-3.4 -6.2,-4.2 -4,-4.7 -6.9,-8 -7.1,-7.9 -17.1,-13 z" />
-<path id="ET" data-name="Ethiopia" data-id="ET" d="m 754.8,310.3 -3.3,10.4 -14.3,-2.9 -1.4,11.9 -4.5,13.6 -7.1,6.8 -4.8,10.6 -1.1,5.7 -5.6,3.8 -3.3,14.5 0.1,1.7 0.4,10.8 -1.8,4.2 -6.4,0.3 -4,7.9 7.5,1 6.3,6.7 2.2,5.6 5.7,3.2 7.4,15 6.4,2.4 0.1,7.7 4.2,4.6 8.5,0 15.7,11.7 3.8,0.2 2.9,-0.4 2.7,1.6 8.2,1.1 3.5,-5.8 11.1,-5.8 4.9,4.7 8.4,0 3.3,-4.4 7.8,-0.2 10.7,-9.8 15.9,-0.6 33.5,-41.5 -10.3,0.1 -40.3,-16.4 -4.8,-5 -4.6,-6.6 -4.8,-7.7 2.5,-4.9 -2.8,-2.4 -2.9,0.9 -6.8,-0.2 -0.3,-4.2 -1.1,-3.8 3.9,-6.5 4,-6.1 -4.3,-4.5 -5.4,-8.1 -5.5,-4.4 -3.4,-4.8 -10.8,-5.6 -8.3,-0.1 -3,-2.9 -7,3.2 -7.6,-6.3 z" />
-<path id="GA" data-name="Gabon" data-id="GA" d="m 455.9,485.9 -1.5,-0.7 -7.3,1.8 -7.4,-1.9 -5.8,0.9 0.1,16.7 -17.7,-0.2 -4.2,0.8 -2.4,10.3 -3,10.1 -2.7,4.4 -0.3,4.6 7.3,14.3 8.1,11.4 12.5,14 9.3,-7.7 -4.6,-9.1 4.2,-3.5 8.3,-1.7 1,-6.1 6.5,6.6 10.8,0.6 3.7,-6.5 1.6,-9.2 -1.3,-10.8 -5.8,-8.2 5.3,-16.1 -3.1,-2.7 -9.1,1.1 -3.4,-7.1 0.9,-6.1 z" />
-<path id="GH" data-name="Ghana" data-id="GH" d="m 296.4,364.9 -5.6,-1.1 -3.9,2.2 -5.4,-1 -21.1,0.6 -0.3,7.9 1.6,10.4 3.2,19.7 -5.1,11.6 -3.2,15.6 5.2,11.9 -0.5,5.5 10.9,3.9 11,-4 6.7,-4.7 19.2,-8.1 -2.8,-4.9 -3.2,-8.8 -1,-6.8 2.7,-12.5 -3,-5 -1.2,-10.9 0,-10.1 -5.1,-7.1 0.9,-4.3 z" />
-<path id="GN" data-name="Guinea" data-id="GN" d="m 156.4,345.2 -1.8,0.7 -6.6,-1.1 -0.9,1.6 -2.7,0.3 -8.7,-3.4 -5.8,-0.1 -0.3,4.7 -1.3,1.4 0.9,4.6 -1.9,1.8 -2.7,0.1 -3.2,2.3 -3.7,-0.3 -5.5,6.8 3.6,2.2 1.7,3.1 1.3,6.1 3,2.7 3.1,1.8 4.7,5.4 5.3,8.2 6.5,-6.1 1.5,-3.8 2.1,-3 3.3,-0.3 2.9,-2.6 9.7,0 3.3,5 2.6,5.8 -0.4,4 1.9,3.6 -0.1,5.1 3.3,-0.8 2.6,-0.3 3.2,-1.6 5.1,8.5 -0.9,5.6 2.4,2.9 3.4,0.1 2.6,-5.6 3.4,0.4 1.9,0 0.8,-6.1 -0.9,-2.7 1.1,-1.9 4.6,-1.6 -3,-11.1 -2.8,-5.7 1,-4.7 2.5,-1.1 -3.7,-4 0.7,-4.1 -1.6,-1.6 -2.6,1.3 0.6,-4.5 2.5,-3.5 -5,-5.8 -1.4,-3.8 -2.7,-3.1 -2.4,-0.3 -2.9,1.9 -4,1.8 -3.3,3 -5.2,-1.1 -3.3,-3.5 -2,-0.4 -3.2,1.8 -2,0 -0.6,-5 z" />
-<path id="GM" data-name="Gambia" data-id="GM" d="m 91.9,335.4 11,0.2 3,-1.9 2.2,-0.1 4.5,-3.2 5.2,2.9 5.2,0.3 5.3,-3.1 -2.4,-4 -4,2.3 -3.8,-0.1 -4.7,-3.4 -3.8,0.2 -2.8,3.3 -13.2,0.4 -1.7,6.2 z" />
-<path id="GW" data-name="Guinea-Bissau" data-id="GW" d="m 129.9,343.2 -22.4,-0.6 -3.3,1.6 -4,-0.5 -6.5,2.3 0.7,2.9 3.7,3 -0.1,2.1 2.7,3.9 5.1,0.9 6.4,5.8 5.5,-6.8 3.7,0.3 3.2,-2.3 2.7,-0.1 1.9,-1.8 -0.9,-4.6 1.3,-1.4 0.3,-4.7 z" />
-<path id="GQ" data-name="Eq. Guinea" data-id="GQ" d="m 433.9,486 -19.9,-0.3 -4.1,15.5 2.2,2.1 4.2,-0.8 17.7,0.2 -0.1,-16.7 z" />
-<path id="KE" data-name="Kenya" data-id="KE" d="m 807.2,463.1 -8.4,0 -4.9,-4.7 -11.1,5.8 -3.5,5.8 -8.2,-1.1 -2.7,-1.6 -2.9,0.4 -3.8,-0.2 -15.7,-11.7 -8.5,0 -4.2,-4.6 -0.1,-7.7 -6.4,-2.4 -8.1,9.1 -7.4,8.3 5.9,9.6 1.5,7 5.5,15.8 -4.4,10.1 -5.9,9.2 -3.5,5.6 0,0.7 2.9,5.2 -0.8,10.3 44.1,28.2 0.7,8 17.3,13.8 5,-4.6 2.5,-9.2 4,-5.5 1.9,-9.8 4.6,-1 3.1,-5.8 8.6,-5.5 -7.2,-11.4 -0.4,-50.4 10.5,-15.7 z" />
-<path id="LR" data-name="Liberia" data-id="LR" d="m 193.3,411 -3.4,-0.4 -2.6,5.6 -3.4,-0.1 -2.4,-2.9 0.9,-5.6 -5.1,-8.5 -3.2,1.6 -2.6,0.3 -5.7,6.5 -5.5,7.5 -0.7,4 -2.9,4.4 8.1,8.9 10.4,7.6 11,10.5 12.6,6.6 3.2,-0.1 1,-11.4 1.1,-1.7 -0.3,-5.5 -5.2,-5.8 -3.8,-0.9 -3.6,-3.8 2.7,-6.1 -1.2,-6.7 0.6,-4 z" />
-<path id="LY" data-name="Libya" data-id="LY" d="m 589.8,80.6 -3.1,-4.5 -11.7,-1.6 -3.9,-2.4 -4.4,0 -4.4,-6.2 -15.9,-2.8 -7.9,1.8 -7.9,6.5 -3.3,6.7 3.4,10.6 -5.3,6.3 -5.5,3.6 L 507,91.7 490.3,86 479.7,83.3 473.6,71 l -15.7,-6.1 -9.8,-2.3 -4.8,1.2 -13.8,-4.8 -0.3,10.6 -5.6,4 -3.4,4.4 -7.9,5.3 1.5,5.7 -0.9,5.8 -5.6,3.2 4.1,12.2 0.8,6.4 -1.8,11.3 1,6.3 -1.4,7.6 1.3,8.7 -4.6,5.8 7.2,10.1 0.6,5.9 4.3,7.7 5.5,-2.5 9.6,6.4 5.4,8.7 19,6 6.9,7.5 8.3,-5.1 11.9,-7.6 48.4,26.5 48.7,26.5 -0.1,-5.8 13.8,0 -1,-27.7 -2.2,-50.9 -2.9,-49.2 -4.2,-11.2 2.4,-8.5 -2.2,-5.9 3.7,-6.6 z" />
-<path id="LS" data-name="Lesotho" data-id="LS" d="m 625.3,939.9 2.5,-4.4 6.7,-2.2 2.4,-4.5 4.1,-6.7 -3.8,-4.2 -4.8,-4.2 -5.7,2.8 -6.8,5.4 -6.9,8.7 8,10.6 4.3,-1.3 z" />
-<path id="MA" data-name="Morocco" data-id="MA" d="m 271.2,30.7 -5,-0.1 -11.9,-3.1 -11,0.9 -6.8,-5.9 -8.5,-0.1 -3.8,8.6 -8,14.5 -8.7,5.7 -11.8,6.4 -7.7,9.3 -1.8,7.3 -4.8,11.8 2.5,17.2 -10.1,11.5 -6,3.7 -9.6,9.4 -11,1.6 -6.1,5.3 -0.2,0.2 -7.9,14.1 -8.1,5.1 -4.5,8.5 -0.5,7.4 -3.4,8.1 -4,2.2 -6.9,8.8 -4.4,9.8 0.7,4.6 -4.1,7.3 -4.7,3.7 -0.8,6.4 0.2,0.1 27,-1.1 1.6,-5 5,-6.2 4.4,-19.1 16.9,-15 6,-17.4 3.7,-1.1 4.2,-10.8 10,-1.4 4.2,1.8 5.4,0 3.9,-3.2 7.3,-0.4 -0.1,-7.5 0,0 1.8,0 0.2,-16.3 19.2,-10.2 11.8,-2.1 9.6,-3.7 4.6,-7 13.8,-5.4 0.6,-10.2 6.7,-1.2 5.4,-5.1 15.2,-2.3 2.2,-5.4 -3.1,-2.9 -3.9,-14.7 -0.7,-8.4 -4.2,-9 z" />
-<path id="MG" data-name="Madagascar" data-id="MG" d="m 902.9,704.8 -2.5,-9.1 -3,-5.9 -3.9,-5.9 -4.3,6.2 -0.7,8.3 -7.1,9.6 -5.1,-1.7 1.3,6 -4,6.9 -10.4,8.5 -7.3,7.9 -5.4,0.2 -4.6,2.5 -6.9,2.8 -6,0.6 -2.2,8.7 -4.7,7.8 0.2,12.7 1.7,8.7 2.4,6.6 -1.7,8.8 -6.4,10.5 -0.3,4.6 -5.7,2.4 -2.8,10 0.4,9.9 3.4,11 -0.1,12.3 2.6,7.3 9.1,5 6.5,3.5 10.9,-5.8 9.9,-3.3 6.8,-16.1 6.1,-19.2 9.3,-26.2 7.3,-19.1 5.9,-16.1 1.6,-11.7 3.5,-3.2 1.5,-5.9 -1.7,-10.2 2.6,-4.1 3.5,8.1 2.4,-4.1 1.7,-6.6 -2.8,-6.5 -1,-16.7 z" />
-<path id="ML" data-name="Mali" data-id="ML" d="m 347.4,252.3 -13.3,1.3 -0.2,-8.8 -5.5,-2.2 -7.5,-4 -2.9,-6.4 -40.4,-30.2 -40,-30.2 -18.2,0.2 5.1,59.7 5.4,59.7 2,1.8 -2.7,9.6 -48.5,0.2 -1.9,3.1 -4.6,-0.9 -6.9,2.7 -8.4,-3.8 -3.8,0.3 -2.2,8.2 -4.1,2.5 0.4,8.6 2.3,7.9 4.5,3.9 1,5.3 -0.6,4.4 0.6,5 2,0 3.2,-1.8 2,0.4 3.3,3.5 5.2,1.1 3.3,-3 4,-1.8 2.9,-1.9 2.4,0.3 2.7,3.1 1.4,3.8 5,5.8 -2.5,3.5 -0.6,4.5 2.6,-1.3 1.6,1.6 -0.7,4.1 3.7,4 1.6,-1.3 3.3,2.1 9.4,0.1 2.3,-4 2.1,0.3 3.5,-1.6 1.8,5.9 2.9,-1.7 5,-2.1 -0.8,-8 3.4,-5.9 -0.3,-4.7 9.7,-11.4 1.8,-9.5 3.4,-3.4 5.8,1.9 5.1,-2.8 1.7,-3.6 9.4,-6.2 2.3,-4.3 11.3,-5.8 6.7,-1.9 3,2.6 7.8,0 7.7,-0.6 4.5,-4.9 16.5,-1.2 10.7,-2.2 1,-8.5 6.6,-9.2 -0.3,-31.9 z" />
-<path id="MZ" data-name="Mozambique" data-id="MZ" d="m 788.2,666.2 -1.7,-6.2 0,0 0,0 -10,8.1 -13.4,5.3 -7.3,-0.2 -4.5,4.2 -8.4,0.3 -3.3,1.8 -14.4,-3.9 -4.7,0.5 -3.3,13.1 1.4,15.8 0.7,0 4.2,4.4 4.6,10 0.3,17.8 -5.4,3 -4.1,9.6 -7.5,-8.6 -0.5,-9.7 2.9,-6.5 -0.5,-5.5 -4.7,-3.5 -3.3,1.2 -6.8,-6.6 -37.1,11.4 0.8,9.9 0.6,5.1 10,-0.3 5.5,3 2.5,3.4 5.7,1 6.1,4.4 -0.8,17.5 -2.8,9.6 -1,10.4 1.7,4.1 -1.7,8.1 -1.9,1.3 -3.6,9.9 -13.4,15.7 4.7,19.5 2.5,9.9 -3,15.4 0.7,5 1.3,6.2 0.6,6.1 9,0.1 1.5,-7.3 -2.9,-0.9 -0.6,-5.8 5.5,-5.2 14.8,-7.5 10.1,-4.6 5.3,-5 2.1,-5.7 -2.7,-2.4 2.4,-6.4 1.1,-13.6 -2.2,0.7 0.1,-4.1 -1.9,-8.1 -5.2,-10.5 1.6,-9.9 5.1,-3.2 8.9,-9.8 4.7,-2.5 14.4,-14.9 14,-6.7 11.3,-5.3 8.1,-8.5 5.2,-9.6 4.1,-9.9 -1.8,-6.8 0.4,-21.6 -1,-12.2 0.9,-13.8 z" />
-<path id="MR" data-name="Mauritania" data-id="MR" d="m 237.6,171.8 -44.1,-33.5 -0.5,20.9 -38.9,-0.7 -0.4,35.4 -11.2,1.3 -3.1,7.1 1.9,20 -46.9,-0.1 -2.7,4.6 6.1,6 3,6.5 -1.4,6.9 1.3,6.9 1,13.7 -1.8,13 -3.5,6.8 0.9,7.5 4.2,-4.5 6,1.2 5.9,-3 6.8,-0.1 5.7,4 7.9,3.7 7.2,10.2 7.8,9.5 4.1,-2.5 2.2,-8.2 3.8,-0.3 8.4,3.8 6.9,-2.7 4.6,0.9 1.9,-3.1 48.5,-0.2 2.7,-9.6 -2,-1.8 -5.4,-59.7 -5.1,-59.7 18.2,-0.2 z" />
-<path id="MW" data-name="Malawi" data-id="MW" d="m
-<path id="MW" data-name="Malawi" data-id="MW" d="m 714.6,711.7 0.3,-5.2 -2.7,-4.1 0.4,-6 -3.3,-10.2 3.7,-7.7 -0.2,-16.7 -4.1,-8.9 0.4,-1.5 0,0 -2.3,-3.8 -11.9,-2.6 5.6,6.2 2.8,11.7 -2.2,3.8 -2.7,11.2 2,11.5 -4,4.8 -4.1,12.8 6.2,3.6 6.8,6.6 3.3,-1.2 4.7,3.5 0.5,5.5 -2.9,6.5 0.5,9.7 7.5,8.6 4.1,-9.6 5.4,-3 -0.3,-17.8 -4.6,-10 -4.2,-4.4 -0.7,0 0.1,1.9 2.3,0.5 2.2,7.4 -0.4,1.7 -4.1,-5.3 -2.2,3.4 -1.9,-2.9 z" />
-<path id="NA" data-name="Namibia" data-id="NA" d="m 576,759.7 -22.4,5.7 -29.1,-2 -8.2,-6.6 -48.8,0.6 -1.9,1 -7.1,-6.3 -7.8,-0.4 -7.2,2.3 -5.9,2.7 0.6,10.6 9.5,13.5 2.5,8.7 6,16.6 5.9,11.4 4.6,5.7 1.3,7.6 -0.1,16.5 3.4,21.3 2.6,10.1 2.2,13.4 4.3,10.1 8.3,10.5 6,-6.8 4.5,3.7 1.7,6 5.2,1 7.3,2.6 6.4,-1 10.8,-7.1 2.2,-51.1 1.4,-40.4 11.8,-0.5 1.9,-49.3 9,-0.4 18.7,-4.9 4.4,5.7 7.9,-5.4 3.6,0 6.9,-3.1 0,-1.2 -4.7,-3.1 -7.8,-0.8 -9.9,3.1 z" />
-<path id="NE" data-name="Niger" data-id="NE" d="m 458.3,198.6 -19,-6 -40.5,26.4 -34.5,27.1 -16.9,6.2 0.3,31.9 -6.6,9.2 -1,8.5 -10.7,2.2 -16.5,1.2 -4.5,4.9 -7.7,0.6 -1,6.7 1.6,6.3 6.9,9 0.4,6.7 14,3.1 -0.3,9.5 4.1,-4 4.3,-0.1 9.3,8 0.8,-12.4 3.5,-5.5 1.6,-8 3.2,-3 13,-1.6 12.2,5.1 4.6,5.3 6.1,0.2 5.8,-3.4 14.7,7.1 6.2,-0.3 7.1,-5.9 7.1,0.4 3.5,-1.9 6.5,0.8 9.4,4 9.4,-7.7 2.9,0.6 8.4,15.1 2.2,-0.3 0.4,-4.4 3.4,-0.8 1.1,-6.5 -7.8,-0.3 -0.1,-8.9 -5.1,-5.2 4.9,-18.2 15.2,-13 0.2,-18 4,-28.1 2.5,-6 -5.1,-4.7 -0.3,-4.4 -4.6,-3.6 -3.4,-21.5 -8.3,5.1 -6.9,-7.5 z" />
-<path id="NG" data-name="Nigeria" data-id="NG" d="m 468.2,344.6 -2.2,0.3 -8.4,-15.1 -2.9,-0.6 -9.4,7.7 -9.4,-4 -6.5,-0.8 -3.5,1.9 -7.1,-0.4 -7.1,5.9 -6.2,0.3 -14.7,-7.1 -5.8,3.4 -6.1,-0.2 -4.6,-5.3 -12.2,-5.1 -13,1.6 -3.2,3 -1.6,8 -3.5,5.5 -0.8,12.4 -0.5,4.6 2.8,8.2 -2.4,5.6 1.3,3.7 -5.9,8.5 -3.7,4.3 -2.3,8.7 0.3,8.8 -0.6,22.3 10.7,0 9.2,-0.1 8.6,9.1 4.1,10 6.5,8.6 9.8,0.3 4.7,-3.1 4.6,0.8 12.7,-5 3.1,-9.8 5.7,-13.4 3.6,-0.1 7.2,-8.1 4.6,-0.2 6.9,5.7 8.3,-4.7 1.1,-5.7 2.7,-5.6 1.9,-7 6.4,-5.7 2.4,-9.7 2.6,-3.1 1.6,-7.2 3.1,-8.8 10.2,-10.7 0.5,-4.6 1.3,-2.5 -4.9,-5.5 z" />
-<path id="RW" data-name="Rwanda" data-id="RW" d="m 667.9,533 -7.4,4.3 -2.9,-1.4 -3.5,3.8 -0.5,8.3 -1.7,1 -1.2,7.6 7.4,1.1 3.8,-7.9 6.5,0.9 0,0 3.5,-1.8 0.8,-8.1 -4.8,-7.8 z" />
-<path id="EH" data-name="W. Sahara" data-id="EH" d="m 193.8,134.6 -1.8,0 0,0 0.1,7.5 -7.3,0.4 -3.9,3.2 -5.4,0 -4.2,-1.8 -10,1.4 -4.2,10.8 -3.7,1.1 -6,17.4 -16.9,15 -4.4,19.1 -5,6.2 -1.6,5 -27,1.1 -0.2,-0.1 -0.6,5.9 2.7,-4.6 46.9,0.1 -1.9,-20 3.1,-7.1 11.2,-1.3 0.4,-35.4 38.9,0.7 0.5,-20.9 0.3,-2.7 0,-1 z" />
-<path id="SD" data-name="Sudan" data-id="SD" d="m 740,291.9 0.7,-9.2 3.6,-4.2 8.8,-2.3 5.7,-7.9 -6.9,-5.1 -4.8,-3.4 -5.3,-16.5 -2.5,-14.3 2.5,-2.5 -4.7,-13.6 -47.4,0 -46.4,0 -48.1,0 1,27.7 -13.8,0 0.1,5.8 2.4,54.9 -10.5,-0.9 -5.2,10.2 -3,8.5 2.6,3.2 -3.8,4.3 1.5,5.7 -3,5.8 -1.2,5 4.3,-0.8 2.6,5.4 0.3,8 4.6,4.1 -0.1,3.4 1.5,5.9 7.2,8.6 0.1,5.7 -1.9,5.7 0.9,4.3 4.2,4 1,0.7 3.8,-1.6 4.1,-2.6 2.9,-12.3 3.2,-6.4 8.8,-1.9 2.1,3.8 6.5,8 3.3,1.2 4.4,-2.3 8.7,0.4 1.8,2.9 12.1,0 0.3,-2.9 6.3,-2.6 1.1,-4 4.6,-2.9 10.4,8.1 6.2,-1.4 5.8,-10 6.5,-7.6 -1.3,-8.3 -3,-4 7.3,-0.8 0.7,-3 5.7,0.9 -1.2,10.2 1.7,10 6.5,5.5 1.5,4.7 0,6.9 1.7,0.3 -0.1,-1.7 3.3,-14.5 5.6,-3.8 1.1,-5.7 4.8,-10.6 7.1,-6.8 4.5,-13.6 1.4,-11.9 -1.5,-5.6 4.3,-20.3 z" />
-<path id="SS" data-name="S. Sudan" data-id="SS" d="m 707.8,379.2 -1.5,-4.7 -6.5,-5.5 -1.7,-10 1.2,-10.2 -5.7,-0.9 -0.7,3 -7.3,0.8 3,4 1.3,8.3 -6.5,7.6 -5.8,10 -6.2,1.4 -10.4,-8.1 -4.6,2.9 -1.1,4 -6.3,2.6 -0.3,2.9 -12.1,0 -1.8,-2.9 -8.7,-0.4 -4.4,2.3 -3.3,-1.2 -6.5,-8 -2.1,-3.8 -8.8,1.9 -3.2,6.4 -2.9,12.3 -4.1,2.6 -3.8,1.6 8.4,5.4 6.8,5.5 0.1,4.5 8.3,7.2 5.2,6 3.2,8.3 9.2,5.5 2,4.4 7.5,11.4 5.5,1.7 3.2,-2.3 5.7,0.9 6.8,-2.9 2.9,5.9 10.9,9.2 0,0 5,-3.8 7.8,3.1 9.8,-3.3 8.6,0.1 7.4,-6.4 7.4,-8.3 8.1,-9.1 -7.4,-15 -5.7,-3.2 -2.2,-5.6 -6.3,-6.7 -7.5,-1 4,-7.9 6.4,-0.3 1.8,-4.2 -0.4,-10.8 -1.7,-0.3 0,-6.9 z" />
-<path id="SN" data-name="Senegal" data-id="SN" d="m 148.8,315.1 -7.8,-9.5 -7.2,-10.2 -7.9,-3.7 -5.7,-4 -6.8,0.1 -5.9,3 -6,-1.2 -4.2,4.5 -3,7.1 -6.1,9.7 -5.4,2.6 6,4.9 4.8,10.8 13.2,-0.4 2.8,-3.3 3.8,-0.2 4.7,3.4 3.8,0.1 4,-2.3 2.4,4 -5.3,3.1 -5.2,-0.3 -5.2,-2.9 -4.5,3.2 -2.2,0.1 -3,1.9 -11,-0.2 1.8,10.6 6.5,-2.3 4,0.5 3.3,-1.6 22.4,0.6 5.8,0.1 8.7,3.4 2.7,-0.3 0.9,-1.6 6.6,1.1 1.8,-0.7 0.6,-4.4 -1,-5.3 -4.5,-3.9 -2.3,-7.9 -0.4,-8.6 z" />
-<path id="SL" data-name="Sierra Leone" data-id="SL" d="m 171.5,401 -3.3,0.8 0.1,-5.1 -1.9,-3.6 0.4,-4 -2.6,-5.8 -3.3,-5 -9.7,0 -2.9,2.6 -3.3,0.3 -2.1,3 -1.5,3.8 -6.5,6.1 1.4,10.3 2.1,5 6.3,7.4 8.7,5.6 3.3,1 2.9,-4.4 0.7,-4 5.5,-7.5 5.7,-6.5 z" />
-<path id="SZ" data-name="Swaziland" data-id="SZ" d="m 674,874.9 -5.8,-2.6 -3.5,1 -1.4,4 -3.6,5.2 -0.2,4.8 6.6,7.5 7,-1.5 2.8,-6.1 -0.6,-6.1 -1.3,-6.2 z" />
-<path id="TD" data-name="Chad" data-id="TD" d="m 582.5,246.4 -48.7,-26.5 -48.4,-26.5 -11.9,7.6 3.4,21.5 4.6,3.6 0.3,4.4 5.1,4.7 -2.5,6 -4,28.1 -0.2,18 -15.2,13 -4.9,18.2 5.1,5.2 0.1,8.9 7.8,0.3 -1.1,6.5 4.9,8.9 1,9.1 -0.4,9.2 6.8,12.6 -6.8,-0.1 -3.4,0.9 -5.6,-1.3 -2.5,6.5 7.2,8.1 5.3,2.3 1.8,5.7 3.9,9.6 -1.8,3.7 10,-1 2.2,-3.6 2.1,0.3 3,3.1 15.3,-5.3 5.1,-5.4 6.3,-4.8 -1.2,-4.9 3.4,-1.2 11.8,0.8 11.3,-6.4 8.6,-15.1 6,-5.6 7.7,-2.3 0.1,-3.4 -4.6,-4.1 -0.3,-8 -2.6,-5.4 -4.3,0.8 1.2,-5 3,-5.8 -1.5,-5.7 3.8,-4.3 -2.6,-3.2 3,-8.5 5.2,-10.2 10.5,0.9 -2.4,-54.9 z" />
-<path id="TG" data-name="Togo" data-id="TG" d="m 307.1,365.2 -10.7,-0.3 -0.9,4.3 5.1,7.1 0,10.1 1.2,10.9 3,5 -2.7,12.5 1,6.8 3.2,8.8 2.8,4.9 9.8,-3 -3,-9.5 0.5,-31.8 -2.5,-2.8 -0.4,-6.8 -4.3,-4.9 -3.7,-4.1 1.6,-7.2 z" />
-<path id="TN" data-name="Tunisia" data-id="TN" d="m 429.5,59 -4.5,-2.2 -3.2,-6.6 -6,-0.2 -2.4,-7.6 7.3,-7 1.1,-12.1 -4.1,-3.5 -0.2,-6.5 5.5,-7 -0.9,-2.7 -9.5,5.2 0.1,-7.1 -8.1,-1.7 -12.2,5.7 -2.2,7.2 2.3,13.4 -2.4,11.6 -7,7.8 1.3,10.4 9.7,8.3 0.2,3.3 7.3,5.6 5.7,24.7 5.6,-3.2 0.9,-5.8 -1.5,-5.7 7.9,-5.3 3.4,-4.4 5.6,-4 0.3,-10.6 z" />
-<path id="TZ" data-name="Tanzania" data-id="TZ" d="m 672.2,531.3 -4.3,1.7 4.8,7.8 -0.8,8.1 -3.5,1.8 0,0 0.6,5.4 2.6,3.2 0.1,4.5 -3,2.9 -4.9,7.2 -4.5,5 -1.2,0.2 -0.7,5.9 2.3,2 -0.5,5.9 2.3,5.5 -2.9,5.3 9.7,9.4 0.8,8.5 5.9,14.2 0,0 0.6,0.4 4.8,2.3 7.7,2.4 6.8,4.1 11.9,2.6 2.3,3.8 0,0 0.8,-2.7 6.2,7.4 0.6,14.5 3.9,5.3 -0.1,0.2 4.7,-0.5 14.4,3.9 3.3,-1.8 8.4,-0.3 4.5,-4.2 7.3,0.2 13.4,-5.3 10,-8.1 0,0 -4.4,-3 -4.7,-13.6 -4,-8.7 1,-6.6 -0.6,-4.2 3.5,-8.4 -0.3,-3.6 -7.7,-5 -0.6,-7.8 5.9,-17.1 -17.3,-13.8 -0.7,-8 -44.1,-28.2 0,0 -6,6.1 -4.1,6.3 4.8,4.7 -7,3.4 -1.5,-1.6 -7.1,0.9 -5.5,3.1 -3.3,-5.4 2.3,-9.7 0.5,-8.3 0,0 0,0 -13.4,-0.2 z" />
-<path id="UG" data-name="Uganda" data-id="UG" d="m 711.3,458.5 -7.4,6.4 -8.6,-0.1 -9.8,3.3 -7.8,-3.1 -5,3.8 0,0 -0.6,16.1 4.9,1.9 -3.9,4.9 -4.7,3.7 -4.6,7.2 -2.6,6.4 -0.6,11.1 -2.9,5.3 -0.1,10.5 2.9,1.4 7.4,-4.3 4.3,-1.7 13.4,0.2 0,0 -0.7,-5.3 5.7,-8.1 7.7,-2 5.2,-3.3 6.3,2.7 0.6,1 0,-0.7 3.5,-5.6 5.9,-9.2 4.4,-10.1 -5.5,-15.8 -1.5,-7 -5.9,-9.6 z" />
-<path id="ZA" data-name="South Africa" data-id="ZA" d="m 522.3,999 5.3,-0.3 7.5,-5.3 10,-2.2 12.3,-5.5 4.7,0.7 7.2,-1.7 12.3,2.7 5.9,-2.6 6.9,2 1.8,-3.8 6,-0.8 12.6,-5.3 9.3,-6.3 8.9,-8.3 14.4,-14.2 7.5,-9.9 3.9,-7.1 5.5,-7 2.5,-2 8.6,-7 3.5,-6.2 2.3,-11.5 3.7,-10.1 -9,-0.1 -2.8,6.1 -7,1.5 -6.6,-7.5 0.2,-4.8 3.6,-5.2 1.4,-4 3.5,-1 5.8,2.6 -0.7,-5 3,-15.4 -2.5,-9.9 -4.7,-19.5 -6.3,-1.3 -4.1,1.6 -5.7,-2.3 -4.9,-0.2 -17.3,10.2 -11.2,10.3 -4.4,9.3 -3.9,5.2 -6.5,1.1 -2.4,6.6 -1.4,4.3 -7.8,3.2 -9.6,-0.6 -5.5,-3.9 -4.9,-1.7 -6,3.2 -3.2,6.6 -5.8,4.2 -6.2,6.2 -8.5,1.4 -2.5,-4.9 1.5,-8.4 -6.5,-13.2 -3.2,-2 -2.2,51.1 -10.8,7.1 -6.4,1 -7.3,-2.6 -5.2,-1 -1.7,-6 -4.5,-3.7 -6,6.8 7.7,17.9 0,0.1 5.4,11.7 6.9,12.8 -0.2,10.6 -3.9,2.5 3.2,9.3 -0.5,8.1 1.3,3.8 0.7,-1.9 4.6,6.2 3.8,0.2 4.6,5 z m 103,-59.1 -4.3,1.3 -8,-10.6 6.9,-8.7 6.8,-5.4 5.7,-2.8 4.8,4.2 3.8,4.2 -4.1,6.7 -2.4,4.5 -6.7,2.2 -2.5,4.4 z" />
-<path id="ZM" data-name="Zambia" data-id="ZM" d="m 671.3,636 -4.1,-1.1 0.7,-3 -2.1,-0.6 -16.4,2.3 -3.3,1.7 -3.6,8.8 2.6,6.1 -2.5,16.4 -1.9,13.9 3.2,2.4 8.4,5.4 3.4,-2.5 0.6,14.9 -9.3,-0.1 -4.8,-7.6 -4.3,-5.9 -9.2,-1.9 -2.6,-7.3 -7.5,4.4 -9.7,-2 -3.9,-6.2 -7.7,-1.3 -5.7,0.3 -0.6,-4.3 -4.2,-0.3 1.2,4.3 -1.5,6.7 2,6.5 -2,5.2 1,4.7 -25.3,-0.1 -1.6,44 7.8,11.3 7.6,8.6 9.9,-3.1 7.8,0.8 4.7,3.1 0,1.2 2.2,1 13.4,1.5 3.8,1.6 4.1,-0.3 7,-9 10.9,-11.4 4.4,-1 1.7,-4.8 7,-5.5 9.3,-1.9 -0.8,-9.9 37.1,-11.4 -6.2,-3.6 4.1,-12.8 4,-4.8 -2,-11.5 2.7,-11.2 2.2,-3.8 -2.8,-11.7 -5.6,-6.2 -6.8,-4.1 -7.7,-2.4 -4.8,-2.3 -0.6,-0.4 0,0 0.9,2.3 -2,0.8 -2.6,-2.9 z" />
-<path id="ZW" data-name="Zimbabwe" data-id="ZW" d="m 669.1,825.1 13.4,-15.7 3.6,-9.9 1.9,-1.3 1.7,-8.1 -1.7,-4.1 1,-10.4 2.8,-9.6 0.8,-17.5 -6.1,-4.4 -5.7,-1 -2.5,-3.4 -5.5,-3 -10,0.3 -0.6,-5.1 -9.3,1.9 -7,5.5 -1.7,4.8 -4.4,1 -10.9,11.4 -7,9 -4.1,0.3 -3.8,-1.6 -13.4,-1.5 4.2,11.1 2.3,2.4 3.5,8 13,15.2 5.1,1.5 -0.2,4.9 3.1,8.8 9.2,2.1 7.3,6.2 4.9,0.2 5.7,2.3 4.1,-1.6 6.3,1.3 z" />
-<path id="SO" data-name="Somalia" data-id="SO" d="m 832.6,372.8 -5.7,-5.8 -2.5,-5.7 -4.1,-2.6 -4.2,7.4 -2.5,4.9 4.8,7.7 4.6,6.6 4.8,5 40.3,16.4 10.3,-0.1 -33.5,41.5 -15.9,0.6 -10.7,9.8 -7.8,0.2 -3.3,4.4 -10.5,15.7 0.4,50.4 7.2,11.4 2.7,-3.3 2.9,-7.3 13.4,-16.7 11.4,-10.6 18.1,-13.7 12.1,-11.2 14.1,-18.9 10.1,-15.5 10,-20.2 7,-17.7 5.4,-15.5 2.9,-14.9 2.4,-5 -0.4,-7.3 0.8,-8 -0.5,-3.9 -4.6,0.1 -5.5,4.7 -6.4,1.4 -5.5,2.1 -3.9,0.2 0,0 -6.9,0.5 -4.2,2.6 -6,0.9 -10.5,4.3 -13.2,1.6 -11.3,3.5 -6.1,0 z" />
-            </g>
-        </svg>
-    </div>
-    <div id="tooltip"></div>
-</div>
 
-<div id="editor-overlay" class="overlay">
-    <div class="editor-container">
-        <div class="ed-header">
-            <div class="ed-title"><i class="fas fa-edit"></i> <span id="modal-country">KÜRESEL ÖRGÜT EKLEME</span></div>
-            <button class="btn btn-outline" style="width:auto;" onclick="app.closeEditor()">Kapat [ESC]</button>
+<body>
+    <div id="sidebar">
+        <div class="brand"><i class="fas fa-globe-africa" style="color:#8b5cf6"></i> MİLİTAN ATLASI <span
+                style="font-size:11px; margin-left:5px; padding:2px 6px; background:#334155; border-radius:4px; font-weight:normal; color:#fff;">v2.1</span>
         </div>
-        <div class="ed-body">
-            <div class="ed-sidebar">
-                <button class="add-btn" onclick="app.createGroup()"><i class="fas fa-plus"></i> YENİ ÖRGÜT EKLE</button>
-                <div class="group-list" id="group-list"></div>
-            </div>
-            <div class="ed-main">
-                <div id="editor-form" style="display:none; height:100%; display:flex; flex-direction:column;">
-                    <div class="form-area">
-                        <div id="global-country-selector" style="display:none; margin-bottom:20px; background:#1e293b; padding:15px; border:1px solid #8b5cf6; border-radius:8px;">
-                            <label class="f-label" style="color:#8b5cf6;">Hedef Ülkeleri Seçin (Aynı Anda Ekleme)</label>
-                            <input type="text" class="f-input" placeholder="Ülke ara..." style="margin-bottom:10px;" onkeyup="app.filterCountryList(this.value)">
-                            <div id="country-checkbox-list" style="height:150px; overflow-y:auto; display:grid; grid-template-columns: 1fr 1fr; gap:5px;"></div>
-                            <div style="margin-top:5px; font-size:11px; color:#aaa;">Seçili ülkelere aynı örgüt verisi kopyalanacaktır.</div>
-                        </div>
-                        <div class="form-grid">
-                            <div class="f-group"><label class="f-label">Örgüt Adı</label><input type="text" id="inp-name" class="f-input" placeholder="Örn: X Örgütü"></div>
-                            <div class="f-group"><label class="f-label">Kategori</label><select id="inp-category" class="f-select"><option value="Cihatçı">Cihatçı</option><option value="Ayrılıkçı">Ayrılıkçı</option><option value="Diğer">Diğer</option></select></div>
-                            <div class="f-group"><label class="f-label">Durum</label><select id="inp-status" class="f-select"><option value="Aktif">Aktif</option><option value="Pasif">Pasif</option><option value="Bilinmiyor">Bilinmiyor</option></select></div>
-                        </div>
-                        <div class="tab-bar">
-                            <div class="tab active" onclick="app.setTab('olusum')">Oluşum</div><div class="tab" onclick="app.setTab('amac')">Amaç</div><div class="tab" onclick="app.setTab('yonetim')">Yönetim</div><div class="tab" onclick="app.setTab('metot')">Taktikler</div><div class="tab" onclick="app.setTab('eylem')">Eylemler</div><div class="tab" onclick="app.setTab('finans')">Finans</div><div class="tab" onclick="app.setTab('iliski')">İlişkiler</div><div class="tab" onclick="app.setTab('diger')">Diğer</div><div class="tab" onclick="app.setTab('kaynak')">Kaynakça</div>
-                        </div>
-                        <div id="quill-editor"></div>
+        <div class="sidebar-content">
+            <label class="menu-label">Durum Özeti</label>
+            <div class="chart-container">
+                <canvas id="statsChart"></canvas>
+                <div style="display:flex; justify-content:space-between; margin-top:20px; text-align:center;">
+                    <div>
+                        <div style="font-size:20px; font-weight:800; color:white;" id="total-count">0</div>
+                        <div style="font-size:10px; color:#aaa;">TOPLAM</div>
                     </div>
-                    <div style="padding:20px 25px; border-top:1px solid var(--border); background:var(--bg-panel); display:flex; justify-content:flex-end; gap:15px;">
-                        <button class="btn btn-danger" style="width:auto;" onclick="app.deleteGroup()"><i class="fas fa-trash"></i> Sil</button>
-                        <button class="btn btn-primary" style="width:auto; padding:10px 40px;" onclick="app.saveGroup()"><i class="fas fa-check"></i> KAYDET</button>
+                    <div>
+                        <div style="font-size:20px; font-weight:800; color:#ef4444;" id="cihat-count">0</div>
+                        <div style="font-size:10px; color:#aaa;">CİHAT</div>
+                    </div>
+                    <div>
+                        <div style="font-size:20px; font-weight:800; color:#eab308;" id="ayrilik-count">0</div>
+                        <div style="font-size:10px; color:#aaa;">AYRILIK</div>
                     </div>
                 </div>
-                <div id="empty-state" class="empty-state"><i class="fas fa-book-open"></i><h3>Örgüt Seçin</h3><p>veya yeni oluşturun.</p></div>
+            </div>
+            <label class="menu-label">Veri İşlemleri</label>
+            <div class="action-card">
+                <input type="file" id="jsonInput" accept=".json" style="display:none;" onchange="app.loadJSON(this)">
+                <button class="btn btn-outline" style="margin-bottom:10px;"
+                    onclick="document.getElementById('jsonInput').click()"><i class="fas fa-folder-open"></i> JSON
+                    Yükle</button>
+                <button class="btn btn-primary" onclick="app.downloadJSON()"><i class="fas fa-save"></i> İndir /
+                    Kaydet</button>
+                <button class="btn btn-primary" style="margin-top:10px; background:#8b5cf6;"
+                    onclick="app.openGlobalCreator()"><i class="fas fa-globe"></i> ÇOKLU / KÜRESEL EKLE</button>
             </div>
         </div>
     </div>
-</div>
-<div id="toast"><i class="fas fa-check-circle"></i> İşlem Başarılı!</div>
+    <div id="main">
+        <div id="toolbar">
+            <div class="search-box"><i class="fas fa-search"></i><input type="text" id="searchInput"
+                    placeholder="Global Arama (Ctrl+K)"></div>
+            <button class="btn btn-outline" style="width:auto; height:36px;" onclick="app.resetZoom()"><i
+                    class="fas fa-compress-arrows-alt"></i> Sıfırla</button>
+        </div>
+        <div id="map-view">
+            <svg id="svg-map" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
+                <g id="map-group">
+                    <path id="AO" data-name="Angola" data-id="AO"
+                        d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
+                    <path id="BI" data-name="Burundi" data-id="BI"
+                        d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
+                    <path id="BJ" data-name="Benin" data-id="BJ"
+                        d="m 340,356 -9.3,-8 -4.3,0.1 -4.1,4 -2.6,4.2 -6,1.2 -2.5,6.1 -4.1,1.6 -1.6,7.2 3.7,4.1 4.3,4.9 0.4,6.8 2.5,2.8 -0.5,31.8 3,9.5 10.1,-1.6 0.6,-22.3 -0.3,-8.8 2.3,-8.7 3.7,-4.3 5.9,-8.5 -1.3,-3.7 2.4,-5.6 -2.8,-8.2 0.5,-4.6 z" />
+                    <path id="BF" data-name="Burkina Faso" data-id="BF"
+                        d="m 300.7,310.8 -7.8,0 -3,-2.6 -6.7,1.9 -11.3,5.8 -2.3,4.3 -9.4,6.2 -1.7,3.6 -5.1,2.8 -5.8,-1.9 -3.4,3.4 -1.8,9.5 -9.7,11.4 0.3,4.7 -3.4,5.9 0.8,8 5.5,3 2.1,4.6 5.4,2.9 4.3,-3.4 5.7,-0.6 8.3,3.6 -1.6,-10.4 0.3,-7.9 21.1,-0.6 5.4,1 3.9,-2.2 5.6,1.1 10.7,0.3 4.1,-1.6 2.5,-6.1 6,-1.2 2.6,-4.2 0.3,-9.5 -14,-3.1 -0.4,-6.7 -6.9,-9 -1.6,-6.3 1,-6.7 z" />
+                    <path id="BW" data-name="Botswana" data-id="BW"
+                        d="m 600.6,762.7 -2.2,-1 -6.9,3.1 -3.6,0 -7.9,5.4 -4.4,-5.7 -18.7,4.9 -9,0.4 -1.9,49.3 -11.8,0.5 -1.4,40.4 3.2,2 6.5,13.2 -1.5,8.4 2.5,4.9 8.5,-1.4 6.2,-6.2 5.8,-4.2 3.2,-6.6 6,-3.2 4.9,1.7 5.5,3.9 9.6,0.6 7.8,-3.2 1.4,-4.3 2.4,-6.6 6.5,-1.1 3.9,-5.2 4.4,-9.3 11.2,-10.3 17.3,-10.2 -7.3,-6.2 -9.2,-2.1 -3.1,-8.8 0.2,-4.9 -5.1,-1.5 -13,-15.2 -3.5,-8 -2.3,-2.4 -4.2,-11.1 z" />
+                    <path id="CF" data-name="Central African Rep." data-id="CF"
+                        d="m 587,398.1 -1,-0.7 -4.2,-4 -0.9,-4.3 1.9,-5.7 -0.1,-5.7 -7.2,-8.6 -1.5,-5.9 -7.7,2.3 -6,5.6 -8.6,15.1 -11.3,6.4 -11.8,-0.8 -3.4,1.2 1.2,4.9 -6.3,4.8 -5.1,5.4 -15.3,5.3 -3,-3.1 -2.1,-0.3 -2.2,3.6 -10,1 -6.1,14 -2.9,2.6 -0.8,10.7 1.2,5.8 -0.9,4.1 5.8,7.3 1,4.9 4.6,7.2 5.6,4.4 0.6,6.3 1.3,4 6.3,-12.8 7.3,-7.4 8.2,2.4 7.9,0.7 1,-9.6 4.7,-7.1 6.5,-4.4 10.1,4.7 7.8,5.1 9,1.4 9.1,2.7 3.6,-8.4 1.6,-1.1 5.6,1.4 13.5,-6.9 4.9,3 3.9,-0.5 1.8,-3.3 4.5,-1.2 9.2,1.4 7.9,0.4 4,-1.5 -2,-4.4 -9.2,-5.5 -3.2,-8.3 -5.2,-6 -8.3,-7.2 -0.1,-4.5 -6.8,-5.5 -8.4,-5.4 z" />
+                    <path id="CI" data-name="Côte d'Ivoire" data-id="CI"
+                        d="m 230.4,373.8 -5,2.1 -2.9,1.7 -1.8,-5.9 -3.5,1.6 -2.1,-0.3 -2.3,4 -9.4,-0.1 -3.3,-2.1 -1.6,1.3 -2.5,1.1 -1,4.7 2.8,5.7 3,11.1 -4.6,1.6 -1.1,1.9 0.9,2.7 -0.8,6.1 -1.9,0 -0.6,4 1.2,6.7 -2.7,6.1 3.6,3.8 3.8,0.9 5.2,5.8 0.3,5.5 -1.1,1.7 -1,11.4 2.3,0.4 12.1,-5.1 8.5,-4 14.5,-2.4 7.8,-0.2 8.5,2.7 5.6,-0.1 0.5,-5.5 -5.2,-11.9 3.2,-15.6 5.1,-11.6 -3.2,-19.7 -8.3,-3.6 -5.7,0.6 -4.3,3.4 -5.4,-2.9 -2.1,-4.6 -5.5,-3 z" />
+                    <path id="CM" data-name="Cameroon" data-id="CM"
+                        d="m 477.5,366.6 0.4,-9.2 -1,-9.1 -4.9,-8.9 -3.4,0.8 -0.4,4.4 4.9,5.5 -1.3,2.5 -0.5,4.6 -10.2,10.7 -3.1,8.8 -1.6,7.2 -2.6,3.1 -2.4,9.7 -6.4,5.7 -1.9,7 -2.7,5.6 -1.1,5.7 -8.3,4.7 -6.9,-5.7 -4.6,0.2 -7.2,8.1 -3.6,0.1 -5.7,13.4 -3.1,9.8 -0.1,3.8 3.1,2 2.5,6.2 5.6,2.3 4.8,9.2 -1.8,10.9 19.9,0.3 5.8,-0.9 7.4,1.9 7.3,-1.8 1.5,0.7 15.4,0.6 9.9,3.6 9.7,3.3 0.9,-7.5 -1.3,-4 -0.6,-6.3 -5.6,-4.4 -4.6,-7.2 -1,-4.9 -5.8,-7.3 0.9,-4.1 -1.2,-5.8 0.8,-10.7 2.9,-2.6 6.1,-14 1.8,-3.7 -3.9,-9.6 -1.8,-5.7 -5.3,-2.3 -7.2,-8.1 2.5,-6.5 5.6,1.3 3.4,-0.9 6.8,0.1 -6.8,-12.6 z" />
+                    <path id="CD" data-name="Dem. Rep. Congo" data-id="CD"
+                        d="m 618.3,446 -9.2,-1.4 -4.5,1.2 -1.8,3.3 -3.9,0.5 -4.9,-3 -13.5,6.9 -5.6,-1.4 -1.6,1.1 -3.6,8.4 -9.1,-2.7 -9,-1.4 -7.8,-5.1 -10.1,-4.7 -6.5,4.4 -4.7,7.1 -1,9.6 -0.7,8.4 -3.6,7.4 -2.4,8.6 -1.5,12.3 0.7,7.8 -2,4.8 -0.3,5.1 -1.4,4.4 -8.1,6.7 -5.6,7.1 -5.3,13.4 0.3,11.4 -3.1,4.4 -7.2,6.8 -7.2,8.7 -4.5,-2.5 -0.8,-3.9 -6.6,-0.1 -4.2,5.3 -3.2,-1.4 -4.5,2.9 -2,3.5 -0.4,6 -3.1,1.5 1.6,4.3 5.1,-1.9 3.5,0.3 4.3,-1.7 36,0.2 2.9,10.3 3.5,8.3 2.7,4.5 4.6,7.2 8.1,-1.1 4,-1.9 6.7,1.9 1.9,-3.4 3.1,-8.1 7.6,-0.5 0.7,-2.4 6.2,-0.1 -1.1,5 14.8,-0.1 0.1,8.7 2.4,5.3 -1.9,8.4 0.8,8.5 3.9,5.1 -0.9,16.5 3,-1.3 5.3,0.3 7.6,-2 5.5,0.8 4.2,0.3 0.6,4.3 5.7,-0.3 7.7,1.3 3.9,6.2 9.7,2 7.5,-4.4 2.6,7.3 9.2,1.9 4.3,5.9 4.8,7.6 9.3,0.1 -0.6,-14.9 -3.4,2.5 -8.4,-5.4 -3.2,-2.4 1.9,-13.9 2.5,-16.4 -2.6,-6.1 3.6,-8.8 3.3,-1.7 16.4,-2.3 2.1,0.6 0.6,-2.3 -3.4,-3.7 -1.5,-7.6 -7.3,-7.6 -4.1,-9.9 2.3,-5.8 -3.2,-7.8 2.4,-22.1 0.1,0.2 -0.1,-2.4 -3,-6.3 1.2,-7.6 1.7,-1 0.5,-8.3 3.5,-3.8 0.1,-10.5 2.9,-5.3 0.6,-11.1 2.6,-6.4 4.6,-7.2 4.7,-3.7 3.9,-4.9 -4.9,-1.9 0.6,-16.1 0,0 -10.9,-9.2 -2.9,-5.9 -6.8,2.9 -5.7,-0.9 -3.2,2.3 -5.5,-1.7 -7.5,-11.4 -4,1.5 -7.9,-0.4 z" />
+                    <path id="CG" data-name="Congo" data-id="CG"
+                        d="m 521.5,468.8 -7.9,-0.7 -8.2,-2.4 -7.3,7.4 -6.3,12.8 -0.9,7.5 -9.7,-3.3 -9.9,-3.6 -15.4,-0.6 -0.9,6.1 3.4,7.1 9.1,-1.1 3.1,2.7 -5.3,16.1 5.8,8.2 1.3,10.8 -1.6,9.2 -3.7,6.5 -10.8,-0.6 -6.5,-6.6 -1,6.1 -8.3,1.7 -4.2,3.5 4.6,9.1 -9.3,7.7 9.9,14.6 5,-6 3.7,-2.3 4.6,4.8 3.2,1.4 4.2,-5.3 6.6,0.1 0.8,3.9 4.5,2.5 7.2,-8.7 7.2,-6.8 3.1,-4.4 -0.3,-11.4 5.3,-13.4 5.6,-7.1 8.1,-6.7 1.4,-4.4 0.3,-5.1 2,-4.8 -0.7,-7.8 1.5,-12.3 2.4,-8.6 3.6,-7.4 0.7,-8.4 z" />
+                    <path id="DJ" data-name="Djibouti" data-id="DJ"
+                        d="m 820.3,358.7 -5.3,-3.8 6.8,-3.3 0.1,-5.7 -3,-4.3 -3.6,3.4 -5.2,-1.2 -4,6.1 -3.9,6.5 1.1,3.8 0.3,4.2 6.8,0.2 2.9,-0.9 2.8,2.4 4.2,-7.4 z" />
+                    <path id="DZ" data-name="Algeria" data-id="DZ"
+                        d="M 392.4,5.7 384.6,6.5 379.8,3.3 367.6,3.4 357,8.9 351.2,6.8 332.3,8 l -19.4,2.5 -11,4.3 -7.2,5.8 -12.4,2.4 -11.1,7.7 4.2,9 0.7,8.4 3.9,14.7 3.1,2.9 -2.2,5.4 -15.2,2.3 -5.4,5.1 -6.7,1.2 -0.6,10.2 -13.8,5.4 -4.6,7 -9.6,3.7 -11.8,2.1 -19.2,10.2 -0.2,16.3 0,1 -0.3,2.7 44.1,33.5 40,30.2 40.4,30.2 2.9,6.4 7.5,4 5.5,2.2 0.2,8.8 13.3,-1.3 16.9,-6.2 34.5,-27.1 40.5,-26.4 -5.4,-8.7 -9.6,-6.4 -5.5,2.5 -4.3,-7.7 -0.6,-5.9 -7.2,-10.1 4.6,-5.8 -1.3,-8.7 1.4,-7.6 -1,-6.3 1.8,-11.3 -0.8,-6.4 -4.1,-12.2 -5.7,-24.7 -7.3,-5.6 -0.2,-3.3 -9.7,-8.3 -1.3,-10.4 7,-7.8 2.4,-11.6 -2.3,-13.4 2.2,-7.2 z" />
+                    <path id="EG" data-name="Egypt" data-id="EG"
+                        d="m 628.8,88.1 -11.9,-4 -11.5,-3.7 -15.6,0.2 -3.7,6.6 2.2,5.9 -2.4,8.5 4.2,11.2 2.9,49.2 2.2,50.9 48.1,0 46.4,0 47.4,0 -2.2,-2.8 -14.7,-12.4 -0.9,-9 2.2,-2.4 -11.6,-15.3 -4.4,-7.9 -4.9,-7.5 -10.5,-21.6 -8.4,-13.9 -6.1,-14.5 1.1,-1.3 10.1,19.8 5.8,6.2 4.3,4.4 2.5,-2.4 2.7,-7.2 1.6,-10.4 2.8,-5.6 -1.5,-3.5 -8.5,-20.1 0,0 -5.4,3.4 -9.2,-0.8 -9.6,-3.2 -2.3,4.5 -3.8,-6.8 -8.5,-1.8 -10.2,1.2 -4.5,3.9 -8.6,4.4 -5.6,-2.2 z" />
+                    <path id="ER" data-name="Eritrea" data-id="ER"
+                        d="m 777.6,303.8 -7,-6.8 -4,-12.7 -7.8,-16 -5.7,7.9 -8.8,2.3 -3.6,4.2 -0.7,9.2 -4.3,20.3 1.5,5.6 14.3,2.9 3.3,-10.4 7.6,6.3 7,-3.2 3,2.9 8.3,0.1 10.8,5.6 3.4,4.8 5.5,4.4 5.4,8.1 4.3,4.5 5.2,1.2 3.6,-3.4 -6.2,-4.2 -4,-4.7 -6.9,-8 -7.1,-7.9 -17.1,-13 z" />
+                    <path id="ET" data-name="Ethiopia" data-id="ET"
+                        d="m 754.8,310.3 -3.3,10.4 -14.3,-2.9 -1.4,11.9 -4.5,13.6 -7.1,6.8 -4.8,10.6 -1.1,5.7 -5.6,3.8 -3.3,14.5 0.1,1.7 0.4,10.8 -1.8,4.2 -6.4,0.3 -4,7.9 7.5,1 6.3,6.7 2.2,5.6 5.7,3.2 7.4,15 6.4,2.4 0.1,7.7 4.2,4.6 8.5,0 15.7,11.7 3.8,0.2 2.9,-0.4 2.7,1.6 8.2,1.1 3.5,-5.8 11.1,-5.8 4.9,4.7 8.4,0 3.3,-4.4 7.8,-0.2 10.7,-9.8 15.9,-0.6 33.5,-41.5 -10.3,0.1 -40.3,-16.4 -4.8,-5 -4.6,-6.6 -4.8,-7.7 2.5,-4.9 -2.8,-2.4 -2.9,0.9 -6.8,-0.2 -0.3,-4.2 -1.1,-3.8 3.9,-6.5 4,-6.1 -4.3,-4.5 -5.4,-8.1 -5.5,-4.4 -3.4,-4.8 -10.8,-5.6 -8.3,-0.1 -3,-2.9 -7,3.2 -7.6,-6.3 z" />
+                    <path id="GA" data-name="Gabon" data-id="GA"
+                        d="m 455.9,485.9 -1.5,-0.7 -7.3,1.8 -7.4,-1.9 -5.8,0.9 0.1,16.7 -17.7,-0.2 -4.2,0.8 -2.4,10.3 -3,10.1 -2.7,4.4 -0.3,4.6 7.3,14.3 8.1,11.4 12.5,14 9.3,-7.7 -4.6,-9.1 4.2,-3.5 8.3,-1.7 1,-6.1 6.5,6.6 10.8,0.6 3.7,-6.5 1.6,-9.2 -1.3,-10.8 -5.8,-8.2 5.3,-16.1 -3.1,-2.7 -9.1,1.1 -3.4,-7.1 0.9,-6.1 z" />
+                    <path id="GH" data-name="Ghana" data-id="GH"
+                        d="m 296.4,364.9 -5.6,-1.1 -3.9,2.2 -5.4,-1 -21.1,0.6 -0.3,7.9 1.6,10.4 3.2,19.7 -5.1,11.6 -3.2,15.6 5.2,11.9 -0.5,5.5 10.9,3.9 11,-4 6.7,-4.7 19.2,-8.1 -2.8,-4.9 -3.2,-8.8 -1,-6.8 2.7,-12.5 -3,-5 -1.2,-10.9 0,-10.1 -5.1,-7.1 0.9,-4.3 z" />
+                    <path id="GN" data-name="Guinea" data-id="GN"
+                        d="m 156.4,345.2 -1.8,0.7 -6.6,-1.1 -0.9,1.6 -2.7,0.3 -8.7,-3.4 -5.8,-0.1 -0.3,4.7 -1.3,1.4 0.9,4.6 -1.9,1.8 -2.7,0.1 -3.2,2.3 -3.7,-0.3 -5.5,6.8 3.6,2.2 1.7,3.1 1.3,6.1 3,2.7 3.1,1.8 4.7,5.4 5.3,8.2 6.5,-6.1 1.5,-3.8 2.1,-3 3.3,-0.3 2.9,-2.6 9.7,0 3.3,5 2.6,5.8 -0.4,4 1.9,3.6 -0.1,5.1 3.3,-0.8 2.6,-0.3 3.2,-1.6 5.1,8.5 -0.9,5.6 2.4,2.9 3.4,0.1 2.6,-5.6 3.4,0.4 1.9,0 0.8,-6.1 -0.9,-2.7 1.1,-1.9 4.6,-1.6 -3,-11.1 -2.8,-5.7 1,-4.7 2.5,-1.1 -3.7,-4 0.7,-4.1 -1.6,-1.6 -2.6,1.3 0.6,-4.5 2.5,-3.5 -5,-5.8 -1.4,-3.8 -2.7,-3.1 -2.4,-0.3 -2.9,1.9 -4,1.8 -3.3,3 -5.2,-1.1 -3.3,-3.5 -2,-0.4 -3.2,1.8 -2,0 -0.6,-5 z" />
+                    <path id="GM" data-name="Gambia" data-id="GM"
+                        d="m 91.9,335.4 11,0.2 3,-1.9 2.2,-0.1 4.5,-3.2 5.2,2.9 5.2,0.3 5.3,-3.1 -2.4,-4 -4,2.3 -3.8,-0.1 -4.7,-3.4 -3.8,0.2 -2.8,3.3 -13.2,0.4 -1.7,6.2 z" />
+                    <path id="GW" data-name="Guinea-Bissau" data-id="GW"
+                        d="m 129.9,343.2 -22.4,-0.6 -3.3,1.6 -4,-0.5 -6.5,2.3 0.7,2.9 3.7,3 -0.1,2.1 2.7,3.9 5.1,0.9 6.4,5.8 5.5,-6.8 3.7,0.3 3.2,-2.3 2.7,-0.1 1.9,-1.8 -0.9,-4.6 1.3,-1.4 0.3,-4.7 z" />
+                    <path id="GQ" data-name="Eq. Guinea" data-id="GQ"
+                        d="m 433.9,486 -19.9,-0.3 -4.1,15.5 2.2,2.1 4.2,-0.8 17.7,0.2 -0.1,-16.7 z" />
+                    <path id="KE" data-name="Kenya" data-id="KE"
+                        d="m 807.2,463.1 -8.4,0 -4.9,-4.7 -11.1,5.8 -3.5,5.8 -8.2,-1.1 -2.7,-1.6 -2.9,0.4 -3.8,-0.2 -15.7,-11.7 -8.5,0 -4.2,-4.6 -0.1,-7.7 -6.4,-2.4 -8.1,9.1 -7.4,8.3 5.9,9.6 1.5,7 5.5,15.8 -4.4,10.1 -5.9,9.2 -3.5,5.6 0,0.7 2.9,5.2 -0.8,10.3 44.1,28.2 0.7,8 17.3,13.8 5,-4.6 2.5,-9.2 4,-5.5 1.9,-9.8 4.6,-1 3.1,-5.8 8.6,-5.5 -7.2,-11.4 -0.4,-50.4 10.5,-15.7 z" />
+                    <path id="LR" data-name="Liberia" data-id="LR"
+                        d="m 193.3,411 -3.4,-0.4 -2.6,5.6 -3.4,-0.1 -2.4,-2.9 0.9,-5.6 -5.1,-8.5 -3.2,1.6 -2.6,0.3 -5.7,6.5 -5.5,7.5 -0.7,4 -2.9,4.4 8.1,8.9 10.4,7.6 11,10.5 12.6,6.6 3.2,-0.1 1,-11.4 1.1,-1.7 -0.3,-5.5 -5.2,-5.8 -3.8,-0.9 -3.6,-3.8 2.7,-6.1 -1.2,-6.7 0.6,-4 z" />
+                    <path id="LY" data-name="Libya" data-id="LY"
+                        d="m 589.8,80.6 -3.1,-4.5 -11.7,-1.6 -3.9,-2.4 -4.4,0 -4.4,-6.2 -15.9,-2.8 -7.9,1.8 -7.9,6.5 -3.3,6.7 3.4,10.6 -5.3,6.3 -5.5,3.6 L 507,91.7 490.3,86 479.7,83.3 473.6,71 l -15.7,-6.1 -9.8,-2.3 -4.8,1.2 -13.8,-4.8 -0.3,10.6 -5.6,4 -3.4,4.4 -7.9,5.3 1.5,5.7 -0.9,5.8 -5.6,3.2 4.1,12.2 0.8,6.4 -1.8,11.3 1,6.3 -1.4,7.6 1.3,8.7 -4.6,5.8 7.2,10.1 0.6,5.9 4.3,7.7 5.5,-2.5 9.6,6.4 5.4,8.7 19,6 6.9,7.5 8.3,-5.1 11.9,-7.6 48.4,26.5 48.7,26.5 -0.1,-5.8 13.8,0 -1,-27.7 -2.2,-50.9 -2.9,-49.2 -4.2,-11.2 2.4,-8.5 -2.2,-5.9 3.7,-6.6 z" />
+                    <path id="LS" data-name="Lesotho" data-id="LS"
+                        d="m 625.3,939.9 2.5,-4.4 6.7,-2.2 2.4,-4.5 4.1,-6.7 -3.8,-4.2 -4.8,-4.2 -5.7,2.8 -6.8,5.4 -6.9,8.7 8,10.6 4.3,-1.3 z" />
+                    <path id="MA" data-name="Morocco" data-id="MA"
+                        d="m 271.2,30.7 -5,-0.1 -11.9,-3.1 -11,0.9 -6.8,-5.9 -8.5,-0.1 -3.8,8.6 -8,14.5 -8.7,5.7 -11.8,6.4 -7.7,9.3 -1.8,7.3 -4.8,11.8 2.5,17.2 -10.1,11.5 -6,3.7 -9.6,9.4 -11,1.6 -6.1,5.3 -0.2,0.2 -7.9,14.1 -8.1,5.1 -4.5,8.5 -0.5,7.4 -3.4,8.1 -4,2.2 -6.9,8.8 -4.4,9.8 0.7,4.6 -4.1,7.3 -4.7,3.7 -0.8,6.4 0.2,0.1 27,-1.1 1.6,-5 5,-6.2 4.4,-19.1 16.9,-15 6,-17.4 3.7,-1.1 4.2,-10.8 10,-1.4 4.2,1.8 5.4,0 3.9,-3.2 7.3,-0.4 -0.1,-7.5 0,0 1.8,0 0.2,-16.3 19.2,-10.2 11.8,-2.1 9.6,-3.7 4.6,-7 13.8,-5.4 0.6,-10.2 6.7,-1.2 5.4,-5.1 15.2,-2.3 2.2,-5.4 -3.1,-2.9 -3.9,-14.7 -0.7,-8.4 -4.2,-9 z" />
+                    <path id="MG" data-name="Madagascar" data-id="MG"
+                        d="m 902.9,704.8 -2.5,-9.1 -3,-5.9 -3.9,-5.9 -4.3,6.2 -0.7,8.3 -7.1,9.6 -5.1,-1.7 1.3,6 -4,6.9 -10.4,8.5 -7.3,7.9 -5.4,0.2 -4.6,2.5 -6.9,2.8 -6,0.6 -2.2,8.7 -4.7,7.8 0.2,12.7 1.7,8.7 2.4,6.6 -1.7,8.8 -6.4,10.5 -0.3,4.6 -5.7,2.4 -2.8,10 0.4,9.9 3.4,11 -0.1,12.3 2.6,7.3 9.1,5 6.5,3.5 10.9,-5.8 9.9,-3.3 6.8,-16.1 6.1,-19.2 9.3,-26.2 7.3,-19.1 5.9,-16.1 1.6,-11.7 3.5,-3.2 1.5,-5.9 -1.7,-10.2 2.6,-4.1 3.5,8.1 2.4,-4.1 1.7,-6.6 -2.8,-6.5 -1,-16.7 z" />
+                    <path id="ML" data-name="Mali" data-id="ML"
+                        d="m 347.4,252.3 -13.3,1.3 -0.2,-8.8 -5.5,-2.2 -7.5,-4 -2.9,-6.4 -40.4,-30.2 -40,-30.2 -18.2,0.2 5.1,59.7 5.4,59.7 2,1.8 -2.7,9.6 -48.5,0.2 -1.9,3.1 -4.6,-0.9 -6.9,2.7 -8.4,-3.8 -3.8,0.3 -2.2,8.2 -4.1,2.5 0.4,8.6 2.3,7.9 4.5,3.9 1,5.3 -0.6,4.4 0.6,5 2,0 3.2,-1.8 2,0.4 3.3,3.5 5.2,1.1 3.3,-3 4,-1.8 2.9,-1.9 2.4,0.3 2.7,3.1 1.4,3.8 5,5.8 -2.5,3.5 -0.6,4.5 2.6,-1.3 1.6,1.6 -0.7,4.1 3.7,4 1.6,-1.3 3.3,2.1 9.4,0.1 2.3,-4 2.1,0.3 3.5,-1.6 1.8,5.9 2.9,-1.7 5,-2.1 -0.8,-8 3.4,-5.9 -0.3,-4.7 9.7,-11.4 1.8,-9.5 3.4,-3.4 5.8,1.9 5.1,-2.8 1.7,-3.6 9.4,-6.2 2.3,-4.3 11.3,-5.8 6.7,-1.9 3,2.6 7.8,0 7.7,-0.6 4.5,-4.9 16.5,-1.2 10.7,-2.2 1,-8.5 6.6,-9.2 -0.3,-31.9 z" />
+                    <path id="MZ" data-name="Mozambique" data-id="MZ"
+                        d="m 788.2,666.2 -1.7,-6.2 0,0 0,0 -10,8.1 -13.4,5.3 -7.3,-0.2 -4.5,4.2 -8.4,0.3 -3.3,1.8 -14.4,-3.9 -4.7,0.5 -3.3,13.1 1.4,15.8 0.7,0 4.2,4.4 4.6,10 0.3,17.8 -5.4,3 -4.1,9.6 -7.5,-8.6 -0.5,-9.7 2.9,-6.5 -0.5,-5.5 -4.7,-3.5 -3.3,1.2 -6.8,-6.6 -37.1,11.4 0.8,9.9 0.6,5.1 10,-0.3 5.5,3 2.5,3.4 5.7,1 6.1,4.4 -0.8,17.5 -2.8,9.6 -1,10.4 1.7,4.1 -1.7,8.1 -1.9,1.3 -3.6,9.9 -13.4,15.7 4.7,19.5 2.5,9.9 -3,15.4 0.7,5 1.3,6.2 0.6,6.1 9,0.1 1.5,-7.3 -2.9,-0.9 -0.6,-5.8 5.5,-5.2 14.8,-7.5 10.1,-4.6 5.3,-5 2.1,-5.7 -2.7,-2.4 2.4,-6.4 1.1,-13.6 -2.2,0.7 0.1,-4.1 -1.9,-8.1 -5.2,-10.5 1.6,-9.9 5.1,-3.2 8.9,-9.8 4.7,-2.5 14.4,-14.9 14,-6.7 11.3,-5.3 8.1,-8.5 5.2,-9.6 4.1,-9.9 -1.8,-6.8 0.4,-21.6 -1,-12.2 0.9,-13.8 z" />
+                    <path id="MR" data-name="Mauritania" data-id="MR"
+                        d="m 237.6,171.8 -44.1,-33.5 -0.5,20.9 -38.9,-0.7 -0.4,35.4 -11.2,1.3 -3.1,7.1 1.9,20 -46.9,-0.1 -2.7,4.6 6.1,6 3,6.5 -1.4,6.9 1.3,6.9 1,13.7 -1.8,13 -3.5,6.8 0.9,7.5 4.2,-4.5 6,1.2 5.9,-3 6.8,-0.1 5.7,4 7.9,3.7 7.2,10.2 7.8,9.5 4.1,-2.5 2.2,-8.2 3.8,-0.3 8.4,3.8 6.9,-2.7 4.6,0.9 1.9,-3.1 48.5,-0.2 2.7,-9.6 -2,-1.8 -5.4,-59.7 -5.1,-59.7 18.2,-0.2 z" />
+                    <path id="MW" data-name="Malawi" data-id="MW" d="m
+<path id=" MW" data-name="Malawi" data-id="MW"
+                        d="m 714.6,711.7 0.3,-5.2 -2.7,-4.1 0.4,-6 -3.3,-10.2 3.7,-7.7 -0.2,-16.7 -4.1,-8.9 0.4,-1.5 0,0 -2.3,-3.8 -11.9,-2.6 5.6,6.2 2.8,11.7 -2.2,3.8 -2.7,11.2 2,11.5 -4,4.8 -4.1,12.8 6.2,3.6 6.8,6.6 3.3,-1.2 4.7,3.5 0.5,5.5 -2.9,6.5 0.5,9.7 7.5,8.6 4.1,-9.6 5.4,-3 -0.3,-17.8 -4.6,-10 -4.2,-4.4 -0.7,0 0.1,1.9 2.3,0.5 2.2,7.4 -0.4,1.7 -4.1,-5.3 -2.2,3.4 -1.9,-2.9 z" />
+                    <path id="NA" data-name="Namibia" data-id="NA"
+                        d="m 576,759.7 -22.4,5.7 -29.1,-2 -8.2,-6.6 -48.8,0.6 -1.9,1 -7.1,-6.3 -7.8,-0.4 -7.2,2.3 -5.9,2.7 0.6,10.6 9.5,13.5 2.5,8.7 6,16.6 5.9,11.4 4.6,5.7 1.3,7.6 -0.1,16.5 3.4,21.3 2.6,10.1 2.2,13.4 4.3,10.1 8.3,10.5 6,-6.8 4.5,3.7 1.7,6 5.2,1 7.3,2.6 6.4,-1 10.8,-7.1 2.2,-51.1 1.4,-40.4 11.8,-0.5 1.9,-49.3 9,-0.4 18.7,-4.9 4.4,5.7 7.9,-5.4 3.6,0 6.9,-3.1 0,-1.2 -4.7,-3.1 -7.8,-0.8 -9.9,3.1 z" />
+                    <path id="NE" data-name="Niger" data-id="NE"
+                        d="m 458.3,198.6 -19,-6 -40.5,26.4 -34.5,27.1 -16.9,6.2 0.3,31.9 -6.6,9.2 -1,8.5 -10.7,2.2 -16.5,1.2 -4.5,4.9 -7.7,0.6 -1,6.7 1.6,6.3 6.9,9 0.4,6.7 14,3.1 -0.3,9.5 4.1,-4 4.3,-0.1 9.3,8 0.8,-12.4 3.5,-5.5 1.6,-8 3.2,-3 13,-1.6 12.2,5.1 4.6,5.3 6.1,0.2 5.8,-3.4 14.7,7.1 6.2,-0.3 7.1,-5.9 7.1,0.4 3.5,-1.9 6.5,0.8 9.4,4 9.4,-7.7 2.9,0.6 8.4,15.1 2.2,-0.3 0.4,-4.4 3.4,-0.8 1.1,-6.5 -7.8,-0.3 -0.1,-8.9 -5.1,-5.2 4.9,-18.2 15.2,-13 0.2,-18 4,-28.1 2.5,-6 -5.1,-4.7 -0.3,-4.4 -4.6,-3.6 -3.4,-21.5 -8.3,5.1 -6.9,-7.5 z" />
+                    <path id="NG" data-name="Nigeria" data-id="NG"
+                        d="m 468.2,344.6 -2.2,0.3 -8.4,-15.1 -2.9,-0.6 -9.4,7.7 -9.4,-4 -6.5,-0.8 -3.5,1.9 -7.1,-0.4 -7.1,5.9 -6.2,0.3 -14.7,-7.1 -5.8,3.4 -6.1,-0.2 -4.6,-5.3 -12.2,-5.1 -13,1.6 -3.2,3 -1.6,8 -3.5,5.5 -0.8,12.4 -0.5,4.6 2.8,8.2 -2.4,5.6 1.3,3.7 -5.9,8.5 -3.7,4.3 -2.3,8.7 0.3,8.8 -0.6,22.3 10.7,0 9.2,-0.1 8.6,9.1 4.1,10 6.5,8.6 9.8,0.3 4.7,-3.1 4.6,0.8 12.7,-5 3.1,-9.8 5.7,-13.4 3.6,-0.1 7.2,-8.1 4.6,-0.2 6.9,5.7 8.3,-4.7 1.1,-5.7 2.7,-5.6 1.9,-7 6.4,-5.7 2.4,-9.7 2.6,-3.1 1.6,-7.2 3.1,-8.8 10.2,-10.7 0.5,-4.6 1.3,-2.5 -4.9,-5.5 z" />
+                    <path id="RW" data-name="Rwanda" data-id="RW"
+                        d="m 667.9,533 -7.4,4.3 -2.9,-1.4 -3.5,3.8 -0.5,8.3 -1.7,1 -1.2,7.6 7.4,1.1 3.8,-7.9 6.5,0.9 0,0 3.5,-1.8 0.8,-8.1 -4.8,-7.8 z" />
+                    <path id="EH" data-name="W. Sahara" data-id="EH"
+                        d="m 193.8,134.6 -1.8,0 0,0 0.1,7.5 -7.3,0.4 -3.9,3.2 -5.4,0 -4.2,-1.8 -10,1.4 -4.2,10.8 -3.7,1.1 -6,17.4 -16.9,15 -4.4,19.1 -5,6.2 -1.6,5 -27,1.1 -0.2,-0.1 -0.6,5.9 2.7,-4.6 46.9,0.1 -1.9,-20 3.1,-7.1 11.2,-1.3 0.4,-35.4 38.9,0.7 0.5,-20.9 0.3,-2.7 0,-1 z" />
+                    <path id="SD" data-name="Sudan" data-id="SD"
+                        d="m 740,291.9 0.7,-9.2 3.6,-4.2 8.8,-2.3 5.7,-7.9 -6.9,-5.1 -4.8,-3.4 -5.3,-16.5 -2.5,-14.3 2.5,-2.5 -4.7,-13.6 -47.4,0 -46.4,0 -48.1,0 1,27.7 -13.8,0 0.1,5.8 2.4,54.9 -10.5,-0.9 -5.2,10.2 -3,8.5 2.6,3.2 -3.8,4.3 1.5,5.7 -3,5.8 -1.2,5 4.3,-0.8 2.6,5.4 0.3,8 4.6,4.1 -0.1,3.4 1.5,5.9 7.2,8.6 0.1,5.7 -1.9,5.7 0.9,4.3 4.2,4 1,0.7 3.8,-1.6 4.1,-2.6 2.9,-12.3 3.2,-6.4 8.8,-1.9 2.1,3.8 6.5,8 3.3,1.2 4.4,-2.3 8.7,0.4 1.8,2.9 12.1,0 0.3,-2.9 6.3,-2.6 1.1,-4 4.6,-2.9 10.4,8.1 6.2,-1.4 5.8,-10 6.5,-7.6 -1.3,-8.3 -3,-4 7.3,-0.8 0.7,-3 5.7,0.9 -1.2,10.2 1.7,10 6.5,5.5 1.5,4.7 0,6.9 1.7,0.3 -0.1,-1.7 3.3,-14.5 5.6,-3.8 1.1,-5.7 4.8,-10.6 7.1,-6.8 4.5,-13.6 1.4,-11.9 -1.5,-5.6 4.3,-20.3 z" />
+                    <path id="SS" data-name="S. Sudan" data-id="SS"
+                        d="m 707.8,379.2 -1.5,-4.7 -6.5,-5.5 -1.7,-10 1.2,-10.2 -5.7,-0.9 -0.7,3 -7.3,0.8 3,4 1.3,8.3 -6.5,7.6 -5.8,10 -6.2,1.4 -10.4,-8.1 -4.6,2.9 -1.1,4 -6.3,2.6 -0.3,2.9 -12.1,0 -1.8,-2.9 -8.7,-0.4 -4.4,2.3 -3.3,-1.2 -6.5,-8 -2.1,-3.8 -8.8,1.9 -3.2,6.4 -2.9,12.3 -4.1,2.6 -3.8,1.6 8.4,5.4 6.8,5.5 0.1,4.5 8.3,7.2 5.2,6 3.2,8.3 9.2,5.5 2,4.4 7.5,11.4 5.5,1.7 3.2,-2.3 5.7,0.9 6.8,-2.9 2.9,5.9 10.9,9.2 0,0 5,-3.8 7.8,3.1 9.8,-3.3 8.6,0.1 7.4,-6.4 7.4,-8.3 8.1,-9.1 -7.4,-15 -5.7,-3.2 -2.2,-5.6 -6.3,-6.7 -7.5,-1 4,-7.9 6.4,-0.3 1.8,-4.2 -0.4,-10.8 -1.7,-0.3 0,-6.9 z" />
+                    <path id="SN" data-name="Senegal" data-id="SN"
+                        d="m 148.8,315.1 -7.8,-9.5 -7.2,-10.2 -7.9,-3.7 -5.7,-4 -6.8,0.1 -5.9,3 -6,-1.2 -4.2,4.5 -3,7.1 -6.1,9.7 -5.4,2.6 6,4.9 4.8,10.8 13.2,-0.4 2.8,-3.3 3.8,-0.2 4.7,3.4 3.8,0.1 4,-2.3 2.4,4 -5.3,3.1 -5.2,-0.3 -5.2,-2.9 -4.5,3.2 -2.2,0.1 -3,1.9 -11,-0.2 1.8,10.6 6.5,-2.3 4,0.5 3.3,-1.6 22.4,0.6 5.8,0.1 8.7,3.4 2.7,-0.3 0.9,-1.6 6.6,1.1 1.8,-0.7 0.6,-4.4 -1,-5.3 -4.5,-3.9 -2.3,-7.9 -0.4,-8.6 z" />
+                    <path id="SL" data-name="Sierra Leone" data-id="SL"
+                        d="m 171.5,401 -3.3,0.8 0.1,-5.1 -1.9,-3.6 0.4,-4 -2.6,-5.8 -3.3,-5 -9.7,0 -2.9,2.6 -3.3,0.3 -2.1,3 -1.5,3.8 -6.5,6.1 1.4,10.3 2.1,5 6.3,7.4 8.7,5.6 3.3,1 2.9,-4.4 0.7,-4 5.5,-7.5 5.7,-6.5 z" />
+                    <path id="SZ" data-name="Swaziland" data-id="SZ"
+                        d="m 674,874.9 -5.8,-2.6 -3.5,1 -1.4,4 -3.6,5.2 -0.2,4.8 6.6,7.5 7,-1.5 2.8,-6.1 -0.6,-6.1 -1.3,-6.2 z" />
+                    <path id="TD" data-name="Chad" data-id="TD"
+                        d="m 582.5,246.4 -48.7,-26.5 -48.4,-26.5 -11.9,7.6 3.4,21.5 4.6,3.6 0.3,4.4 5.1,4.7 -2.5,6 -4,28.1 -0.2,18 -15.2,13 -4.9,18.2 5.1,5.2 0.1,8.9 7.8,0.3 -1.1,6.5 4.9,8.9 1,9.1 -0.4,9.2 6.8,12.6 -6.8,-0.1 -3.4,0.9 -5.6,-1.3 -2.5,6.5 7.2,8.1 5.3,2.3 1.8,5.7 3.9,9.6 -1.8,3.7 10,-1 2.2,-3.6 2.1,0.3 3,3.1 15.3,-5.3 5.1,-5.4 6.3,-4.8 -1.2,-4.9 3.4,-1.2 11.8,0.8 11.3,-6.4 8.6,-15.1 6,-5.6 7.7,-2.3 0.1,-3.4 -4.6,-4.1 -0.3,-8 -2.6,-5.4 -4.3,0.8 1.2,-5 3,-5.8 -1.5,-5.7 3.8,-4.3 -2.6,-3.2 3,-8.5 5.2,-10.2 10.5,0.9 -2.4,-54.9 z" />
+                    <path id="TG" data-name="Togo" data-id="TG"
+                        d="m 307.1,365.2 -10.7,-0.3 -0.9,4.3 5.1,7.1 0,10.1 1.2,10.9 3,5 -2.7,12.5 1,6.8 3.2,8.8 2.8,4.9 9.8,-3 -3,-9.5 0.5,-31.8 -2.5,-2.8 -0.4,-6.8 -4.3,-4.9 -3.7,-4.1 1.6,-7.2 z" />
+                    <path id="TN" data-name="Tunisia" data-id="TN"
+                        d="m 429.5,59 -4.5,-2.2 -3.2,-6.6 -6,-0.2 -2.4,-7.6 7.3,-7 1.1,-12.1 -4.1,-3.5 -0.2,-6.5 5.5,-7 -0.9,-2.7 -9.5,5.2 0.1,-7.1 -8.1,-1.7 -12.2,5.7 -2.2,7.2 2.3,13.4 -2.4,11.6 -7,7.8 1.3,10.4 9.7,8.3 0.2,3.3 7.3,5.6 5.7,24.7 5.6,-3.2 0.9,-5.8 -1.5,-5.7 7.9,-5.3 3.4,-4.4 5.6,-4 0.3,-10.6 z" />
+                    <path id="TZ" data-name="Tanzania" data-id="TZ"
+                        d="m 672.2,531.3 -4.3,1.7 4.8,7.8 -0.8,8.1 -3.5,1.8 0,0 0.6,5.4 2.6,3.2 0.1,4.5 -3,2.9 -4.9,7.2 -4.5,5 -1.2,0.2 -0.7,5.9 2.3,2 -0.5,5.9 2.3,5.5 -2.9,5.3 9.7,9.4 0.8,8.5 5.9,14.2 0,0 0.6,0.4 4.8,2.3 7.7,2.4 6.8,4.1 11.9,2.6 2.3,3.8 0,0 0.8,-2.7 6.2,7.4 0.6,14.5 3.9,5.3 -0.1,0.2 4.7,-0.5 14.4,3.9 3.3,-1.8 8.4,-0.3 4.5,-4.2 7.3,0.2 13.4,-5.3 10,-8.1 0,0 -4.4,-3 -4.7,-13.6 -4,-8.7 1,-6.6 -0.6,-4.2 3.5,-8.4 -0.3,-3.6 -7.7,-5 -0.6,-7.8 5.9,-17.1 -17.3,-13.8 -0.7,-8 -44.1,-28.2 0,0 -6,6.1 -4.1,6.3 4.8,4.7 -7,3.4 -1.5,-1.6 -7.1,0.9 -5.5,3.1 -3.3,-5.4 2.3,-9.7 0.5,-8.3 0,0 0,0 -13.4,-0.2 z" />
+                    <path id="UG" data-name="Uganda" data-id="UG"
+                        d="m 711.3,458.5 -7.4,6.4 -8.6,-0.1 -9.8,3.3 -7.8,-3.1 -5,3.8 0,0 -0.6,16.1 4.9,1.9 -3.9,4.9 -4.7,3.7 -4.6,7.2 -2.6,6.4 -0.6,11.1 -2.9,5.3 -0.1,10.5 2.9,1.4 7.4,-4.3 4.3,-1.7 13.4,0.2 0,0 -0.7,-5.3 5.7,-8.1 7.7,-2 5.2,-3.3 6.3,2.7 0.6,1 0,-0.7 3.5,-5.6 5.9,-9.2 4.4,-10.1 -5.5,-15.8 -1.5,-7 -5.9,-9.6 z" />
+                    <path id="ZA" data-name="South Africa" data-id="ZA"
+                        d="m 522.3,999 5.3,-0.3 7.5,-5.3 10,-2.2 12.3,-5.5 4.7,0.7 7.2,-1.7 12.3,2.7 5.9,-2.6 6.9,2 1.8,-3.8 6,-0.8 12.6,-5.3 9.3,-6.3 8.9,-8.3 14.4,-14.2 7.5,-9.9 3.9,-7.1 5.5,-7 2.5,-2 8.6,-7 3.5,-6.2 2.3,-11.5 3.7,-10.1 -9,-0.1 -2.8,6.1 -7,1.5 -6.6,-7.5 0.2,-4.8 3.6,-5.2 1.4,-4 3.5,-1 5.8,2.6 -0.7,-5 3,-15.4 -2.5,-9.9 -4.7,-19.5 -6.3,-1.3 -4.1,1.6 -5.7,-2.3 -4.9,-0.2 -17.3,10.2 -11.2,10.3 -4.4,9.3 -3.9,5.2 -6.5,1.1 -2.4,6.6 -1.4,4.3 -7.8,3.2 -9.6,-0.6 -5.5,-3.9 -4.9,-1.7 -6,3.2 -3.2,6.6 -5.8,4.2 -6.2,6.2 -8.5,1.4 -2.5,-4.9 1.5,-8.4 -6.5,-13.2 -3.2,-2 -2.2,51.1 -10.8,7.1 -6.4,1 -7.3,-2.6 -5.2,-1 -1.7,-6 -4.5,-3.7 -6,6.8 7.7,17.9 0,0.1 5.4,11.7 6.9,12.8 -0.2,10.6 -3.9,2.5 3.2,9.3 -0.5,8.1 1.3,3.8 0.7,-1.9 4.6,6.2 3.8,0.2 4.6,5 z m 103,-59.1 -4.3,1.3 -8,-10.6 6.9,-8.7 6.8,-5.4 5.7,-2.8 4.8,4.2 3.8,4.2 -4.1,6.7 -2.4,4.5 -6.7,2.2 -2.5,4.4 z" />
+                    <path id="ZM" data-name="Zambia" data-id="ZM"
+                        d="m 671.3,636 -4.1,-1.1 0.7,-3 -2.1,-0.6 -16.4,2.3 -3.3,1.7 -3.6,8.8 2.6,6.1 -2.5,16.4 -1.9,13.9 3.2,2.4 8.4,5.4 3.4,-2.5 0.6,14.9 -9.3,-0.1 -4.8,-7.6 -4.3,-5.9 -9.2,-1.9 -2.6,-7.3 -7.5,4.4 -9.7,-2 -3.9,-6.2 -7.7,-1.3 -5.7,0.3 -0.6,-4.3 -4.2,-0.3 1.2,4.3 -1.5,6.7 2,6.5 -2,5.2 1,4.7 -25.3,-0.1 -1.6,44 7.8,11.3 7.6,8.6 9.9,-3.1 7.8,0.8 4.7,3.1 0,1.2 2.2,1 13.4,1.5 3.8,1.6 4.1,-0.3 7,-9 10.9,-11.4 4.4,-1 1.7,-4.8 7,-5.5 9.3,-1.9 -0.8,-9.9 37.1,-11.4 -6.2,-3.6 4.1,-12.8 4,-4.8 -2,-11.5 2.7,-11.2 2.2,-3.8 -2.8,-11.7 -5.6,-6.2 -6.8,-4.1 -7.7,-2.4 -4.8,-2.3 -0.6,-0.4 0,0 0.9,2.3 -2,0.8 -2.6,-2.9 z" />
+                    <path id="ZW" data-name="Zimbabwe" data-id="ZW"
+                        d="m 669.1,825.1 13.4,-15.7 3.6,-9.9 1.9,-1.3 1.7,-8.1 -1.7,-4.1 1,-10.4 2.8,-9.6 0.8,-17.5 -6.1,-4.4 -5.7,-1 -2.5,-3.4 -5.5,-3 -10,0.3 -0.6,-5.1 -9.3,1.9 -7,5.5 -1.7,4.8 -4.4,1 -10.9,11.4 -7,9 -4.1,0.3 -3.8,-1.6 -13.4,-1.5 4.2,11.1 2.3,2.4 3.5,8 13,15.2 5.1,1.5 -0.2,4.9 3.1,8.8 9.2,2.1 7.3,6.2 4.9,0.2 5.7,2.3 4.1,-1.6 6.3,1.3 z" />
+                    <path id="SO" data-name="Somalia" data-id="SO"
+                        d="m 832.6,372.8 -5.7,-5.8 -2.5,-5.7 -4.1,-2.6 -4.2,7.4 -2.5,4.9 4.8,7.7 4.6,6.6 4.8,5 40.3,16.4 10.3,-0.1 -33.5,41.5 -15.9,0.6 -10.7,9.8 -7.8,0.2 -3.3,4.4 -10.5,15.7 0.4,50.4 7.2,11.4 2.7,-3.3 2.9,-7.3 13.4,-16.7 11.4,-10.6 18.1,-13.7 12.1,-11.2 14.1,-18.9 10.1,-15.5 10,-20.2 7,-17.7 5.4,-15.5 2.9,-14.9 2.4,-5 -0.4,-7.3 0.8,-8 -0.5,-3.9 -4.6,0.1 -5.5,4.7 -6.4,1.4 -5.5,2.1 -3.9,0.2 0,0 -6.9,0.5 -4.2,2.6 -6,0.9 -10.5,4.3 -13.2,1.6 -11.3,3.5 -6.1,0 z" />
+                </g>
+            </svg>
+        </div>
+        <div id="tooltip"></div>
+    </div>
 
-<script>
-    const app = {
-        data: {}, currentCountryId: null, currentGroupIdx: -1, quill: null, chart: null, currentTab: 'olusum', isGlobalMode: false, groupsTempData: {}, zoom: { scale: 1, pX: 0, pY: 0, isPanning: false, startX: 0, startY: 0 },
-        init() {
-            this.quill = new Quill('#quill-editor', { theme: 'snow', placeholder: 'Buraya detaylı bilgi giriniz...', modules: { toolbar: [[{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], ['link', 'clean']] } });
-            const mapContainer = document.getElementById('map-view');
-            mapContainer.addEventListener('mousedown', e => { if(e.button !== 0) return; this.zoom.isPanning = true; this.zoom.startX = e.clientX - this.zoom.pX; this.zoom.startY = e.clientY - this.zoom.pY; mapContainer.style.cursor = 'grabbing'; });
-            window.addEventListener('mousemove', e => { if(!this.zoom.isPanning) return; e.preventDefault(); this.zoom.pX = e.clientX - this.zoom.startX; this.zoom.pY = e.clientY - this.zoom.startY; this.updateTransform(); });
-            window.addEventListener('mouseup', () => { this.zoom.isPanning = false; mapContainer.style.cursor = 'grab'; });
-            mapContainer.addEventListener('wheel', e => { e.preventDefault(); const xs = (e.clientX - this.zoom.pX) / this.zoom.scale; const ys = (e.clientY - this.zoom.pY) / this.zoom.scale; const factor = -e.deltaY > 0 ? 1.1 : 0.9; let newScale = this.zoom.scale * factor; if(newScale < 0.5) newScale = 0.5; if(newScale > 15) newScale = 15; this.zoom.pX = e.clientX - xs * newScale; this.zoom.pY = e.clientY - ys * newScale; this.zoom.scale = newScale; this.updateTransform(); });
-            document.querySelectorAll('path').forEach(p => { p.addEventListener('click', (e) => { if(Math.abs(e.movementX) > 2 || Math.abs(e.movementY) > 2) return; this.openEditor(p.id, p.getAttribute('data-name')); }); p.addEventListener('mouseover', e => this.showTooltip(e, p.id, p.getAttribute('data-name'))); p.addEventListener('mousemove', e => this.moveTooltip(e)); p.addEventListener('mouseout', () => this.hideTooltip()); });
-            document.addEventListener('keydown', e => { if(e.key === 'Escape') this.closeEditor(); if(e.ctrlKey && e.key === 'k') { e.preventDefault(); document.getElementById('searchInput').focus(); } });
-            document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e.target.value));
-            this.loadFromStorage(); this.initChart();
-        },
-        updateTransform() { document.getElementById('map-group').style.transform = `translate(${this.zoom.pX}px, ${this.zoom.pY}px) scale(${this.zoom.scale})`; },
-        resetZoom() { this.zoom = { scale: 1, pX: 0, pY: 0 }; this.updateTransform(); },
-        initChart() { const ctx = document.getElementById('statsChart').getContext('2d'); this.chart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Cihatçı', 'Ayrılıkçı', 'Diğer'], datasets: [{ data: [0, 0, 0], backgroundColor: ['#ef4444', '#eab308', '#3b82f6'], borderWidth: 0, hoverOffset: 4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, cutout: '75%' } }); this.updateStats(); },
-        updateStats() {
-            let stats = { cihat: 0, ayrilik: 0, diger: 0, total: 0 };
-            Object.values(this.data).forEach(c => { if(c.groups) c.groups.forEach(g => { stats.total++; if(g.kategori === 'Cihatçı') stats.cihat++; else if(g.kategori === 'Ayrılıkçı') stats.ayrilik++; else stats.diger++; }); });
-            this.chart.data.datasets[0].data = [stats.cihat, stats.ayrilik, stats.diger]; this.chart.update();
-            document.getElementById('total-count').innerText = stats.total; document.getElementById('cihat-count').innerText = stats.cihat; document.getElementById('ayrilik-count').innerText = stats.ayrilik;
-            document.querySelectorAll('path').forEach(p => { p.classList.remove('has-data', 'cat-cihat', 'cat-ayrilik', 'cat-diger'); const cData = this.data[p.id]; if(cData && cData.groups && cData.groups.length > 0) { const firstCat = cData.groups[0].kategori; if(firstCat === 'Cihatçı') p.classList.add('cat-cihat'); else if(firstCat === 'Ayrılıkçı') p.classList.add('cat-ayrilik'); else p.classList.add('cat-diger'); } });
-        },
-        openEditor(id, name) {
-            this.isGlobalMode = false; this.currentCountryId = id;
-            document.getElementById('global-country-selector').style.display = 'none';
-            if(!this.data[id]) this.data[id] = { name_tr: name, groups: [] };
-            document.getElementById('modal-country').innerText = this.data[id].name_tr;
-            document.getElementById('editor-overlay').classList.add('active');
-            document.querySelector('.ed-sidebar').style.display = 'flex';
-            this.renderGroupList(); this.resetFormState();
-        },
-        openGlobalCreator() {
-            this.isGlobalMode = true; this.currentCountryId = null; this.currentGroupIdx = -1; this.groupsTempData = {};
-            document.getElementById('modal-country').innerText = "KÜRESEL ÖRGÜT EKLEME";
-            document.getElementById('editor-overlay').classList.add('active');
-            document.querySelector('.ed-sidebar').style.display = 'none';
-            document.getElementById('empty-state').style.display = 'none';
-            document.getElementById('editor-form').style.display = 'flex';
-            document.getElementById('inp-name').value = ''; document.getElementById('inp-category').selectedIndex = 0; document.getElementById('inp-status').selectedIndex = 0; this.quill.setText(''); this.setTab('olusum');
-            const selector = document.getElementById('global-country-selector'); selector.style.display = 'block'; this.populateCountryList();
-        },
-        populateCountryList() {
-            const listContainer = document.getElementById('country-checkbox-list'); listContainer.innerHTML = '';
-            const paths = Array.from(document.querySelectorAll('#map-group path')).sort((a, b) => a.getAttribute('data-name').localeCompare(b.getAttribute('data-name')));
-            paths.forEach(p => { const div = document.createElement('div'); div.style.cssText = 'display:flex; align-items:center; font-size:12px; padding:4px; cursor:pointer; background:#222; border-radius:4px;'; div.innerHTML = `<input type="checkbox" class="country-check" value="${p.id}" style="margin-right:8px; accent-color:#8b5cf6;"><span style="color:#ddd;">${p.getAttribute('data-name')}</span>`; div.onclick = (e) => { if(e.target.type !== 'checkbox') div.querySelector('input').click(); }; listContainer.appendChild(div); });
-        },
-        filterCountryList(val) { val = val.toLowerCase(); document.querySelectorAll('#country-checkbox-list div').forEach(div => { div.style.display = div.innerText.toLowerCase().includes(val) ? 'flex' : 'none'; }); },
-        closeEditor() { document.getElementById('editor-overlay').classList.remove('active'); document.querySelector('.ed-sidebar').style.display = 'flex'; this.updateStats(); this.saveToStorage(); },
-        renderGroupList() {
-            if(this.isGlobalMode) return;
-            const list = document.getElementById('group-list'); list.innerHTML = '';
-            const groups = this.data[this.currentCountryId].groups || [];
-            groups.forEach((g, idx) => { const el = document.createElement('div'); el.className = `g-item ${idx === this.currentGroupIdx ? 'active' : ''}`; let dotClass = 'diger'; if(g.kategori === 'Cihatçı') dotClass = 'cihat'; if(g.kategori === 'Ayrılıkçı') dotClass = 'ayrilik'; el.innerHTML = `<span>${g.name_tr}</span> <div class="g-dot ${dotClass}"></div>`; el.onclick = () => this.loadGroup(idx); list.appendChild(el); });
-        },
-        resetFormState() { document.getElementById('editor-form').style.display = 'none'; document.getElementById('empty-state').style.display = 'flex'; this.currentGroupIdx = -1; this.groupsTempData = {}; },
-        createGroup() { this.currentGroupIdx = -1; this.groupsTempData = {}; document.getElementById('empty-state').style.display = 'none'; document.getElementById('editor-form').style.display = 'flex'; document.querySelectorAll('.g-item').forEach(e => e.classList.remove('active')); document.getElementById('inp-name').value = ''; document.getElementById('inp-category').selectedIndex = 0; document.getElementById('inp-status').selectedIndex = 0; this.quill.setText(''); this.setTab('olusum'); },
-        loadGroup(idx) { this.currentGroupIdx = idx; const g = this.data[this.currentCountryId].groups[idx]; document.getElementById('empty-state').style.display = 'none'; document.getElementById('editor-form').style.display = 'flex'; document.getElementById('inp-name').value = g.name_tr || ''; document.getElementById('inp-category').value = g.kategori || 'Diğer'; document.getElementById('inp-status').value = g.grup_durumu || 'Bilinmiyor'; this.groupsTempData = JSON.parse(JSON.stringify(g.details || {})); this.setTab('olusum'); this.renderGroupList(); },
-        setTab(tabName) {
-            if(this.currentGroupIdx !== -1 || document.getElementById('editor-form').style.display === 'flex') { this.groupsTempData[this.getPropertyName(this.currentTab)] = this.quill.root.innerHTML; }
-            this.currentTab = tabName; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); Array.from(document.querySelectorAll('.tab')).find(el => el.getAttribute('onclick').includes(tabName)).classList.add('active'); this.quill.clipboard.dangerouslyPasteHTML(this.groupsTempData[this.getPropertyName(tabName)] || '');
-        },
-        getPropertyName(tab) { const map = { 'olusum': 'olusum_sureci', 'amac': 'nihai_hedef', 'yonetim': 'yonetim_yapisi', 'metot': 'eylem_metotlari', 'eylem': 'onemli_eylemler', 'finans': 'finansman_kaynaklari', 'iliski': 'grup_iliskileri', 'diger': 'diger_bilgiler', 'kaynak': 'kaynakca' }; return map[tab]; },
-        saveGroup() {
-            const name = document.getElementById('inp-name').value; if(!name) { alert('Örgüt adı zorunludur!'); return; }
-            this.groupsTempData[this.getPropertyName(this.currentTab)] = this.quill.root.innerHTML;
-            const newGroup = { name_tr: name, kategori: document.getElementById('inp-category').value, grup_durumu: document.getElementById('inp-status').value, details: { ...this.groupsTempData } };
-            if(this.isGlobalMode) {
-                const checkboxes = document.querySelectorAll('.country-check:checked'); if(checkboxes.length === 0) { alert("Lütfen en az bir ülke seçin!"); return; }
-                checkboxes.forEach(chk => { const cId = chk.value; if(!this.data[cId]) { this.data[cId] = { name_tr: document.getElementById(cId).getAttribute('data-name'), groups: [] }; } this.data[cId].groups.push(JSON.parse(JSON.stringify(newGroup))); });
-                alert(`${checkboxes.length} ülkeye "${name}" eklendi!`); this.closeEditor();
-            } else { if(this.currentGroupIdx === -1) { this.data[this.currentCountryId].groups.push(newGroup); this.currentGroupIdx = this.data[this.currentCountryId].groups.length - 1; } else { this.data[this.currentCountryId].groups[this.currentGroupIdx] = newGroup; } this.showToast(); this.renderGroupList(); this.updateStats(); this.saveToStorage(); }
-        },
-        deleteGroup() { 
-            if(this.isGlobalMode) { if(confirm("Formu temizlemek istiyor musunuz?")) this.createGroup(); return; }
-            if(this.currentGroupIdx === -1) return; if(confirm('Silmek istediğinize emin misiniz?')) { this.data[this.currentCountryId].groups.splice(this.currentGroupIdx, 1); this.resetFormState(); this.renderGroupList(); this.updateStats(); this.saveToStorage(); } 
-        },
-        showTooltip(e, id, name) { const t = document.getElementById('tooltip'); const info = this.data[id]; let html = `<strong>${name}</strong>`; if(info && info.groups && info.groups.length > 0) html += `<div style="margin-top:4px; font-size:11px; color:#4ade80">${info.groups.length} Grup Kayıtlı</div>`; else html += `<div style="margin-top:4px; font-size:10px; color:#666">Veri Yok</div>`; t.innerHTML = html; t.style.display = 'block'; this.moveTooltip(e); },
-        moveTooltip(e) { const t = document.getElementById('tooltip'); t.style.left = (e.clientX + 15) + 'px'; t.style.top = (e.clientY + 15) + 'px'; },
-        hideTooltip() { document.getElementById('tooltip').style.display = 'none'; },
-        showToast() { const t = document.getElementById('toast'); t.classList.add('visible'); setTimeout(() => t.classList.remove('visible'), 2000); },
-        downloadJSON() { const blob = new Blob([JSON.stringify(this.data, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'trdata.json'; a.click(); },
-        loadJSON(input) { const file = input.files[0]; if(!file) return; const r = new FileReader(); r.onload = (e) => { try { this.data = JSON.parse(e.target.result); this.updateStats(); this.saveToStorage(); alert('Veriler yüklendi.'); } catch(err) { alert('Hata: JSON bozuk.'); } }; r.readAsText(file); },
-        saveToStorage() { localStorage.setItem('militan_db_v2', JSON.stringify(this.data)); }, loadFromStorage() { const s = localStorage.getItem('militan_db_v2'); if(s) { this.data = JSON.parse(s); this.updateStats(); } },
-        handleSearch(val) { const svg = document.getElementById('svg-map'); if(!val) { svg.style.opacity = '1'; document.querySelectorAll('path').forEach(p => p.style.opacity = '1'); return; } val = val.toLowerCase(); document.querySelectorAll('path').forEach(p => { const cName = p.getAttribute('data-name').toLowerCase(); const cData = this.data[p.id]; let match = cName.includes(val); if(cData && cData.groups) if(cData.groups.some(g => g.name_tr.toLowerCase().includes(val))) match = true; if(match) { p.style.opacity = '1'; p.style.fill = '#ec4899'; } else { p.style.opacity = '0.1'; p.style.fill = ''; } }); }
-    };
-    document.addEventListener('DOMContentLoaded', () => app.init());
-</script>
+    <div id="editor-overlay" class="overlay">
+        <div class="editor-container">
+            <div class="ed-header">
+                <div class="ed-title"><i class="fas fa-edit"></i> <span id="modal-country">KÜRESEL ÖRGÜT EKLEME</span>
+                </div>
+                <button class="btn btn-outline" style="width:auto;" onclick="app.closeEditor()">Kapat [ESC]</button>
+            </div>
+            <div class="ed-body">
+                <div class="ed-sidebar">
+                    <button class="add-btn" onclick="app.createGroup()"><i class="fas fa-plus"></i> YENİ ÖRGÜT
+                        EKLE</button>
+                    <div class="group-list" id="group-list"></div>
+                </div>
+                <div class="ed-main">
+                    <div id="editor-form" style="display:none; height:100%; display:flex; flex-direction:column;">
+                        <div class="form-area">
+                            <div id="global-country-selector"
+                                style="display:none; margin-bottom:20px; background:#1e293b; padding:15px; border:1px solid #8b5cf6; border-radius:8px;">
+                                <label class="f-label" style="color:#8b5cf6;">Hedef Ülkeleri Seçin (Aynı Anda
+                                    Ekleme)</label>
+                                <input type="text" class="f-input" placeholder="Ülke ara..." style="margin-bottom:10px;"
+                                    onkeyup="app.filterCountryList(this.value)">
+                                <div id="country-checkbox-list"
+                                    style="height:150px; overflow-y:auto; display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+                                </div>
+                                <div style="margin-top:5px; font-size:11px; color:#aaa;">Seçili ülkelere aynı örgüt
+                                    verisi kopyalanacaktır.</div>
+                            </div>
+                            <div class="form-grid">
+                                <div class="f-group"><label class="f-label">Örgüt Adı</label><input type="text"
+                                        id="inp-name" class="f-input" placeholder="Örn: X Örgütü"></div>
+                                <div class="f-group"><label class="f-label">Kategori</label><select id="inp-category"
+                                        class="f-select">
+                                        <option value="Cihatçı">Cihatçı</option>
+                                        <option value="Ayrılıkçı">Ayrılıkçı</option>
+                                        <option value="Diğer">Diğer</option>
+                                    </select></div>
+                                <div class="f-group"><label class="f-label">Durum</label><select id="inp-status"
+                                        class="f-select">
+                                        <option value="Aktif">Aktif</option>
+                                        <option value="Pasif">Pasif</option>
+                                        <option value="Bilinmiyor">Bilinmiyor</option>
+                                    </select></div>
+                            </div>
+                            <div class="tab-bar">
+                                <div class="tab active" onclick="app.setTab('olusum')">Oluşum</div>
+                                <div class="tab" onclick="app.setTab('amac')">Amaç</div>
+                                <div class="tab" onclick="app.setTab('yonetim')">Yönetim</div>
+                                <div class="tab" onclick="app.setTab('metot')">Taktikler</div>
+                                <div class="tab" onclick="app.setTab('eylem')">Eylemler</div>
+                                <div class="tab" onclick="app.setTab('finans')">Finans</div>
+                                <div class="tab" onclick="app.setTab('iliski')">İlişkiler</div>
+                                <div class="tab" onclick="app.setTab('diger')">Diğer</div>
+                                <div class="tab" onclick="app.setTab('kaynak')">Kaynakça</div>
+                            </div>
+                            <div id="quill-editor"></div>
+                        </div>
+                        <div
+                            style="padding:20px 25px; border-top:1px solid var(--border); background:var(--bg-panel); display:flex; justify-content:flex-end; gap:15px;">
+                            <button class="btn btn-danger" style="width:auto;" onclick="app.deleteGroup()"><i
+                                    class="fas fa-trash"></i> Sil</button>
+                            <button class="btn btn-primary" style="width:auto; padding:10px 40px;"
+                                onclick="app.saveGroup()"><i class="fas fa-check"></i> KAYDET</button>
+                        </div>
+                    </div>
+                    <div id="empty-state" class="empty-state"><i class="fas fa-book-open"></i>
+                        <h3>Örgüt Seçin</h3>
+                        <p>veya yeni oluşturun.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="toast"><i class="fas fa-check-circle"></i> İşlem Başarılı!</div>
+
+    <script>
+        const app = {
+            data: {}, currentCountryId: null, currentGroupIdx: -1, quill: null, chart: null, currentTab: 'olusum', isGlobalMode: false, groupsTempData: {}, zoom: { scale: 1, pX: 0, pY: 0, isPanning: false, startX: 0, startY: 0 },
+            init() {
+                this.quill = new Quill('#quill-editor', { theme: 'snow', placeholder: 'Buraya detaylı bilgi giriniz...', modules: { toolbar: [[{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['link', 'clean']] } });
+                const mapContainer = document.getElementById('map-view');
+                mapContainer.addEventListener('mousedown', e => { if (e.button !== 0) return; this.zoom.isPanning = true; this.zoom.startX = e.clientX - this.zoom.pX; this.zoom.startY = e.clientY - this.zoom.pY; mapContainer.style.cursor = 'grabbing'; });
+                window.addEventListener('mousemove', e => { if (!this.zoom.isPanning) return; e.preventDefault(); this.zoom.pX = e.clientX - this.zoom.startX; this.zoom.pY = e.clientY - this.zoom.startY; this.updateTransform(); });
+                window.addEventListener('mouseup', () => { this.zoom.isPanning = false; mapContainer.style.cursor = 'grab'; });
+                mapContainer.addEventListener('wheel', e => { e.preventDefault(); const xs = (e.clientX - this.zoom.pX) / this.zoom.scale; const ys = (e.clientY - this.zoom.pY) / this.zoom.scale; const factor = -e.deltaY > 0 ? 1.1 : 0.9; let newScale = this.zoom.scale * factor; if (newScale < 0.5) newScale = 0.5; if (newScale > 15) newScale = 15; this.zoom.pX = e.clientX - xs * newScale; this.zoom.pY = e.clientY - ys * newScale; this.zoom.scale = newScale; this.updateTransform(); });
+                document.querySelectorAll('path').forEach(p => { p.addEventListener('click', (e) => { if (Math.abs(e.movementX) > 2 || Math.abs(e.movementY) > 2) return; this.openEditor(p.id, p.getAttribute('data-name')); }); p.addEventListener('mouseover', e => this.showTooltip(e, p.id, p.getAttribute('data-name'))); p.addEventListener('mousemove', e => this.moveTooltip(e)); p.addEventListener('mouseout', () => this.hideTooltip()); });
+                document.addEventListener('keydown', e => { if (e.key === 'Escape') this.closeEditor(); if (e.ctrlKey && e.key === 'k') { e.preventDefault(); document.getElementById('searchInput').focus(); } });
+                document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e.target.value));
+                this.loadFromStorage(); this.initChart();
+            },
+            updateTransform() { document.getElementById('map-group').style.transform = `translate(${this.zoom.pX}px, ${this.zoom.pY}px) scale(${this.zoom.scale})`; },
+            resetZoom() { this.zoom = { scale: 1, pX: 0, pY: 0 }; this.updateTransform(); },
+            initChart() { const ctx = document.getElementById('statsChart').getContext('2d'); this.chart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Cihatçı', 'Ayrılıkçı', 'Diğer'], datasets: [{ data: [0, 0, 0], backgroundColor: ['#ef4444', '#eab308', '#3b82f6'], borderWidth: 0, hoverOffset: 4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, cutout: '75%' } }); this.updateStats(); },
+            updateStats() {
+                // Güvenlik Önlemi: Grafik yoksa güncelleme yapma
+                if (!this.chart || !this.chart.data || !this.chart.data.datasets) {
+                    console.warn("Grafik henüz hazır değil, istatistik güncellenemedi.");
+                    return;
+                }
+
+                let stats = { cihat: 0, ayrilik: 0, diger: 0, total: 0 };
+                Object.values(this.data).forEach(c => { if (c.groups) c.groups.forEach(g => { stats.total++; if (g.kategori === 'Cihatçı') stats.cihat++; else if (g.kategori === 'Ayrılıkçı') stats.ayrilik++; else stats.diger++; }); });
+                this.chart.data.datasets[0].data = [stats.cihat, stats.ayrilik, stats.diger]; this.chart.update();
+                document.getElementById('total-count').innerText = stats.total; document.getElementById('cihat-count').innerText = stats.cihat; document.getElementById('ayrilik-count').innerText = stats.ayrilik;
+                document.querySelectorAll('path').forEach(p => { p.classList.remove('has-data', 'cat-cihat', 'cat-ayrilik', 'cat-diger'); const cData = this.data[p.id]; if (cData && cData.groups && cData.groups.length > 0) { const firstCat = cData.groups[0].kategori; if (firstCat === 'Cihatçı') p.classList.add('cat-cihat'); else if (firstCat === 'Ayrılıkçı') p.classList.add('cat-ayrilik'); else p.classList.add('cat-diger'); } });
+            },
+            openEditor(id, name) {
+                this.isGlobalMode = false; this.currentCountryId = id;
+                document.getElementById('global-country-selector').style.display = 'none';
+                if (!this.data[id]) this.data[id] = { name_tr: name, groups: [] };
+                document.getElementById('modal-country').innerText = this.data[id].name_tr;
+                document.getElementById('editor-overlay').classList.add('active');
+                document.querySelector('.ed-sidebar').style.display = 'flex';
+                this.renderGroupList(); this.resetFormState();
+            },
+            openGlobalCreator() {
+                this.isGlobalMode = true; this.currentCountryId = null; this.currentGroupIdx = -1; this.groupsTempData = {};
+                document.getElementById('modal-country').innerText = "KÜRESEL ÖRGÜT EKLEME";
+                document.getElementById('editor-overlay').classList.add('active');
+                document.querySelector('.ed-sidebar').style.display = 'none';
+                document.getElementById('empty-state').style.display = 'none';
+                document.getElementById('editor-form').style.display = 'flex';
+                document.getElementById('inp-name').value = ''; document.getElementById('inp-category').selectedIndex = 0; document.getElementById('inp-status').selectedIndex = 0; this.quill.setText(''); this.setTab('olusum');
+                const selector = document.getElementById('global-country-selector'); selector.style.display = 'block'; this.populateCountryList();
+            },
+            populateCountryList() {
+                const listContainer = document.getElementById('country-checkbox-list'); listContainer.innerHTML = '';
+                const paths = Array.from(document.querySelectorAll('#map-group path')).sort((a, b) => a.getAttribute('data-name').localeCompare(b.getAttribute('data-name')));
+                paths.forEach(p => { const div = document.createElement('div'); div.style.cssText = 'display:flex; align-items:center; font-size:12px; padding:4px; cursor:pointer; background:#222; border-radius:4px;'; div.innerHTML = `<input type="checkbox" class="country-check" value="${p.id}" style="margin-right:8px; accent-color:#8b5cf6;"><span style="color:#ddd;">${p.getAttribute('data-name')}</span>`; div.onclick = (e) => { if (e.target.type !== 'checkbox') div.querySelector('input').click(); }; listContainer.appendChild(div); });
+            },
+            filterCountryList(val) { val = val.toLowerCase(); document.querySelectorAll('#country-checkbox-list div').forEach(div => { div.style.display = div.innerText.toLowerCase().includes(val) ? 'flex' : 'none'; }); },
+            closeEditor() { document.getElementById('editor-overlay').classList.remove('active'); document.querySelector('.ed-sidebar').style.display = 'flex'; this.updateStats(); this.saveToStorage(); },
+            renderGroupList() {
+                if (this.isGlobalMode) return;
+                const list = document.getElementById('group-list'); list.innerHTML = '';
+                const groups = this.data[this.currentCountryId].groups || [];
+                groups.forEach((g, idx) => { const el = document.createElement('div'); el.className = `g-item ${idx === this.currentGroupIdx ? 'active' : ''}`; let dotClass = 'diger'; if (g.kategori === 'Cihatçı') dotClass = 'cihat'; if (g.kategori === 'Ayrılıkçı') dotClass = 'ayrilik'; el.innerHTML = `<span>${g.name_tr}</span> <div class="g-dot ${dotClass}"></div>`; el.onclick = () => this.loadGroup(idx); list.appendChild(el); });
+            },
+            resetFormState() { document.getElementById('editor-form').style.display = 'none'; document.getElementById('empty-state').style.display = 'flex'; this.currentGroupIdx = -1; this.groupsTempData = {}; },
+            createGroup() { this.currentGroupIdx = -1; this.groupsTempData = {}; document.getElementById('empty-state').style.display = 'none'; document.getElementById('editor-form').style.display = 'flex'; document.querySelectorAll('.g-item').forEach(e => e.classList.remove('active')); document.getElementById('inp-name').value = ''; document.getElementById('inp-category').selectedIndex = 0; document.getElementById('inp-status').selectedIndex = 0; this.quill.setText(''); this.setTab('olusum'); },
+            loadGroup(idx) { this.currentGroupIdx = idx; const g = this.data[this.currentCountryId].groups[idx]; document.getElementById('empty-state').style.display = 'none'; document.getElementById('editor-form').style.display = 'flex'; document.getElementById('inp-name').value = g.name_tr || ''; document.getElementById('inp-category').value = g.kategori || 'Diğer'; document.getElementById('inp-status').value = g.grup_durumu || 'Bilinmiyor'; this.groupsTempData = JSON.parse(JSON.stringify(g.details || {})); this.setTab('olusum'); this.renderGroupList(); },
+            setTab(tabName) {
+                if (this.currentGroupIdx !== -1 || document.getElementById('editor-form').style.display === 'flex') { this.groupsTempData[this.getPropertyName(this.currentTab)] = this.quill.root.innerHTML; }
+                this.currentTab = tabName; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); Array.from(document.querySelectorAll('.tab')).find(el => el.getAttribute('onclick').includes(tabName)).classList.add('active'); this.quill.clipboard.dangerouslyPasteHTML(this.groupsTempData[this.getPropertyName(tabName)] || '');
+            },
+            getPropertyName(tab) { const map = { 'olusum': 'olusum_sureci', 'amac': 'nihai_hedef', 'yonetim': 'yonetim_yapisi', 'metot': 'eylem_metotlari', 'eylem': 'onemli_eylemler', 'finans': 'finansman_kaynaklari', 'iliski': 'grup_iliskileri', 'diger': 'diger_bilgiler', 'kaynak': 'kaynakca' }; return map[tab]; },
+            saveGroup() {
+                const name = document.getElementById('inp-name').value; if (!name) { alert('Örgüt adı zorunludur!'); return; }
+                this.groupsTempData[this.getPropertyName(this.currentTab)] = this.quill.root.innerHTML;
+                const newGroup = { name_tr: name, kategori: document.getElementById('inp-category').value, grup_durumu: document.getElementById('inp-status').value, details: { ...this.groupsTempData } };
+                if (this.isGlobalMode) {
+                    const checkboxes = document.querySelectorAll('.country-check:checked'); if (checkboxes.length === 0) { alert("Lütfen en az bir ülke seçin!"); return; }
+                    checkboxes.forEach(chk => { const cId = chk.value; if (!this.data[cId]) { this.data[cId] = { name_tr: document.getElementById(cId).getAttribute('data-name'), groups: [] }; } this.data[cId].groups.push(JSON.parse(JSON.stringify(newGroup))); });
+                    alert(`${checkboxes.length} ülkeye "${name}" eklendi!`); this.closeEditor();
+                } else { if (this.currentGroupIdx === -1) { this.data[this.currentCountryId].groups.push(newGroup); this.currentGroupIdx = this.data[this.currentCountryId].groups.length - 1; } else { this.data[this.currentCountryId].groups[this.currentGroupIdx] = newGroup; } this.showToast(); this.renderGroupList(); this.updateStats(); this.saveToStorage(); }
+            },
+            deleteGroup() {
+                if (this.isGlobalMode) { if (confirm("Formu temizlemek istiyor musunuz?")) this.createGroup(); return; }
+                if (this.currentGroupIdx === -1) return; if (confirm('Silmek istediğinize emin misiniz?')) { this.data[this.currentCountryId].groups.splice(this.currentGroupIdx, 1); this.resetFormState(); this.renderGroupList(); this.updateStats(); this.saveToStorage(); }
+            },
+            showTooltip(e, id, name) { const t = document.getElementById('tooltip'); const info = this.data[id]; let html = `<strong>${name}</strong>`; if (info && info.groups && info.groups.length > 0) html += `<div style="margin-top:4px; font-size:11px; color:#4ade80">${info.groups.length} Grup Kayıtlı</div>`; else html += `<div style="margin-top:4px; font-size:10px; color:#666">Veri Yok</div>`; t.innerHTML = html; t.style.display = 'block'; this.moveTooltip(e); },
+            moveTooltip(e) { const t = document.getElementById('tooltip'); t.style.left = (e.clientX + 15) + 'px'; t.style.top = (e.clientY + 15) + 'px'; },
+            hideTooltip() { document.getElementById('tooltip').style.display = 'none'; },
+            showToast() { const t = document.getElementById('toast'); t.classList.add('visible'); setTimeout(() => t.classList.remove('visible'), 2000); },
+            downloadJSON() { const blob = new Blob([JSON.stringify(this.data, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'trdata.json'; a.click(); },
+            loadJSON(input) {
+                const file = input.files[0];
+                if (!file) return;
+
+                const r = new FileReader();
+                r.onload = (e) => {
+                    let rawData;
+                    // 1. Aşama: JSON Parsing
+                    try {
+                        rawData = JSON.parse(e.target.result);
+                    } catch (err) {
+                        console.error("JSON Parse Hatası:", err);
+                        alert('Hata: Dosya geçerli bir JSON formatında değil.\nLütfen dosya içeriğini kontrol edin.');
+                        return;
+                    }
+
+                    // 2. Aşama: Veriyi İşleme
+                    try {
+                        if (!rawData || typeof rawData !== 'object') {
+                            throw new Error("JSON verisi beklenen formatta değil (Obje olmalı).");
+                        }
+
+                        this.data = rawData;
+                        this.updateStats();
+                        this.saveToStorage();
+                        alert('Veriler başarıyla yüklendi.');
+                    } catch (err) {
+                        console.error("Veri İşleme Hatası:", err);
+                        alert('JSON okundu ancak veriler işlenirken bir hata oluştu:\n' + err.message);
+                    }
+                };
+                r.readAsText(file);
+            },
+            saveToStorage() { localStorage.setItem('militan_db_v2', JSON.stringify(this.data)); }, loadFromStorage() { const s = localStorage.getItem('militan_db_v2'); if (s) { this.data = JSON.parse(s); this.updateStats(); } },
+            handleSearch(val) { const svg = document.getElementById('svg-map'); if (!val) { svg.style.opacity = '1'; document.querySelectorAll('path').forEach(p => p.style.opacity = '1'); return; } val = val.toLowerCase(); document.querySelectorAll('path').forEach(p => { const cName = p.getAttribute('data-name').toLowerCase(); const cData = this.data[p.id]; let match = cName.includes(val); if (cData && cData.groups) if (cData.groups.some(g => g.name_tr.toLowerCase().includes(val))) match = true; if (match) { p.style.opacity = '1'; p.style.fill = '#ec4899'; } else { p.style.opacity = '0.1'; p.style.fill = ''; } }); }
+        };
+        document.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
 </body>
+
 </html>

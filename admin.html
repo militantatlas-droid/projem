@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MİLİTAN ATLASI | YÖNETİCİ PANELİ</title>
+  <title>MİLİTAN ATLASI | EDİTÖR</title>
   <style>
-    /* ─── TASARIM DİLİ (Senin sitenle uyumlu Dark Mode) ─── */
+    /* ─── GENEL TASARIM ─── */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #111;
@@ -18,7 +18,7 @@
       overflow: hidden;
     }
 
-    h1, h2, h3 { color: #4ade80; margin-top: 0; }
+    h1, h2, h3 { color: #4ade80; margin-top: 0; margin-bottom: 10px; }
     
     .container {
       display: flex;
@@ -30,18 +30,47 @@
       border-radius: 8px;
     }
 
-    /* SOL PANEL: LİSTE VE KONTROLLER */
+    /* ─── SOL PANEL (LİSTE & ARAMA) ─── */
     .sidebar {
-      width: 300px;
+      width: 320px;
       background: #252525;
       padding: 15px;
       display: flex;
       flex-direction: column;
       border-right: 1px solid #333;
-      overflow-y: auto;
     }
 
-    /* SAĞ PANEL: EDİTÖR */
+    .search-box {
+        margin-bottom: 15px;
+    }
+    
+    .scrollable-list {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+
+    /* LİSTE ELEMANLARI */
+    .list-item {
+      padding: 12px;
+      background: #333;
+      margin-bottom: 6px;
+      cursor: pointer;
+      border-radius: 4px;
+      border-left: 4px solid transparent;
+      display: flex;
+      flex-direction: column;
+    }
+    .list-item:hover { background: #444; }
+    .list-item.active { 
+        border-left-color: #4ade80; 
+        background: #2a2a2a; 
+        border-bottom: 1px solid #4ade80;
+    }
+    .item-name { font-weight: bold; color: #fff; }
+    .item-sub { font-size: 11px; color: #888; margin-top: 2px; }
+
+    /* ─── SAĞ PANEL (EDİTÖR) ─── */
     .editor {
       flex: 1;
       padding: 20px;
@@ -49,120 +78,141 @@
       background: #1f1f1f;
     }
 
-    /* FORM ELEMANLARI */
-    label { display: block; margin-top: 10px; font-size: 12px; color: #aaa; font-weight: bold; }
+    /* FORM */
+    label { display: block; margin-top: 15px; font-size: 13px; color: #4ade80; font-weight: bold; }
     input, select, textarea {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin-top: 5px;
       background: #111;
       border: 1px solid #444;
       color: #fff;
-      border-radius: 4px;
+      border-radius: 6px;
       font-family: inherit;
+      box-sizing: border-box;
     }
-    textarea { height: 100px; resize: vertical; }
-    input:focus, textarea:focus { border-color: #4ade80; outline: none; }
+    textarea { height: 100px; resize: vertical; line-height: 1.4; }
+    input:focus, textarea:focus { border-color: #4ade80; outline: none; background: #000; }
 
     /* BUTONLAR */
     .btn {
-      padding: 10px 15px;
+      padding: 12px 20px;
       cursor: pointer;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       font-weight: bold;
-      margin-top: 10px;
-      width: 100%;
       transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
     }
     .btn-primary { background: #4ade80; color: #000; }
-    .btn-primary:hover { background: #3ecf72; }
+    .btn-primary:hover { background: #3ecf72; box-shadow: 0 0 10px rgba(74,222,128,0.3); }
     
-    .btn-danger { background: #ff4444; color: #fff; margin-top: 5px; }
+    .btn-danger { background: #ff4444; color: #fff; width: 100%; margin-top: 20px; }
     .btn-danger:hover { background: #cc3333; }
 
-    .btn-download {
-      background: #3b82f6; color: white; margin-top: auto; padding: 15px;
-    }
+    .btn-add { background: #333; color: #ddd; width: 100%; margin-bottom: 10px; border: 1px dashed #666; }
+    .btn-add:hover { background: #444; color: #fff; border-color: #fff; }
 
-    .list-item {
-      padding: 10px;
-      background: #333;
-      margin-bottom: 5px;
-      cursor: pointer;
-      border-radius: 4px;
-      border-left: 3px solid transparent;
+    /* Dosya Yükleme Ekranı */
+    #start-screen {
+        position: absolute; inset: 0; background: #111; z-index: 999;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
-    .list-item:hover { background: #444; }
-    .list-item.active { border-left-color: #4ade80; background: #2a2a2a; }
-
-    /* Dosya Yükleme */
-    #file-input { display: none; }
     .upload-box {
       border: 2px dashed #444;
-      padding: 20px;
+      padding: 40px;
       text-align: center;
       color: #888;
       cursor: pointer;
-      margin-bottom: 20px;
+      border-radius: 12px;
+      transition: 0.2s;
     }
-    .upload-box:hover { border-color: #4ade80; color: #4ade80; }
+    .upload-box:hover { border-color: #4ade80; color: #4ade80; background: rgba(74,222,128,0.05); }
 
     .hidden { display: none !important; }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #666; }
   </style>
 </head>
 <body>
 
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-    <h1>MİLİTAN ATLASI | YÖNETİCİ PANELİ</h1>
-    <button class="btn btn-primary" style="width:auto;" onclick="downloadJSON()">💾 GÜNCEL trdata.json İNDİR</button>
+  <div id="start-screen">
+    <h1 style="font-size: 32px; margin-bottom: 40px;">MİLİTAN ATLASI | EDİTÖR</h1>
+    <div class="upload-box" onclick="document.getElementById('file-input').click()">
+      <h3 style="font-size: 20px;">📂 trdata.json Dosyasını Seç</h3>
+      <p>Proje klasöründeki dosyayı seçip düzenlemeye başla.</p>
+    </div>
+    <input type="file" id="file-input" accept=".json" onchange="loadJSON(this)" style="display:none;">
+    
+    <div style="margin-top: 30px;">
+        <button class="btn btn-add" style="width:auto; padding: 10px 30px;" onclick="createNewData()">Sıfırdan Başla</button>
+    </div>
   </div>
 
-  <div id="start-screen">
-    <div class="upload-box" onclick="document.getElementById('file-input').click()">
-      <h3>Mevcut trdata.json Dosyasını Seç</h3>
-      <p>Düzenlemeye başlamak için dosyayı buraya tıkla ve yükle.</p>
-    </div>
-    <input type="file" id="file-input" accept=".json" onchange="loadJSON(this)">
-    
-    <div style="text-align:center; margin-top:20px;">
-      <p style="color:#666;">veya</p>
-      <button class="btn btn-primary" style="width:200px;" onclick="createNewData()">Sıfırdan Başla</button>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;" id="top-bar" class="hidden">
+    <h2>YÖNETİM PANELİ</h2>
+    <div style="display:flex; gap:10px;">
+        <button class="btn btn-primary" style="background:#333; color:#fff; border:1px solid #444;" onclick="document.getElementById('file-input').click()">📂 Dosya Değiştir</button>
+        <button class="btn btn-primary" onclick="downloadJSON()">💾 KAYDET VE İNDİR</button>
     </div>
   </div>
 
   <div class="container hidden" id="editor-container">
     
     <div class="sidebar">
-      <h3>1. Ülke Seç</h3>
-      <select id="country-select" onchange="onCountrySelect()">
-        <option value="">-- Ülke Seçiniz --</option>
-        </select>
-      
-      <div style="margin-top:20px; border-top:1px solid #444; padding-top:10px;">
-        <h3>2. Gruplar</h3>
-        <button class="btn btn-primary" onclick="addNewGroup()">+ Yeni Grup Ekle</button>
-        <div id="group-list" style="margin-top:10px;">
-          </div>
+      <div class="search-box">
+          <label style="margin-top:0; margin-bottom:5px; color:#aaa;">Filtrele / Ara</label>
+          <input type="text" id="global-search" placeholder="Örgüt adı veya Ülke kodu..." oninput="filterGroups(this.value)" autocomplete="off">
       </div>
+      
+      <button class="btn btn-add" onclick="addNewGroupDialog()">+ YENİ ÖRGÜT EKLE</button>
+
+      <div class="scrollable-list" id="group-list">
+          </div>
     </div>
 
     <div class="editor">
+      <div id="welcome-msg" style="text-align:center; color:#666; margin-top:150px;">
+        <p style="font-size:18px;">Sol taraftan bir örgüt seçin veya arama yapın.</p>
+        <p style="font-size:14px; color:#444;">Değişiklikler anlık olarak hafızaya alınır. Çıkmadan önce "Kaydet" demeyi unutma.</p>
+      </div>
+
       <div id="form-area" class="hidden">
-        <h2 id="editor-title">Grup Düzenle</h2>
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:20px;">
+            <h2 id="editor-title" style="margin:0;">Grup Düzenle</h2>
+            <span id="editor-country-badge" style="background:#333; padding:5px 10px; border-radius:4px; font-size:12px; color:#aaa; align-self:center;">TR</span>
+        </div>
         
-        <label>Grup Adı (name_tr)</label>
+        <label>Örgüt Adı (Görünen İsim)</label>
         <input type="text" id="inp-name" oninput="updateCurrentGroup('name_tr', this.value)">
 
-        <label>Kategori (Milis, Terör Örgütü, İsyancı vb.)</label>
-        <input type="text" id="inp-cat" oninput="updateCurrentGroup('kategori', this.value)">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+            <div>
+                <label>Kategori</label>
+                <select id="inp-cat" onchange="updateCurrentGroup('kategori', this.value)">
+                    <option value="Terör Örgütü">Terör Örgütü</option>
+                    <option value="Milis Gücü">Milis Gücü</option>
+                    <option value="İsyancı Grup">İsyancı Grup</option>
+                    <option value="Paramiliter">Paramiliter</option>
+                    <option value="Bilinmiyor">Bilinmiyor</option>
+                </select>
+            </div>
+            <div>
+                <label>Durum</label>
+                <input type="text" id="inp-status" placeholder="Örn: Aktif, Pasif, Dağıldı..." oninput="updateCurrentDetail('grup_durumu', this.value)">
+            </div>
+        </div>
 
-        <label>Grup Durumu (Aktif, Pasif, Dağıldı)</label>
-        <input type="text" id="inp-status" oninput="updateCurrentDetail('grup_durumu', this.value)">
-
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
            <div>
-              <label>Oluşum Süreci</label>
+              <label>Oluşumu ve Gelişimi</label>
               <textarea oninput="updateCurrentDetail('olusum_sureci', this.value)" id="txt-olusum"></textarea>
            </div>
            <div>
@@ -171,9 +221,9 @@
            </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
             <div>
-               <label>Yönetim Yapısı</label>
+               <label>Yönetim ve Yapılanma</label>
                <textarea oninput="updateCurrentDetail('yonetim_yapisi', this.value)" id="txt-yonetim"></textarea>
             </div>
             <div>
@@ -182,44 +232,35 @@
             </div>
          </div>
 
-         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
             <div>
                <label>Önemli Eylemler</label>
                <textarea oninput="updateCurrentDetail('onemli_eylemler', this.value)" id="txt-eylem"></textarea>
             </div>
             <div>
-               <label>Finansman</label>
+               <label>Finans Kaynakları</label>
                <textarea oninput="updateCurrentDetail('finansman_kaynaklari', this.value)" id="txt-finans"></textarea>
             </div>
          </div>
 
-         <label>Diğer İlişkiler</label>
-         <textarea style="height:60px;" oninput="updateCurrentDetail('grup_iliskileri', this.value)" id="txt-iliski"></textarea>
+         <label>Diğer Gruplarla İlişkiler</label>
+         <textarea style="height:70px;" oninput="updateCurrentDetail('grup_iliskileri', this.value)" id="txt-iliski"></textarea>
 
          <label>Kaynakça</label>
-         <textarea style="height:60px;" oninput="updateCurrentDetail('kaynakca', this.value)" id="txt-kaynak"></textarea>
+         <textarea style="height:70px;" oninput="updateCurrentDetail('kaynakca', this.value)" id="txt-kaynak"></textarea>
 
-         <div style="margin-top:20px; border-top:1px solid #444; padding-top:10px;">
-             <button class="btn btn-danger" onclick="deleteCurrentGroup()">⚠️ Bu Grubu Sil</button>
-         </div>
+         <button class="btn btn-danger" onclick="deleteCurrentGroup()">🗑️ BU ÖRGÜTÜ SİL</button>
 
-      </div>
-      <div id="welcome-msg" style="text-align:center; color:#666; margin-top:100px;">
-        <p>Düzenlemek için soldan bir grup seçin veya yeni ekleyin.</p>
       </div>
     </div>
-
   </div>
 
 <script>
-    // ─── GLOBAL VERİLER ───
-    let mainData = {}; 
-    let selectedCountryId = null;
-    let selectedGroupIndex = null;
-
-    // SVG Haritadaki ID listesi (Ülke kodları eşleşmesi için referans)
-    // Bunu mevcut dosyandaki SVG path ID'lerinden çekebiliriz ama manuel ekleme gerekirse buraya yazılır.
-    // Şimdilik sadece yüklenen JSON'daki keyleri kullanacağız.
+    // ─── VERİ YÖNETİMİ ───
+    let mainData = {};
+    let allGroupsFlat = []; // Düzleştirilmiş liste (Arama ve listeleme için kolaylık)
+    
+    let currentEditId = null; // { countryCode: 'TR', index: 0 }
 
     // 1. JSON YÜKLEME
     function loadJSON(input) {
@@ -230,161 +271,206 @@
         reader.onload = function(e) {
             try {
                 mainData = JSON.parse(e.target.result);
-                initEditor();
+                startApp();
             } catch(err) {
-                alert("JSON dosyası hatalı! " + err);
+                alert("Dosya bozuk veya hatalı JSON formatında.");
             }
         };
         reader.readAsText(file);
     }
 
     function createNewData() {
-        if(confirm("Boş bir veri seti oluşturulacak. Emin misin?")) {
+        if(confirm("Boş bir veri seti oluşturulacak?")) {
             mainData = {};
-            initEditor();
+            startApp();
         }
     }
 
-    // 2. EDİTÖRÜ BAŞLAT
-    function initEditor() {
+    function startApp() {
         document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('top-bar').classList.remove('hidden');
         document.getElementById('editor-container').classList.remove('hidden');
-        populateCountrySelect();
+        flattenData(); // Veriyi listeye çevir
+        renderList(""); // Listeyi çiz
     }
 
-    // 3. ÜLKE LİSTESİNİ DOLDUR
-    function populateCountrySelect() {
-        const select = document.getElementById('country-select');
-        select.innerHTML = '<option value="">-- Ülke Seçiniz --</option>';
+    // 2. VERİYİ DÜZLEŞTİR (Kolay Liste Görünümü İçin)
+    function flattenData() {
+        allGroupsFlat = [];
+        Object.keys(mainData).forEach(countryCode => {
+            const country = mainData[countryCode];
+            if(country.groups && Array.isArray(country.groups)) {
+                country.groups.forEach((grp, idx) => {
+                    allGroupsFlat.push({
+                        countryCode: countryCode,
+                        countryName: country.name_tr || countryCode,
+                        index: idx, // Array içindeki orijinal index
+                        ...grp
+                    });
+                });
+            }
+        });
+        // İsme göre sırala
+        allGroupsFlat.sort((a,b) => (a.name_tr || "").localeCompare(b.name_tr || ""));
+    }
+
+    // 3. LİSTEYİ ÇİZ (Filtreleme Destekli)
+    function renderList(searchTerm) {
+        const listEl = document.getElementById('group-list');
+        listEl.innerHTML = "";
         
-        // JSON'daki anahtarları (TR, US, DE gibi) döngüye al
-        Object.keys(mainData).sort().forEach(key => {
-            const country = mainData[key];
-            const name = country.name_tr || key;
-            const option = document.createElement('option');
-            option.value = key;
-            option.text = `${key} - ${name}`;
-            select.appendChild(option);
+        const term = searchTerm.toLowerCase().trim();
+        
+        const filtered = allGroupsFlat.filter(item => {
+            const n = (item.name_tr || "").toLowerCase();
+            const c = (item.countryName || "").toLowerCase();
+            const cc = (item.countryCode || "").toLowerCase();
+            return n.includes(term) || c.includes(term) || cc.includes(term);
         });
 
-        // Eğer listede olmayan yeni bir ülke eklemek istersen buraya bir input koyabiliriz.
-        // Şimdilik sadece var olanları listeliyoruz.
-    }
-
-    // 4. ÜLKE SEÇİMİ
-    function onCountrySelect() {
-        selectedCountryId = document.getElementById('country-select').value;
-        selectedGroupIndex = null;
-        renderGroupList();
-        document.getElementById('form-area').classList.add('hidden');
-        document.getElementById('welcome-msg').classList.remove('hidden');
-    }
-
-    // 5. GRUPLARI LİSTELE
-    function renderGroupList() {
-        const listDiv = document.getElementById('group-list');
-        listDiv.innerHTML = '';
-
-        if (!selectedCountryId || !mainData[selectedCountryId]) return;
-
-        const groups = mainData[selectedCountryId].groups || [];
-
-        groups.forEach((group, index) => {
-            const div = document.createElement('div');
-            div.className = 'list-item';
-            div.textContent = group.name_tr || '(İsimsiz Grup)';
-            div.onclick = () => selectGroup(index);
-            if (index === selectedGroupIndex) div.classList.add('active');
-            listDiv.appendChild(div);
-        });
-    }
-
-    // 6. GRUP SEÇME VE FORM DOLDURMA
-    function selectGroup(index) {
-        selectedGroupIndex = index;
-        renderGroupList(); // Highlight güncellemesi için
-        
-        const group = mainData[selectedCountryId].groups[index];
-        const details = group.details || {};
-
-        // Formu Göster
-        document.getElementById('welcome-msg').classList.add('hidden');
-        document.getElementById('form-area').classList.remove('hidden');
-
-        // Değerleri Form Elemanlarına Ata
-        document.getElementById('inp-name').value = group.name_tr || '';
-        document.getElementById('inp-cat').value = group.kategori || '';
-        document.getElementById('inp-status').value = details.grup_durumu || '';
-        
-        document.getElementById('txt-olusum').value = details.olusum_sureci || '';
-        document.getElementById('txt-amac').value = details.nihai_hedef || '';
-        document.getElementById('txt-yonetim').value = details.yonetim_yapisi || '';
-        document.getElementById('txt-metot').value = details.eylem_metotlari || '';
-        document.getElementById('txt-eylem').value = details.onemli_eylemler || '';
-        document.getElementById('txt-finans').value = details.finansman_kaynaklari || '';
-        document.getElementById('txt-iliski').value = details.grup_iliskileri || '';
-        document.getElementById('txt-kaynak').value = details.kaynakca || '';
-    }
-
-    // 7. YENİ GRUP EKLEME
-    function addNewGroup() {
-        if(!selectedCountryId) {
-            alert("Lütfen önce bir ülke seçin (veya JSON'da ülkenin tanımlı olduğundan emin olun).");
+        if(filtered.length === 0) {
+            listEl.innerHTML = "<div style='padding:20px; text-align:center; color:#666;'>Sonuç yok.</div>";
             return;
         }
 
-        // Eğer ülke verisi içinde groups array yoksa oluştur
-        if(!mainData[selectedCountryId].groups) {
-            mainData[selectedCountryId].groups = [];
+        filtered.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "list-item";
+            
+            // Eğer şu an düzenlenen buysa aktif yap
+            if(currentEditId && currentEditId.countryCode === item.countryCode && currentEditId.index === item.index) {
+                div.classList.add("active");
+            }
+
+            div.innerHTML = `
+                <span class="item-name">${item.name_tr || "İsimsiz Örgüt"}</span>
+                <span class="item-sub">${item.countryCode} - ${item.countryName} | ${item.kategori || "-"}</span>
+            `;
+            
+            div.onclick = () => loadGroupToEditor(item.countryCode, item.index);
+            listEl.appendChild(div);
+        });
+    }
+
+    function filterGroups(val) {
+        renderList(val);
+    }
+
+    // 4. EDİTÖRE YÜKLE
+    function loadGroupToEditor(cCode, idx) {
+        currentEditId = { countryCode: cCode, index: idx };
+        
+        // Listeyi yeniden çiz (aktif class'ı güncellemek için) ama aramayı bozma
+        const searchVal = document.getElementById('global-search').value;
+        renderList(searchVal);
+
+        const grp = mainData[cCode].groups[idx];
+        const det = grp.details || {};
+
+        document.getElementById('welcome-msg').classList.add('hidden');
+        document.getElementById('form-area').classList.remove('hidden');
+
+        document.getElementById('editor-title').textContent = grp.name_tr || "Örgüt Düzenle";
+        document.getElementById('editor-country-badge').textContent = cCode + " - " + (mainData[cCode].name_tr || "");
+
+        // Formu Doldur
+        document.getElementById('inp-name').value = grp.name_tr || "";
+        // Kategori selectini ayarla (Eğer listede yoksa 'Bilinmiyor' yap veya ekle)
+        const catSelect = document.getElementById('inp-cat');
+        catSelect.value = grp.kategori || "Bilinmiyor";
+        
+        document.getElementById('inp-status').value = det.grup_durumu || "";
+        
+        document.getElementById('txt-olusum').value = det.olusum_sureci || "";
+        document.getElementById('txt-amac').value = det.nihai_hedef || "";
+        document.getElementById('txt-yonetim').value = det.yonetim_yapisi || "";
+        document.getElementById('txt-metot').value = det.eylem_metotlari || "";
+        document.getElementById('txt-eylem').value = det.onemli_eylemler || "";
+        document.getElementById('txt-finans').value = det.finansman_kaynaklari || "";
+        document.getElementById('txt-iliski').value = det.grup_iliskileri || "";
+        document.getElementById('txt-kaynak').value = det.kaynakca || "";
+    }
+
+    // 5. CANLI GÜNCELLEME
+    function updateCurrentGroup(key, val) {
+        if(!currentEditId) return;
+        mainData[currentEditId.countryCode].groups[currentEditId.index][key] = val;
+        
+        if(key === 'name_tr') {
+             // İsmi güncelleyince listeyi de güncelle ki solda görünsün
+             flattenData();
+             renderList(document.getElementById('global-search').value);
+             document.getElementById('editor-title').textContent = val;
+        }
+    }
+
+    function updateCurrentDetail(key, val) {
+        if(!currentEditId) return;
+        const grp = mainData[currentEditId.countryCode].groups[currentEditId.index];
+        if(!grp.details) grp.details = {};
+        grp.details[key] = val;
+    }
+
+    // 6. YENİ EKLEME VE SİLME
+    function addNewGroupDialog() {
+        const code = prompt("Hangi Ülke Kodu İçin Eklenecek? (Örn: TR, US, SY)");
+        if(!code) return;
+        
+        const upperCode = code.toUpperCase();
+        
+        // Eğer ülke JSON'da yoksa oluşturalım mı?
+        if(!mainData[upperCode]) {
+            if(confirm("Bu ülke kodu ("+upperCode+") sistemde yok. Yeni ülke oluşturulsun mu?")) {
+                const cName = prompt("Ülke Adı (Örn: Türkiye):");
+                mainData[upperCode] = { name_tr: cName || upperCode, groups: [] };
+            } else {
+                return;
+            }
         }
 
-        const newGroup = {
-            name_tr: "Yeni Örgüt",
+        if(!mainData[upperCode].groups) mainData[upperCode].groups = [];
+
+        // Boş şablon
+        const newGrp = {
+            name_tr: "Yeni İsimsiz Örgüt",
             kategori: "Bilinmiyor",
             details: {}
         };
+        
+        mainData[upperCode].groups.push(newGrp);
+        const newIdx = mainData[upperCode].groups.length - 1;
 
-        mainData[selectedCountryId].groups.push(newGroup);
-        // Yeni ekleneni seç
-        selectGroup(mainData[selectedCountryId].groups.length - 1);
+        // Veriyi yenile ve aç
+        flattenData();
+        loadGroupToEditor(upperCode, newIdx);
+        
+        // Arama kutusunu temizle ki yeni eklenen görünsün
+        document.getElementById('global-search').value = "";
+        renderList("");
+        
+        // Scroll'u o elemana götür (Basit yöntem: en alta in)
+        const listEl = document.getElementById('group-list');
+        listEl.scrollTop = listEl.scrollHeight;
     }
 
-    // 8. VERİ GÜNCELLEME (INPUT EVENTLERİ)
-    function updateCurrentGroup(key, value) {
-        if(selectedCountryId && selectedGroupIndex !== null) {
-            mainData[selectedCountryId].groups[selectedGroupIndex][key] = value;
-            if(key === 'name_tr') {
-                // Listeyi güncelle ki isim değişikliği anlık yansısın
-                // (Performans için sadece textContent değiştirilebilir ama bu basit)
-                const listItems = document.querySelectorAll('.list-item');
-                if(listItems[selectedGroupIndex]) listItems[selectedGroupIndex].textContent = value;
-            }
-        }
-    }
-
-    function updateCurrentDetail(key, value) {
-        if(selectedCountryId && selectedGroupIndex !== null) {
-            if(!mainData[selectedCountryId].groups[selectedGroupIndex].details) {
-                mainData[selectedCountryId].groups[selectedGroupIndex].details = {};
-            }
-            mainData[selectedCountryId].groups[selectedGroupIndex].details[key] = value;
-        }
-    }
-
-    // 9. GRUP SİLME
     function deleteCurrentGroup() {
-        if(confirm("Bu grubu ve tüm detaylarını silmek istediğine emin misin?")) {
-            mainData[selectedCountryId].groups.splice(selectedGroupIndex, 1);
-            selectedGroupIndex = null;
+        if(!currentEditId) return;
+        if(confirm("Bu örgüt kaydını kalıcı olarak silmek istediğine emin misin?")) {
+            mainData[currentEditId.countryCode].groups.splice(currentEditId.index, 1);
+            
+            // Editörü kapat
+            currentEditId = null;
             document.getElementById('form-area').classList.add('hidden');
             document.getElementById('welcome-msg').classList.remove('hidden');
-            renderGroupList();
+            
+            flattenData();
+            renderList(document.getElementById('global-search').value);
         }
     }
 
-    // 10. JSON İNDİRME (KAYDETME)
+    // 7. İNDİRME
     function downloadJSON() {
-        const dataStr = JSON.stringify(mainData, null, 2); // Güzel formatlı
+        const dataStr = JSON.stringify(mainData, null, 2);
         const blob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         

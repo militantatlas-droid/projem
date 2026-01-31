@@ -352,7 +352,22 @@
   },
   "MA": {
     "name_tr": "Fas",
-    "groups": []
+    "groups": [
+      {
+        "name_tr": "Yeni Örgüt",
+        "kategori": "Ayrılıkçı",
+        "durum": "Bilinmiyor",
+        "olusum_sureci": "ASDSADSADSAD",
+        "nihai_hedef": "",
+        "yonetim_yapisi": "",
+        "eylem_metotlari": "",
+        "eylemler": "",
+        "finansman_kaynaklari": "",
+        "grup_iliskileri": "",
+        "diger_bilgiler": "",
+        "kaynakca": ""
+      }
+    ]
   },
   "MG": {
     "name_tr": "Madagaskar",
@@ -361,7 +376,7 @@
         "name_tr": "ÖRNEK ÖRGÜT",
         "kategori": "Diğer",
         "durum": "Pasif",
-        "olusum_sureci": "<span style=\"color: rgb(26, 26, 26); font-family: Georgia, serif; font-size: 18px;\">Various attempts have been made to distinguish among types of terrorist activities. It is vital to bear in mind, however, that there are many kinds of terrorist movements, and no single theory can cover them all. Not only are the aims, members, beliefs, and resources of groups engaged in terrorism extremely&nbsp;</span><a class=\"md-dictionary-link md-dictionary-tt-off mw\" data-term=\"diverse\" href=\"https://www.merriam-webster.com/dictionary/diverse\" data-type=\"MW\" style=\"box-sizing: border-box; margin: 0px; padding: 0px; border-width: 0px 0px 2px; border-style: solid solid dotted; border-top-color: initial; border-right-color: initial; border-bottom-color: rgb(20, 89, 157); border-left-color: initial; border-image: initial; color: rgb(20, 89, 157); font-family: Georgia, serif; font-size: 18px;\">diverse</a><span style=\"color: rgb(26, 26, 26); font-family: Georgia, serif; font-size: 18px;\">, but so are the political&nbsp;</span><a class=\"md-dictionary-link md-dictionary-tt-off mw\" data-term=\"contexts\" href=\"https://www.merriam-webster.com/dictionary/contexts\" data-type=\"MW\" style=\"box-sizing: border-box; margin: 0px; padding: 0px; border-width: 0px 0px 2px; border-style: solid solid dotted; border-top-color: initial; border-right-color: initial; border-bottom-color: rgb(20, 89, 157); border-left-color: initial; border-image: initial; color: rgb(20, 89, 157); font-family: Georgia, serif; font-size: 18px;\">contexts</a><span style=\"color: rgb(26, 26, 26); font-family: Georgia, serif; font-size: 18px;\">&nbsp;of their campaigns. One popular typology identifies three broad classes of terrorism:&nbsp;</span><span id=\"ref38302\" style=\"box-sizing: border-box; margin: 0px; padding: 0px; border: 0px solid; scroll-margin-top: 100px; color: rgb(26, 26, 26); font-family: Georgia, serif; font-size: 18px;\"></span><a href=\"https://www.britannica.com/topic/revolutionary-group\" class=\"md-crosslink \" style=\"box-sizing: border-box; margin: 0px; padding: 0px; border: 0px solid; color: rgb(20, 89, 157); font-family: Georgia, serif; font-size: 18px;\">revolutionary</a><span style=\"color: rgb(26, 26, 26); font-family: Georgia, serif; font-size: 18px;\">, subrevolutionary, and establishment. Although this typology has been criticized as inexhaustive, it provides a useful framework for understanding and evaluating terrorist activities.</span>",
+        "olusum_sureci": "<font color=\"#1a1a1a\" face=\"Georgia, serif\"><span style=\"font-size: 18px;\">asdadaDENEMEMSADAS</span></font>",
         "nihai_hedef": "",
         "yonetim_yapisi": "",
         "eylem_metotlari": "",

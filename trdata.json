@@ -380,7 +380,22 @@
   },
   "MA": {
     "name_tr": "Fas",
-    "groups": []
+    "groups": [
+      {
+        "name_tr": "Yeni Örgüt",
+        "kategori": "Diğer",
+        "durum": "Bilinmiyor",
+        "olusum_sureci": "asdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasddddddddddddddddddddddddddddd",
+        "nihai_hedef": "",
+        "yonetim_yapisi": "",
+        "eylem_metotlari": "",
+        "eylemler": "",
+        "finansman_kaynaklari": "",
+        "grup_iliskileri": "",
+        "diger_bilgiler": "",
+        "kaynakca": ""
+      }
+    ]
   },
   "MG": {
     "name_tr": "Madagaskar",

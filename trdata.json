@@ -232,34 +232,6 @@
           "diger_bilgiler": "...",
           "kaynakca": "..."
         }
-      },
-      {
-        "name_tr": "ALPER MURAT",
-        "kategori": "Cihatçı",
-        "durum": "Bilinmiyor",
-        "olusum_sureci": "ALPER MURATALALPER MURATALPER MURATPER MURATALPER MURAT",
-        "nihai_hedef": "",
-        "yonetim_yapisi": "",
-        "eylem_metotlari": "",
-        "eylemler": "",
-        "finansman_kaynaklari": "",
-        "grup_iliskileri": "",
-        "diger_bilgiler": "",
-        "kaynakca": ""
-      },
-      {
-        "name_tr": "Yeni Örgüt",
-        "kategori": "Diğer",
-        "durum": "Bilinmiyor",
-        "olusum_sureci": "",
-        "nihai_hedef": "",
-        "yonetim_yapisi": "",
-        "eylem_metotlari": "",
-        "eylemler": "",
-        "finansman_kaynaklari": "",
-        "grup_iliskileri": "",
-        "diger_bilgiler": "",
-        "kaynakca": ""
       }
     ]
   },
@@ -382,19 +354,20 @@
     "name_tr": "Fas",
     "groups": [
       {
-        "name_tr": "Yeni Örgüt",
-        "kategori": "Diğer",
-        "durum": "Bilinmiyor",
-        "olusum_sureci": "asdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasdddddddddddddddddddddddddddddasddddddddddddddddddddddddddddd",
-        "nihai_hedef": "",
-        "yonetim_yapisi": "",
-        "eylem_metotlari": "",
-        "eylemler": "",
-        "finansman_kaynaklari": "",
-        "grup_iliskileri": "",
-        "diger_bilgiler": "",
-        "kaynakca": "",
-        "olusum": "asddddddddddddddddddddddddddddddddd"
+        "name_tr": "HANHAN ÖRGÜTÜ",
+        "kategori": "Ayrılıkçı",
+        "grup_durumu": "Aktif",
+        "details": {
+          "olusum_sureci": "ASDSADADASDSADADASDSADADASDSADADASDSADADASDSADADASDSADADASDSADADASDSADAD",
+          "nihai_hedef": "ASDSADADASDSADADASDSADAD",
+          "yonetim_yapisi": "ASDSADADASDSADAD",
+          "eylem_metotlari": "ASDSADADASDSADAD",
+          "onemli_eylemler": "ASDSADAD",
+          "finansman_kaynaklari": "ASDSADADASDSADAD",
+          "grup_iliskileri": "ASDSADAD",
+          "diger_bilgiler": "",
+          "kaynakca": ""
+        }
       }
     ]
   },

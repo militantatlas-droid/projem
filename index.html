@@ -3,312 +3,257 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MİLİTAN ATLASI - V3 (Gelişmiş Arama)</title>
+  <title>MİLİTAN ATLASI - SADE V4</title>
   <style>
-    /* ─── TEMEL AYARLAR ─── */
-    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+    /* ─── GENEL AYARLAR (LIGHT THEME) ─── */
+    :root {
+      --bg-color: #ffffff;      /* Harita Arkaplanı: BEYAZ */
+      --country-fill: #f0f0f0;  /* Ülke İçi: Çok açık gri */
+      --country-stroke: #555;   /* Sınır Çizgileri: Koyu Gri */
+      --accent-color: #2563eb;  /* Vurgu Rengi: Kurumsal Mavi */
+      --text-main: #333333;     /* Ana Yazı Rengi */
+      --text-light: #666666;    /* Yan Yazı Rengi */
+      --modal-bg: #ffffff;      /* Pencere Arkaplanı */
+      --shadow: 0 10px 25px rgba(0,0,0,0.15); /* Hafif Gölge */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+    
     body {
       margin: 0;
-      font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
-      background: #111;
-      color: #eee;
+      font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
       height: 100vh;
       overflow: hidden;
-      -webkit-font-smoothing: antialiased;
     }
+    
     #container { display: flex; height: 100%; width: 100%; position: relative; }
 
     /* ─── HARİTA ALANI ─── */
     #map-area {
       flex: 1;
       position: relative;
-      background: #f0f0f0;
+      background: var(--bg-color); /* İsteğin üzerine BEYAZ */
       overflow: hidden;
       cursor: default;
       z-index: 1;
     }
-    svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-      user-select: none;
-      touch-action: manipulation;
-    }
+    
+    svg { width: 100%; height: 100%; display: block; user-select: none; }
+    
     svg path {
-      fill: #2a2a2a; /* Varsayılan ülke rengi */
-      stroke: #000000;
-      stroke-width: 1.5;
+      fill: var(--country-fill);
+      stroke: var(--country-stroke);
+      stroke-width: 1.0; /* Daha ince, zarif çizgiler */
       vector-effect: non-scaling-stroke;
-      pointer-events: all;
-      transition: fill 0.3s ease, stroke 0.3s ease;
+      transition: all 0.2s ease;
+      cursor: pointer;
     }
-    /* Hover Efekti */
+    
+    /* Hover (Üzerine gelince) */
     svg path:hover {
-      fill: #333 !important;
-      stroke: #4ade80;
-      stroke-width: 2.0;
-      filter: drop-shadow(0 0 4px rgba(74, 222, 128, 0.4));
+      fill: #e2e8f0; /* Hafif maviye çalan gri */
+      stroke: #000;
+      stroke-width: 1.5;
     }
-    /* Seçili Ülke Efekti */
+    
+    /* Aktif (Seçili) Ülke */
     svg path.active {
-      fill: #b91c1c !important; /* Kırmızımsı vurgu */
-      stroke: #fff;
-      stroke-width: 2.5;
+      fill: var(--accent-color) !important;
+      stroke: #1e40af;
+      stroke-width: 2;
+      filter: drop-shadow(0 0 4px rgba(37, 99, 235, 0.4));
     }
 
-    /* ─── TOOLTIP ─── */
+    /* ─── TOOLTIP (İsim Baloncuğu) ─── */
     .tooltip {
       position: absolute;
-      background: rgba(15, 15, 15, 0.95);
-      color: white;
-      padding: 12px 16px;
-      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+      padding: 8px 12px;
+      border-radius: 4px;
       font-size: 13px;
       pointer-events: none;
       z-index: 1000;
-      max-width: 260px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       display: none;
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255,255,255,0.1);
-      line-height: 1.5;
+      border: 1px solid #ddd;
+      font-weight: 600;
+      white-space: nowrap;
     }
-    .tooltip.visible { display: block; animation: fadeIn 0.2s ease-out; }
-    .tooltip strong { display: block; font-size: 15px; margin-bottom: 6px; color: #4ade80; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .tooltip.visible { display: block; }
 
-    /* ─── YENİ ARAMA BUTONU (FLOATING ACTION BUTTON) ─── */
+    /* ─── ARAMA BUTONU (FAB) ─── */
     #search-fab {
       position: fixed;
       bottom: 30px;
       right: 30px;
-      width: 60px;
-      height: 60px;
-      background: #4ade80;
-      color: #000;
+      width: 56px;
+      height: 56px;
+      background: var(--accent-color);
+      color: #fff;
       border: none;
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 8px 25px rgba(74,222,128,0.4);
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
       z-index: 500;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: transform 0.2s;
     }
-    #search-fab svg { width: 28px; height: 28px; stroke: currentColor; fill: none; stroke-width: 2.5; }
-    #search-fab:hover { transform: scale(1.1) rotate(10deg); background: #fff; }
-    #search-fab:active { transform: scale(0.95); }
+    #search-fab:hover { transform: scale(1.05); background: #1d4ed8; }
+    #search-fab svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2.5; }
     #search-fab.hidden { transform: scale(0); opacity: 0; pointer-events: none; }
 
-    /* ─── ANA SAYFA BUTONU ─── */
-    #back-to-home {
-      position: fixed;
-      top: 20px; left: 20px;
-      z-index: 500;
-      width: 44px; height: 44px;
-      display: flex;
-      align-items: center; justify-content: center;
-      background: rgba(20, 20, 20, 0.8);
-      color: #aaa;
-      border: 1px solid #444;
-      border-radius: 50%;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(4px);
-    }
-    #back-to-home:hover { background: #4ade80; color: #000; border-color: #4ade80; }
-    #back-to-home svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2.5; }
-
-    /* ─── SIDEBAR (YAN MENÜ & ARAMA) ─── */
+    /* ─── SIDEBAR (YAN PANEL) ─── */
     #sidebar {
-      width: 380px;
-      background: #1a1a1a;
-      border-left: 1px solid #333;
-      color: #ddd;
-      padding: 0;
-      position: fixed;
-      top: 0; bottom: 0; right: 0;
-      display: flex; flex-direction: column;
+      width: 360px;
+      background: #fff;
+      border-left: 1px solid #eee;
+      color: #333;
+      position: fixed; top: 0; bottom: 0; right: 0;
       transform: translateX(100%);
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 600;
-      box-shadow: -10px 0 40px rgba(0,0,0,0.7);
+      display: flex; flex-direction: column;
+      box-shadow: -5px 0 20px rgba(0,0,0,0.05);
     }
     #sidebar.active { transform: translateX(0); }
 
     .sidebar-header {
       padding: 20px;
-      background: #222;
-      border-bottom: 1px solid #333;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      border-bottom: 1px solid #eee;
+      display: flex; align-items: center; justify-content: space-between;
+      background: #fafafa;
     }
-    .sidebar-title { font-size: 18px; font-weight: bold; color: #fff; }
-    
-    #sidebar-close {
-      background: transparent;
-      border: none;
-      color: #888;
-      font-size: 28px;
-      cursor: pointer;
-      line-height: 1;
-      transition: color 0.2s;
-    }
-    #sidebar-close:hover { color: #fff; }
+    .sidebar-title { font-weight: bold; font-size: 18px; color: #111; }
+    .btn-close-sidebar { background: none; border: none; font-size: 24px; cursor: pointer; color: #555; }
 
-    #search-container { padding: 20px; border-bottom: 1px solid #333; position: relative; }
+    /* Arama Sekmeleri (TABS) */
+    .search-tabs {
+      display: flex;
+      padding: 10px 20px 0 20px;
+      background: #fff;
+      gap: 10px;
+    }
+    .search-tab {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: #f4f4f5;
+      color: #666;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 8px 8px 0 0;
+      transition: 0.2s;
+    }
+    .search-tab.active {
+      background: var(--accent-color);
+      color: #fff;
+    }
+
+    /* Arama Input */
+    .search-box-wrapper { padding: 15px 20px; border-bottom: 1px solid #eee; }
     #search-input {
       width: 100%;
-      padding: 14px 40px 14px 16px;
-      background: #111;
-      border: 1px solid #444;
-      color: white;
+      padding: 12px;
+      border: 1px solid #ddd;
       border-radius: 8px;
-      font-size: 16px;
-      transition: border-color 0.2s;
+      font-size: 15px;
+      background: #f9f9f9;
     }
-    #search-input:focus { border-color: #4ade80; }
-    #clear-search {
-      position: absolute; right: 30px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; color: #888; font-size: 20px;
-      cursor: pointer; display: none;
-    }
+    #search-input:focus { border-color: var(--accent-color); background: #fff; }
 
-    #sidebar-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px 20px;
-    }
-    /* Scrollbar */
-    #sidebar-content::-webkit-scrollbar { width: 6px; }
-    #sidebar-content::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+    #sidebar-content { flex: 1; overflow-y: auto; padding: 10px 20px; }
 
-    /* ARAMA SONUÇLARI TASARIMI */
-    .suggestion-item {
-      padding: 14px;
-      background: #252525;
-      margin-bottom: 10px;
-      border-radius: 8px;
+    /* Arama Sonuçları */
+    .result-item {
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f0;
       cursor: pointer;
-      transition: all 0.2s;
-      border: 1px solid #333;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.2s;
     }
-    .suggestion-item:hover { background: #333; border-color: #555; transform: translateX(5px); }
-    
-    .sug-info { display: flex; flex-direction: column; }
-    .sug-name { font-size: 15px; font-weight: 600; color: #fff; }
-    .sug-type { font-size: 12px; margin-top: 4px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;}
-    
-    .badge {
-      display: inline-block;
-      width: 8px; height: 8px; border-radius: 50%;
-    }
-    .badge-country { background: #3b82f6; box-shadow: 0 0 5px #3b82f6; } /* Mavi nokta ülke */
-    .badge-group { background: #ef4444; box-shadow: 0 0 5px #ef4444; }   /* Kırmızı nokta grup */
+    .result-item:hover { background: #f8f9fa; }
+    .result-name { font-weight: 600; color: #222; font-size: 15px; }
+    .result-sub { font-size: 12px; color: #888; margin-top: 2px; }
 
+    /* Backdrop (Karartma) */
     #sidebar-backdrop {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.3); /* Daha hafif karartma */
       z-index: 550;
       opacity: 0; pointer-events: none;
       transition: opacity 0.3s;
-      backdrop-filter: blur(3px);
     }
     #sidebar-backdrop.active { opacity: 1; pointer-events: all; }
 
-    /* ─── MODALLAR (ORTAK YAPILAR) ─── */
+    /* ─── MODALLAR (BİLGİ PENCERELERİ) ─── */
     .modal {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.4); /* Arkaplan karartma */
       display: none; align-items: center; justify-content: center;
-      z-index: 2000; padding: 20px;
-      backdrop-filter: blur(8px);
+      z-index: 2000; 
+      padding: 20px;
+      backdrop-filter: blur(2px); /* Hafif bulanıklık */
     }
     .modal.active { display: flex; }
-    
+
     .modal-content {
-      background: #1f1f1f;
-      border: 1px solid #444;
-      border-radius: 16px;
-      width: 100%; max-width: 500px;
-      padding: 0;
-      position: relative;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-      color: #eee;
-      max-height: 85vh;
+      background: var(--modal-bg);
+      width: 100%; max-width: 550px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
       display: flex; flex-direction: column;
-      animation: slideUp 0.3s ease-out;
+      max-height: 85vh;
+      animation: modalPop 0.3s ease-out;
+      overflow: hidden;
     }
-    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes modalPop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
     .modal-header {
-      padding: 20px;
-      border-bottom: 1px solid #333;
-      display: flex; align-items: center; justify-content: space-between;
-      background: #252525;
-      border-radius: 16px 16px 0 0;
+      padding: 15px 20px;
+      border-bottom: 1px solid #eee;
+      display: flex; justify-content: space-between; align-items: center;
+      background: #fff;
     }
-    .modal-header h2 { font-size: 20px; color: #4ade80; margin: 0; }
+    .modal-header h2 { font-size: 18px; color: #111; margin: 0; }
     
-    .btn-close, .btn-back {
-      background: #333; border: none; color: #fff;
-      width: 32px; height: 32px; border-radius: 50%;
-      font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    .btn-icon {
+      background: #f0f0f0; border: none; width: 32px; height: 32px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #555;
+    }
+    .btn-icon:hover { background: #e0e0e0; color: #000; }
+
+    .modal-body { padding: 20px; overflow-y: auto; color: #444; line-height: 1.6; }
+
+    /* Liste Stili */
+    .group-list-item {
+      padding: 12px;
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
       transition: 0.2s;
     }
-    .btn-close:hover, .btn-back:hover { background: #555; }
+    .group-list-item:hover { border-color: var(--accent-color); background: #f0f7ff; }
 
-    .modal-body {
-      padding: 20px;
-      overflow-y: auto;
-      flex: 1;
+    /* Detay Sekmeleri */
+    .detail-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid #eee;}
+    .d-tab {
+      padding: 6px 12px; background: #eee; border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap; color: #555;
     }
-    
-    /* Ülke Grup Listesi */
-    .group-list-item {
-      display: block;
-      padding: 15px; margin-bottom: 10px;
-      background: #2a2a2a; border-radius: 8px;
-      border-left: 4px solid #4ade80;
-      color: #fff; text-decoration: none; cursor: pointer;
-      transition: 0.2s; font-size: 15px;
-    }
-    .group-list-item:hover { background: #333; transform: translateX(4px); }
+    .d-tab.active { background: var(--accent-color); color: #fff; }
 
-    /* Sekmeler */
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
-    .tab {
-      padding: 10px 16px; background: #2a2a2a; border: 1px solid #444;
-      border-radius: 20px; font-size: 13px; color: #aaa; cursor: pointer; transition: 0.2s;
-    }
-    .tab.active { background: #4ade80; color: #000; border-color: #4ade80; font-weight: bold; }
-    
-    .info-box {
-      background: #111; padding: 20px; border-radius: 10px; border: 1px solid #333; text-align: center;
-    }
-    .info-label { font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 8px; display: block;}
-    .info-val { font-size: 18px; font-weight: 500; color: #fff; }
-
-    /* BÜYÜK DETAY MODALI (OKUMA) */
-    #long-detail-modal .modal-content { max-width: 900px; height: 90vh; }
-    .detail-text-area {
-      background: rgba(0,0,0,0.2); padding: 25px; border-radius: 10px;
-      line-height: 1.7; font-size: 16px; color: #e0e0e0; text-align: justify;
-    }
-    .detail-text-area h3 { color: #4ade80; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;}
-
-    /* ─── MOBİL UYUMLULUK ─── */
+    /* Mobil */
     @media (max-width: 768px) {
       #sidebar { width: 100%; }
-      #search-fab { bottom: 20px; right: 20px; width: 50px; height: 50px; }
-      #search-fab svg { width: 24px; height: 24px; }
-      .tooltip { display: none !important; } /* Mobilde tooltip kapatılır */
-      .modal-content { width: 95%; max-height: 90vh; }
+      .modal-content { height: auto; max-height: 90vh; width: 95%; }
     }
   </style>
 </head>
@@ -316,15 +261,9 @@
 
 <div id="container">
   
-  <a href="https://militantatlas-droid.github.io/militantatlascom" id="back-to-home" title="Ana Sayfa">
-    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M15 19l-7-7 7-7" />
-    </svg>
-  </a>
-
   <div id="map-area">
     <svg id="svg-map" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
-       <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
+        <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
       <path id="BI" data-name="Burundi" data-id="BI" d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
       <path id="BJ" data-name="Benin" data-id="BJ" d="m 340,356 -9.3,-8 -4.3,0.1 -4.1,4 -2.6,4.2 -6,1.2 -2.5,6.1 -4.1,1.6 -1.6,7.2 3.7,4.1 4.3,4.9 0.4,6.8 2.5,2.8 -0.5,31.8 3,9.5 10.1,-1.6 0.6,-22.3 -0.3,-8.8 2.3,-8.7 3.7,-4.3 5.9,-8.5 -1.3,-3.7 2.4,-5.6 -2.8,-8.2 0.5,-4.6 z" />
       <path id="BF" data-name="Burkina Faso" data-id="BF" d="m 300.7,310.8 -7.8,0 -3,-2.6 -6.7,1.9 -11.3,5.8 -2.3,4.3 -9.4,6.2 -1.7,3.6 -5.1,2.8 -5.8,-1.9 -3.4,3.4 -1.8,9.5 -9.7,11.4 0.3,4.7 -3.4,5.9 0.8,8 5.5,3 2.1,4.6 5.4,2.9 4.3,-3.4 5.7,-0.6 8.3,3.6 -1.6,-10.4 0.3,-7.9 21.1,-0.6 5.4,1 3.9,-2.2 5.6,1.1 10.7,0.3 4.1,-1.6 2.5,-6.1 6,-1.2 2.6,-4.2 0.3,-9.5 -14,-3.1 -0.4,-6.7 -6.9,-9 -1.6,-6.3 1,-6.7 z" />
@@ -377,33 +316,31 @@
     </svg>
   </div>
 
-  <div id="tooltip" class="tooltip"></div>
-
-  <button id="search-fab" title="Arama Yap">
-    <svg viewBox="0 0 24 24">
-      <circle cx="11" cy="11" r="8"></circle>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-    </svg>
+  <button id="search-fab" title="Arama">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
   </button>
 
   <div id="sidebar-backdrop"></div>
+  <div id="tooltip" class="tooltip"></div>
 
   <div id="sidebar">
     <div class="sidebar-header">
       <span class="sidebar-title">Arama</span>
-      <button id="sidebar-close">×</button>
+      <button class="btn-close-sidebar" id="close-sidebar-btn">×</button>
     </div>
-    <div id="search-container">
-      <input type="text" id="search-input" placeholder="Ülke veya Grup Ara...">
-      <button id="clear-search">×</button>
+    
+    <div class="search-tabs">
+      <button class="search-tab active" onclick="setSearchType('country')">ÜLKELER</button>
+      <button class="search-tab" onclick="setSearchType('group')">GRUPLAR</button>
     </div>
+
+    <div class="search-box-wrapper">
+      <input type="text" id="search-input" placeholder="Ülke ara...">
+    </div>
+    
     <div id="sidebar-content">
-      <div style="text-align:center; color:#666; margin-top:50px;">
-        <svg style="width:40px; height:40px; margin:0 auto 10px; display:block; stroke:#444;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        Aradığınız ülke veya örgüt ismini girin.
+      <div style="text-align:center; color:#999; margin-top:40px; font-size:14px;">
+        Arama yapmak için yazmaya başlayın.
       </div>
     </div>
   </div>
@@ -411,8 +348,8 @@
   <div id="country-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 id="country-title">Ülke Adı</h2>
-        <button class="btn-close" onclick="closeAllModals()">×</button>
+        <h2 id="country-title">Ülke</h2>
+        <button class="btn-icon" onclick="closeAllModals()">×</button>
       </div>
       <div class="modal-body" id="country-body">
         </div>
@@ -422,41 +359,18 @@
   <div id="group-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <button class="btn-back" id="group-back">←</button>
-        <h2 id="group-title" style="font-size:16px; margin-left:10px;">Grup Adı</h2>
-        <button class="btn-close" onclick="closeAllModals()" style="margin-left:auto;">×</button>
+        <button class="btn-icon" onclick="backToCountry()">←</button>
+        <h2 id="group-title" style="margin-left:10px; font-size:16px;">Grup Adı</h2>
+        <button class="btn-icon" onclick="closeAllModals()" style="margin-left:auto;">×</button>
       </div>
       <div class="modal-body">
-        <div class="tabs">
-          <div class="tab active" onclick="switchTab('kategori')">KATEGORİ</div>
-          <div class="tab" onclick="switchTab('durum')">DURUM</div>
-          <div class="tab" onclick="openLongDetail()">DETAYLI İNCELE</div>
+        <div class="detail-tabs">
+          <div class="d-tab active" onclick="showGroupContent('ozet')">ÖZET</div>
+          <div class="d-tab" onclick="showGroupContent('amac')">AMAÇ</div>
+          <div class="d-tab" onclick="showGroupContent('eylem')">EYLEMLER</div>
+          <div class="d-tab" onclick="showGroupContent('finans')">FİNANS</div>
         </div>
-        <div id="group-tab-content" style="padding:10px 0;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="long-detail-modal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button class="btn-back" onclick="document.getElementById('long-detail-modal').classList.remove('active')">←</button>
-        <h2 id="long-title" style="margin-left:10px;">Detaylar</h2>
-        <button class="btn-close" onclick="closeAllModals()" style="margin-left:auto;">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="tabs">
-          <div class="tab l-tab active" onclick="showLongContent('olusum')">Oluşum</div>
-          <div class="tab l-tab" onclick="showLongContent('amac')">Amaç</div>
-          <div class="tab l-tab" onclick="showLongContent('yonetim')">Yönetim</div>
-          <div class="tab l-tab" onclick="showLongContent('metot')">Metot</div>
-          <div class="tab l-tab" onclick="showLongContent('eylem')">Eylemler</div>
-          <div class="tab l-tab" onclick="showLongContent('finans')">Finans</div>
-          <div class="tab l-tab" onclick="showLongContent('iliski')">İlişkiler</div>
-          <div class="tab l-tab" onclick="showLongContent('diger')">Diğer</div>
-          <div class="tab l-tab" onclick="showLongContent('kaynak')">Kaynak</div>
-        </div>
-        <div id="long-body" class="detail-text-area">
+        <div id="group-content-area" style="font-size:14px; text-align:justify;">
            </div>
       </div>
     </div>
@@ -466,36 +380,27 @@
 
 <script>
 // ──────────────────────────────────────────────
-// DEĞİŞKENLER VE YAPILANDIRMA
+// VERİ VE DEĞİŞKENLER
 // ──────────────────────────────────────────────
 let countryData = {};
+let activeSearchType = 'country'; // 'country' veya 'group'
 let currentCountryId = null;
 let currentGroup = null;
 let activePath = null;
 
-const dom = {
-  tooltip: document.getElementById("tooltip"),
-  sidebar: document.getElementById("sidebar"),
-  sidebarBackdrop: document.getElementById("sidebar-backdrop"),
-  sidebarContent: document.getElementById("sidebar-content"),
-  searchInput: document.getElementById("search-input"),
-  searchFab: document.getElementById("search-fab"),
-  clearSearch: document.getElementById("clear-search"),
-  
-  countryModal: document.getElementById("country-modal"),
-  groupModal: document.getElementById("group-modal"),
-  longModal: document.getElementById("long-detail-modal"),
-  
-  countryTitle: document.getElementById("country-title"),
-  countryBody: document.getElementById("country-body"),
-  groupTitle: document.getElementById("group-title"),
-  groupTabContent: document.getElementById("group-tab-content"),
-  longTitle: document.getElementById("long-title"),
-  longBody: document.getElementById("long-body")
+// HTML Elemanları
+const el = {
+  sidebar: document.getElementById('sidebar'),
+  backdrop: document.getElementById('sidebar-backdrop'),
+  searchInput: document.getElementById('search-input'),
+  sidebarContent: document.getElementById('sidebar-content'),
+  tooltip: document.getElementById('tooltip'),
+  countryModal: document.getElementById('country-modal'),
+  groupModal: document.getElementById('group-modal')
 };
 
 // ──────────────────────────────────────────────
-// BAŞLATMA VE VERİ ÇEKME
+// BAŞLANGIÇ
 // ──────────────────────────────────────────────
 fetch("trdata.json")
   .then(res => res.json())
@@ -504,314 +409,257 @@ fetch("trdata.json")
     initMap();
   })
   .catch(err => {
-    console.error("Veri hatası:", err);
-    dom.sidebarContent.innerHTML = `<p style="color:#ef4444; text-align:center;">Veri dosyası yüklenemedi!<br>trdata.json dosyasını kontrol et.</p>`;
-    initMap(); // Veri olmasa da harita çalışsın
+    console.log("JSON Yüklenemedi, harita boş veriyle çalışacak.", err);
+    initMap();
   });
 
 function initMap() {
-  const paths = document.querySelectorAll("svg path");
-  paths.forEach(path => {
-    const id = path.id;
-    const name = path.getAttribute("data-name") || id;
-
-    // Mouse Olayları
-    path.addEventListener("mouseenter", e => showTooltip(e, id, name));
-    path.addEventListener("mousemove", moveTooltip);
-    path.addEventListener("mouseleave", hideTooltip);
+  // Harita Eventleri
+  document.querySelectorAll("svg path").forEach(path => {
+    // Tooltip
+    path.addEventListener("mouseenter", e => {
+      const id = path.id;
+      const name = countryData[id] ? countryData[id].name_tr : path.getAttribute("data-name");
+      el.tooltip.innerHTML = name || id;
+      el.tooltip.classList.add("visible");
+    });
     
-    // Tıklama Olayları
+    path.addEventListener("mousemove", e => {
+      el.tooltip.style.left = (e.clientX + 15) + "px";
+      el.tooltip.style.top = (e.clientY + 15) + "px";
+    });
+
+    path.addEventListener("mouseleave", () => el.tooltip.classList.remove("visible"));
+
+    // Tıklama
     path.addEventListener("click", e => {
-      e.stopPropagation();
-      selectCountry(id, name, path);
+      e.stopPropagation(); // Haritaya tıklamayı engelle
+      selectCountry(path.id, path.getAttribute("data-name"), path);
     });
-    path.addEventListener("touchend", e => {
-      e.preventDefault(); e.stopPropagation();
-      selectCountry(id, name, path);
-    }, {passive:false});
   });
 
-  // Arama İşlevleri
-  dom.searchFab.addEventListener("click", openSidebar);
-  dom.sidebarBackdrop.addEventListener("click", closeSidebar);
-  document.getElementById("sidebar-close").addEventListener("click", closeSidebar);
-  
-  dom.searchInput.addEventListener("input", handleSearch);
-  dom.clearSearch.addEventListener("click", () => {
-    dom.searchInput.value = "";
-    dom.searchInput.focus();
-    handleSearch();
-  });
+  // Arama Butonları
+  document.getElementById('search-fab').addEventListener('click', openSidebar);
+  document.getElementById('close-sidebar-btn').addEventListener('click', closeSidebar);
+  el.searchInput.addEventListener('input', runSearch);
 
-  document.getElementById("group-back").addEventListener("click", () => {
-    dom.groupModal.classList.remove("active");
+  // DIŞARI TIKLAYINCA KAPATMA (İSTEK 4)
+  // Sidebar backdrop
+  el.backdrop.addEventListener('click', closeSidebar);
+
+  // Modal Backdrop Click (Pencere dışına tıklama)
+  window.addEventListener('click', (e) => {
+    // Eğer tıklanan yer "modal" sınıfına sahipse (yani içerik değil, siyah arkaplan ise)
+    if (e.target.classList.contains('modal')) {
+      closeAllModals();
+    }
   });
 }
 
 // ──────────────────────────────────────────────
-// HARİTA ETKİLEŞİMLERİ
+// İŞLEVLER
 // ──────────────────────────────────────────────
-function showTooltip(e, id, name) {
-  const cData = countryData[id];
-  const groupCount = cData && cData.groups ? cData.groups.length : 0;
-  
-  let html = `<strong>${cData ? (cData.name_tr || name) : name}</strong>`;
-  if(groupCount > 0) {
-    html += `<span style="color:#ccc; font-size:12px;">${groupCount} Grup Mevcut</span>`;
-  }
-  
-  dom.tooltip.innerHTML = html;
-  dom.tooltip.classList.add("visible");
-}
 
-function moveTooltip(e) {
-  const x = e.clientX + 15;
-  const y = e.clientY + 15;
-  // Ekran dışına taşmayı basitçe engelle
-  const limitX = window.innerWidth - dom.tooltip.offsetWidth - 20;
-  dom.tooltip.style.left = Math.min(x, limitX) + "px";
-  dom.tooltip.style.top = y + "px";
-}
-
-function hideTooltip() {
-  dom.tooltip.classList.remove("visible");
-}
-
-function selectCountry(id, fallbackName, pathElement) {
-  // Önceki seçimi kaldır
-  if(activePath) activePath.classList.remove("active");
+// Arama Tipi Değiştirme (Tab)
+function setSearchType(type) {
+  activeSearchType = type;
   
-  // Yeni seçim
-  const target = pathElement || document.getElementById(id);
-  if(target) {
-    target.classList.add("active");
-    activePath = target;
-  }
-  
-  currentCountryId = id;
-  const cData = countryData[id] || {};
-  const dispName = cData.name_tr || fallbackName;
-
-  dom.countryTitle.textContent = dispName;
-  
-  // Grupları Listele
-  let listHtml = "";
-  if(cData.groups && cData.groups.length > 0) {
-    cData.groups.forEach((g, idx) => {
-      listHtml += `<div class="group-list-item" onclick="openGroupDetail(${idx})">
-        ${g.name_tr || "İsimsiz Grup"}
-      </div>`;
-    });
-  } else {
-    listHtml = `<p style="text-align:center; color:#777; padding:30px;">Bu ülkede kayıtlı grup bulunmamaktadır.</p>`;
-  }
-  
-  dom.countryBody.innerHTML = listHtml;
-  dom.countryModal.classList.add("active");
-}
-
-// ──────────────────────────────────────────────
-// GRUP DETAYLARI
-// ──────────────────────────────────────────────
-function openGroupDetail(groupIndex) {
-  const cData = countryData[currentCountryId];
-  if(!cData || !cData.groups[groupIndex]) return;
-  
-  currentGroup = cData.groups[groupIndex];
-  dom.groupTitle.textContent = currentGroup.name_tr;
-  
-  // Varsayılan tab
-  switchTab('kategori');
-  dom.groupModal.classList.add("active");
-}
-
-function switchTab(tabName) {
-  // Aktif tab stilini güncelle
-  document.querySelectorAll('#group-modal .tab').forEach(t => t.classList.remove('active'));
-  const activeBtn = Array.from(document.querySelectorAll('#group-modal .tab')).find(t => t.innerText.toLowerCase().includes(tabName));
+  // Tab Buton Görünümü
+  document.querySelectorAll('.search-tab').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.querySelector(`.search-tab[onclick*="${type}"]`);
   if(activeBtn) activeBtn.classList.add('active');
 
-  let html = "";
-  if(tabName === 'kategori') {
-    html = `<div class="info-box">
-       <span class="info-label">KATEGORİ</span>
-       <div class="info-val" style="color:#4ade80;">${currentGroup.kategori || "Belirtilmemiş"}</div>
-    </div>`;
-  } else if (tabName === 'durum') {
-    const durum = currentGroup.details ? currentGroup.details.grup_durumu : "Bilinmiyor";
-    html = `<div class="info-box">
-       <span class="info-label">GÜNCEL DURUM</span>
-       <div class="info-val">${durum}</div>
-    </div>`;
-  }
-  dom.groupTabContent.innerHTML = html;
+  // Input Placeholder Güncelle
+  el.searchInput.placeholder = type === 'country' ? 'Ülke adı yazın...' : 'Grup adı yazın...';
+  
+  // Aramayı tekrar tetikle
+  runSearch();
 }
 
-// ──────────────────────────────────────────────
-// GELİŞMİŞ ARAMA SİSTEMİ
-// ──────────────────────────────────────────────
-function handleSearch() {
-  const term = dom.searchInput.value.toLowerCase().trim();
-  dom.clearSearch.style.display = term ? "block" : "none";
-  
-  if(!term) {
-    dom.sidebarContent.innerHTML = '<p style="text-align:center;color:#666;margin-top:20px;">Arama yapmak için yazmaya başlayın.</p>';
+// Arama Motoru
+function runSearch() {
+  const term = el.searchInput.value.toLowerCase().trim();
+  let html = "";
+
+  if (term.length < 1) {
+    el.sidebarContent.innerHTML = `<div style="text-align:center;color:#999;margin-top:20px;">Arama yapmak için yazın.</div>`;
     return;
   }
 
-  let results = [];
-  
-  // 1. Ülke İsimlerinde Ara (JSON'dan)
-  Object.keys(countryData).forEach(id => {
-    const c = countryData[id];
-    if(c.name_tr && c.name_tr.toLowerCase().includes(term)) {
-      results.push({ type: 'country', id: id, name: c.name_tr });
-    }
-  });
+  if (activeSearchType === 'country') {
+    // ÜLKE ARAMASI
+    let results = [];
+    document.querySelectorAll("svg path").forEach(p => {
+      const id = p.id;
+      const nameFromAttr = p.getAttribute("data-name") || "";
+      const nameFromJson = countryData[id] ? countryData[id].name_tr : "";
+      
+      const matchName = nameFromJson || nameFromAttr;
+      if (matchName && matchName.toLowerCase().includes(term)) {
+        results.push({ id: id, name: matchName });
+      }
+    });
 
-  // 2. Ülke İsimlerinde Ara (SVG'den - JSON'da olmayanlar için)
-  document.querySelectorAll("svg path").forEach(p => {
-    const id = p.id;
-    const name = p.getAttribute("data-name");
-    // Zaten eklediysek atla
-    if(!results.find(r => r.id === id) && name && name.toLowerCase().includes(term)) {
-      results.push({ type: 'country', id: id, name: name });
-    }
-  });
-
-  // 3. GRUP İsimlerinde Ara (Derin Arama)
-  Object.keys(countryData).forEach(id => {
-    const c = countryData[id];
-    if(c.groups) {
-      c.groups.forEach((g, idx) => {
-        if(g.name_tr && g.name_tr.toLowerCase().includes(term)) {
-          results.push({
-            type: 'group',
-            id: id,
-            groupIndex: idx,
-            name: g.name_tr,
-            parentCountry: c.name_tr
-          });
-        }
-      });
-    }
-  });
-
-  renderResults(results);
-}
-
-function renderResults(results) {
-  if(results.length === 0) {
-    dom.sidebarContent.innerHTML = '<p style="text-align:center;color:#666;">Sonuç bulunamadı.</p>';
-    return;
-  }
-
-  let html = "";
-  results.forEach(r => {
-    if(r.type === 'country') {
-      html += `
-      <div class="suggestion-item" onclick="clickSearchResult('country', '${r.id}', '${r.name}')">
-        <div class="sug-info">
-          <span class="sug-name">${r.name}</span>
-          <span class="sug-type"><span class="badge badge-country"></span> Ülke</span>
-        </div>
-        <svg style="width:16px;height:16px;stroke:#666;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    if (results.length === 0) html = `<div style="padding:10px; color:#777;">Sonuç bulunamadı.</div>`;
+    
+    results.forEach(r => {
+      html += `<div class="result-item" onclick="goToCountry('${r.id}', '${r.name}')">
+        <span class="result-name">${r.name}</span>
+        <svg style="width:16px;height:16px;color:#ccc;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
       </div>`;
-    } else {
-      // Grup Sonucu
-      html += `
-      <div class="suggestion-item" onclick="clickSearchResult('group', '${r.id}', null, ${r.groupIndex})">
-        <div class="sug-info">
-          <span class="sug-name">${r.name}</span>
-          <span class="sug-type"><span class="badge badge-group"></span> Grup • ${r.parentCountry}</span>
-        </div>
-         <svg style="width:16px;height:16px;stroke:#666;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      </div>`;
-    }
-  });
-  dom.sidebarContent.innerHTML = html;
-}
+    });
 
-function clickSearchResult(type, id, name, groupIndex) {
-  closeSidebar();
-  
-  if(type === 'country') {
-    // Direkt ülkeyi seç
-    selectCountry(id, name, null);
   } else {
-    // Grubu seç: Önce ülkeyi "arka planda" seç (modal açmadan), sonra grup modalını aç
-    currentCountryId = id;
-    const cData = countryData[id];
-    if(cData && cData.groups[groupIndex]) {
-        currentGroup = cData.groups[groupIndex];
-        dom.groupTitle.textContent = currentGroup.name_tr;
-        switchTab('kategori');
-        dom.groupModal.classList.add("active");
-    }
+    // GRUP ARAMASI
+    let results = [];
+    Object.keys(countryData).forEach(countryId => {
+      const c = countryData[countryId];
+      if (c.groups) {
+        c.groups.forEach((g, idx) => {
+          if (g.name_tr && g.name_tr.toLowerCase().includes(term)) {
+            results.push({
+              countryId: countryId,
+              groupIndex: idx,
+              gname: g.name_tr,
+              cname: c.name_tr
+            });
+          }
+        });
+      }
+    });
+
+    if (results.length === 0) html = `<div style="padding:10px; color:#777;">Grup bulunamadı.</div>`;
+
+    results.forEach(r => {
+      html += `<div class="result-item" onclick="goToGroup('${r.countryId}', ${r.groupIndex})">
+         <div>
+           <div class="result-name">${r.gname}</div>
+           <div class="result-sub">Bulunduğu Yer: ${r.cname}</div>
+         </div>
+      </div>`;
+    });
   }
+
+  el.sidebarContent.innerHTML = html;
 }
 
-// ──────────────────────────────────────────────
-// UZUN OKUMA (DETAY) FONKSİYONLARI
-// ──────────────────────────────────────────────
-function openLongDetail() {
-  if(!currentGroup) return;
-  dom.longTitle.textContent = currentGroup.name_tr + " - Detaylar";
-  dom.longModal.classList.add("active");
-  showLongContent('olusum');
-}
+// Seçim İşlemleri
+function selectCountry(id, fallbackName, pathEl) {
+  // Görsel Efekt
+  if (activePath) activePath.classList.remove('active');
+  const target = pathEl || document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+    activePath = target;
+  }
+  currentCountryId = id;
 
-function showLongContent(key) {
-  // Tab aktifliği
-  document.querySelectorAll('#long-detail-modal .l-tab').forEach(t => t.classList.remove('active'));
-  const activeTab = document.querySelector(`#long-detail-modal .l-tab[onclick*="${key}"]`);
-  if(activeTab) activeTab.classList.add("active");
-
-  const d = currentGroup.details || {};
-  const map = {
-    'olusum': { t: 'Oluşum Süreci', v: d.olusum_sureci },
-    'amac': { t: 'Amaç ve Hedef', v: d.nihai_hedef },
-    'yonetim': { t: 'Yönetim Yapısı', v: d.yonetim_yapisi },
-    'metot': { t: 'Eylem Metotları', v: d.eylem_metotlari },
-    'eylem': { t: 'Önemli Eylemler', v: d.onemli_eylemler },
-    'finans': { t: 'Finansman', v: d.finansman_kaynaklari },
-    'iliski': { t: 'İlişkiler', v: d.grup_iliskileri },
-    'diger': { t: 'Diğer Bilgiler', v: d.diger_bilgiler },
-    'kaynak': { t: 'Kaynakça', v: d.kaynakca }
-  };
+  // Veri Hazırlığı
+  const cData = countryData[id];
+  const displayName = cData && cData.name_tr ? cData.name_tr : (fallbackName || id);
   
-  const content = map[key];
-  dom.longBody.style.opacity = 0;
-  setTimeout(() => {
-    dom.longBody.innerHTML = `<h3>${content.t}</h3>${content.v || "<p style='color:#777; font-style:italic;'>Bilgi girilmemiş.</p>"}`;
-    dom.longBody.style.opacity = 1;
-    dom.longBody.scrollTop = 0;
-  }, 150);
-  dom.longBody.style.transition = "opacity 0.2s";
+  document.getElementById('country-title').innerText = displayName;
+  
+  // Grupları Listele
+  const listArea = document.getElementById('country-body');
+  if (cData && cData.groups && cData.groups.length > 0) {
+    let html = "";
+    cData.groups.forEach((g, idx) => {
+      html += `<div class="group-list-item" onclick="openGroupDetail(${idx})">
+        <strong>${g.name_tr}</strong>
+        <span style="font-size:12px; color:#888;">Detay ></span>
+      </div>`;
+    });
+    listArea.innerHTML = html;
+  } else {
+    listArea.innerHTML = `<p style="color:#777; text-align:center;">Bu ülkede kayıtlı grup yok.</p>`;
+  }
+
+  el.countryModal.classList.add('active');
 }
 
-// ──────────────────────────────────────────────
-// YARDIMCI UI FONKSİYONLARI
-// ──────────────────────────────────────────────
-function openSidebar() {
-  dom.sidebar.classList.add("active");
-  dom.sidebarBackdrop.classList.add("active");
-  dom.searchFab.classList.add("hidden");
-  setTimeout(() => dom.searchInput.focus(), 100);
+function openGroupDetail(idx) {
+  const cData = countryData[currentCountryId];
+  if (!cData || !cData.groups[idx]) return;
+  
+  currentGroup = cData.groups[idx];
+  document.getElementById('group-title').innerText = currentGroup.name_tr;
+  
+  el.countryModal.classList.remove('active'); // Ülkeyi kapat
+  el.groupModal.classList.add('active'); // Grubu aç
+  
+  showGroupContent('ozet'); // Varsayılan sekme
 }
 
-function closeSidebar() {
-  dom.sidebar.classList.remove("active");
-  dom.sidebarBackdrop.classList.remove("active");
-  dom.searchFab.classList.remove("hidden");
+function showGroupContent(tab) {
+  // Tab stili
+  document.querySelectorAll('.d-tab').forEach(t => t.classList.remove('active'));
+  const clickedTab = document.querySelector(`.d-tab[onclick*="${tab}"]`);
+  if(clickedTab) clickedTab.classList.add('active');
+
+  const contentDiv = document.getElementById('group-content-area');
+  const d = currentGroup.details || {};
+
+  let text = "";
+  switch(tab) {
+    case 'ozet': 
+      text = `<strong>Kategori:</strong> ${currentGroup.kategori || '-'}<br><br>
+              <strong>Durum:</strong> ${d.grup_durumu || '-'}<br><br>
+              <strong>Oluşum:</strong> ${d.olusum_sureci || 'Bilgi yok.'}`;
+      break;
+    case 'amac':
+      text = d.nihai_hedef || 'Bilgi yok.';
+      break;
+    case 'eylem':
+      text = `<strong>Metotlar:</strong> ${d.eylem_metotlari || '-'}<br><br>
+              <strong>Önemli Eylemler:</strong> ${d.onemli_eylemler || '-'}`;
+      break;
+    case 'finans':
+      text = d.finansman_kaynaklari || 'Bilgi yok.';
+      break;
+  }
+  contentDiv.innerHTML = text;
+}
+
+// Navigasyon
+function backToCountry() {
+  el.groupModal.classList.remove('active');
+  el.countryModal.classList.add('active');
 }
 
 function closeAllModals() {
-  document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
-  if(activePath) {
-    activePath.classList.remove("active");
+  el.countryModal.classList.remove('active');
+  el.groupModal.classList.remove('active');
+  if (activePath) {
+    activePath.classList.remove('active');
     activePath = null;
   }
+}
+
+// Sidebar'dan Git
+function goToCountry(id, name) {
+  closeSidebar();
+  selectCountry(id, name, null);
+}
+
+function goToGroup(countryId, groupIdx) {
+  closeSidebar();
+  // Önce ülkeyi seç (arka planda)
+  selectCountry(countryId, null, null);
+  // Sonra direkt gruba geç
+  openGroupDetail(groupIdx);
+}
+
+function openSidebar() {
+  el.sidebar.classList.add('active');
+  el.backdrop.classList.add('active');
+  document.getElementById('search-fab').classList.add('hidden');
+}
+
+function closeSidebar() {
+  el.sidebar.classList.remove('active');
+  el.backdrop.classList.remove('active');
+  document.getElementById('search-fab').classList.remove('hidden');
 }
 
 </script>

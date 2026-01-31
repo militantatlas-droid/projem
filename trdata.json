@@ -198,11 +198,10 @@
     "groups": [
       {
         "name_tr": "AQIM (İslami Mağrip El Kaidesi)",
-        "kategori": "Cihatçı",
-        "grup_durumu": "Bilinmiyor",
+        "kategori": "Cihadist",
         "details": {
           "grup_durumu": "Aktif",
-          "olusum_sureci": "<p>DENEMEEEE</p>",
+          "olusum_sureci": "...",
           "nihai_hedef": "...",
           "yonetim_yapisi": "...",
           "eylem_metotlari": "...",
@@ -364,11 +363,10 @@
     "groups": [
       {
         "name_tr": "JNIM (Cemaat Nusret el-İslam vel-Müslimin)",
-        "kategori": "Cihatçı",
-        "grup_durumu": "Bilinmiyor",
+        "kategori": "Cihadist / El-Kaide",
         "details": {
           "grup_durumu": "Aktif",
-          "olusum_sureci": "<p><br></p>",
+          "olusum_sureci": "...",
           "nihai_hedef": "...",
           "yonetim_yapisi": "...",
           "eylem_metotlari": "...",
@@ -381,11 +379,10 @@
       },
       {
         "name_tr": "IŞİD-GS (Büyük Sahra)",
-        "kategori": "Cihatçı",
-        "grup_durumu": "Bilinmiyor",
+        "kategori": "Cihadist",
         "details": {
           "grup_durumu": "Aktif",
-          "olusum_sureci": "<p><br></p>",
+          "olusum_sureci": "...",
           "nihai_hedef": "...",
           "yonetim_yapisi": "...",
           "eylem_metotlari": "...",
@@ -436,11 +433,10 @@
     "groups": [
       {
         "name_tr": "IŞİD-Batı Afrika",
-        "kategori": "Cihatçı",
-        "grup_durumu": "Bilinmiyor",
+        "kategori": "Cihadist",
         "details": {
           "grup_durumu": "Aktif",
-          "olusum_sureci": "<p><br></p>",
+          "olusum_sureci": "...",
           "nihai_hedef": "...",
           "yonetim_yapisi": "...",
           "eylem_metotlari": "...",

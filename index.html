@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MİLİTAN ATLASI | Mobil Optimize</title>
+  <title>MİLİTAN ATLASI</title>
   <style>
     /* ─── TEMEL AYARLAR ─── */
     * {
@@ -503,6 +503,50 @@
       <button class="zoom-btn" id="zoom-reset" title="Sıfırla">⟲</button>
     </div>
 
+    <style>
+      /* Mobil için zoom reset butonu düzeltmesi */
+      @media (max-width: 768px) {
+        .zoom-controls {
+          bottom: 100px;
+          left: 10px;
+        }
+
+        /* Yukarı taşı */
+        #search-fab {
+          bottom: 20px;
+          right: 20px;
+        }
+      }
+
+      .search-clear {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #333;
+        border: none;
+        color: #aaa;
+        font-size: 20px;
+        cursor: pointer;
+        display: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        padding: 0;
+        line-height: 24px;
+        text-align: center;
+      }
+
+      .search-clear:hover {
+        background: #444;
+        color: #fff;
+      }
+
+      .search-clear.visible {
+        display: block;
+      }
+    </style>
+
     <div id="map-wrapper">
       <svg id="svg-map" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
         <g id="map-transform-group">
@@ -619,6 +663,12 @@
       </svg>
     </button>
 
+    <div id="total-badge"
+      style="position:fixed; top:20px; right:20px; background:rgba(0,0,0,0.8); color:#fff; padding:10px 15px; border-radius:8px; border:1px solid #444; z-index:400; font-weight:bold; box-shadow:0 4px 10px rgba(0,0,0,0.5);">
+      <span style="color:#4ade80; font-size:18px;" id="total-count-val">0</span> <span
+        style="font-size:11px; color:#aaa;">ÖRGÜT</span>
+    </div>
+
     <div id="sidebar-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:550;display:none;">
     </div>
 
@@ -628,17 +678,22 @@
         <button id="sidebar-close">×</button>
       </div>
       <div class="search-tabs">
-        <button class="search-tab active" onclick="setSearchMode('country')">ÜLKELER</button>
-        <button class="search-tab" onclick="setSearchMode('group')">GRUPLAR</button>
-        <button class="search-tab" style="background:#450a0a; color:#fca5a5;"
-          onclick="setSearchMode('cihat')">CİHATÇI</button>
-        <button class="search-tab" style="background:#422006; color:#fde047;"
-          onclick="setSearchMode('ayrilik')">AYRILIKÇI</button>
-        <button class="search-tab" style="background:#172554; color:#93c5fd;"
-          onclick="setSearchMode('diger')">DİĞER</button>
+        <button class="search-tab active" onclick="setSearchMode('country')">ÜLKE ARA</button>
+        <button class="search-tab" onclick="setSearchMode('group')">GRUP ARA</button>
+        <button class="search-tab" onclick="setSearchMode('detailed')">DETAYLI FİLTRE</button>
       </div>
-      <div class="search-box-wrapper">
+
+      <!-- Filtre Butonları (Sadece Detaylı Modda Görünür) -->
+      <div id="filter-buttons"
+        style="display:none; flex-wrap:wrap; gap:5px; padding:5px 15px; background:#1a1a1a; border-bottom:1px solid #333;">
+        <button class="search-tab" style="flex:1;" onclick="setFilter('cihat')">CİHATÇI</button>
+        <button class="search-tab" style="flex:1;" onclick="setFilter('ayrilik')">AYRILIKÇI</button>
+        <button class="search-tab" style="flex:1;" onclick="setFilter('diger')">DİĞER</button>
+      </div>
+
+      <div class="search-box-wrapper" style="position:relative;">
         <input type="text" id="search-input" placeholder="Ülke ara...">
+        <button id="search-clear" class="search-clear" onclick="clearSearch()">×</button>
       </div>
       <div id="sidebar-content"></div>
     </div>
@@ -947,75 +1002,72 @@
     // ──────────────────────────────────────────────
     // ARAMA VE SEÇİM
     // ──────────────────────────────────────────────
+    // ──────────────────────────────────────────────
+    // ARAMA VE SEÇİM
+    // ──────────────────────────────────────────────
     function setSearchMode(mode) {
       searchMode = mode;
       document.querySelectorAll(".search-tab").forEach(t => t.classList.remove("active"));
 
-      // Buton aktiflik durumu (Çoklu buton yapısı)
-      const activeBtn = document.querySelector(`.search-tab[onclick*="'${mode}'"]`);
-      if (activeBtn) activeBtn.classList.add("active");
+      // Ana Tab Aktifliği
+      const tabIndex = mode === 'country' ? 0 : (mode === 'group' ? 1 : 2);
+      const tabs = document.querySelectorAll(".search-tabs .search-tab");
+      if (tabs[tabIndex]) tabs[tabIndex].classList.add("active");
+
+      // Filtre Butonları Görünürlüğü
+      const filterDiv = document.getElementById('filter-buttons');
+      if (mode === 'detailed') {
+        filterDiv.style.display = 'flex';
+        setFilter('all'); // Varsayılan hepsi veya seçim yok
+      } else {
+        filterDiv.style.display = 'none';
+        resetMapHighlights();
+      }
 
       // Placeholder Ayarı
-      if (mode === 'country') dom.searchInput.placeholder = "Ülke ara...";
-      else if (mode === 'group') dom.searchInput.placeholder = "Grup ismi ara...";
-      else dom.searchInput.placeholder = "Filtrele...";
+      const input = dom.searchInput;
+      if (mode === 'country') input.placeholder = "Ülke ara...";
+      else if (mode === 'group') input.placeholder = "Grup ismi ara...";
+      else input.placeholder = "Filtrelemek için kategori seçin...";
 
-      dom.searchInput.value = "";
-      runSearch(); // Otomatik listele
+      input.value = "";
+      toggleClearButton();
+      runSearch();
       dom.sidebarContent.scrollTop = 0;
     }
+
+    let activeFilterCategory = null;
+    function setFilter(cat) {
+      activeFilterCategory = cat;
+      // Buton görselliği (seçili olanı parlat, diğerlerini söndür)
+      // Şimdilik basitçe hepsini çalıştıralım, görsel detay eklenebilir.
+      runSearch();
+    }
+
+    function clearSearch() {
+      dom.searchInput.value = "";
+      toggleClearButton();
+      runSearch();
+      dom.searchInput.focus();
+    }
+
+    function toggleClearButton() {
+      const btn = document.getElementById('search-clear');
+      if (dom.searchInput.value.length > 0) btn.style.display = 'block';
+      else btn.style.display = 'none';
+    }
+
+    dom.searchInput.addEventListener('input', () => {
+      toggleClearButton();
+      runSearch();
+    });
 
     function runSearch() {
       const term = dom.searchInput.value.toLowerCase().trim();
       let html = "";
 
-      // 1. KATEGORİ FİLTRELEME (Cihatçı, Ayrılıkçı, Diğer)
-      if (['cihat', 'ayrilik', 'diger'].includes(searchMode)) {
-        let targetCategory = "";
-        if (searchMode === 'cihat') targetCategory = "Cihatçı";
-        else if (searchMode === 'ayrilik') targetCategory = "Ayrılıkçı";
-        else targetCategory = "Diğer";
-
-        let matches = [];
-        Object.keys(countryData).forEach(cid => {
-          const c = countryData[cid];
-          if (c.groups) {
-            c.groups.forEach((g, idx) => {
-              // Kategori eşleşiyor mu?
-              const cat = g.kategori || "Diğer";
-              if (cat === targetCategory || (targetCategory === "Diğer" && cat !== "Cihatçı" && cat !== "Ayrılıkçı")) {
-                // Arama terimi varsa onu da kontrol et
-                if (!term || (g.name_tr && g.name_tr.toLowerCase().includes(term))) {
-                  matches.push({ cid, idx, gName: g.name_tr, cName: c.name_tr });
-                }
-              }
-            });
-          }
-        });
-
-        // Sıralama (Alfabetik)
-        matches.sort((a, b) => a.gName.localeCompare(b.gName));
-
-        if (matches.length === 0) html = "<p style='color:#777;text-align:center;padding:20px;'>Bu kategoride kayıt bulunamadı.</p>";
-        else {
-          matches.forEach(m => {
-            html += `
-                <div class="result-item" onclick="goToGroup('${m.cid}', ${m.idx})">
-                    <div>
-                        <div style="font-weight:bold;color:#eee;">${m.gName}</div>
-                        <div style="font-size:11px;color:#888;">${m.cName}</div>
-                    </div>
-                    <svg style="width:16px;height:16px;color:#888;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle></svg>
-                </div>`;
-          });
-        }
-
-        // Harita Renklendirme (Opsiyonel: Filtreye uyan ülkeleri boya)
-        highlightMapByCategory(targetCategory);
-
-      }
-      // 2. ÜLKE ARAMA
-      else if (searchMode === 'country') {
+      // 1. ÜLKE ARAMA
+      if (searchMode === 'country') {
         let matches = [];
         const allIds = new Set([...Object.keys(countryData), ...Array.from(document.querySelectorAll('svg path')).map(p => p.id)]);
         allIds.forEach(id => {
@@ -1023,9 +1075,8 @@
           const pEl = document.getElementById(id);
           const name = cData ? cData.name_tr : (pEl ? pEl.getAttribute("data-name") : id);
 
-          // Küçük Ülkeler Modu (veya Arama)
+          // Küçük Ülkeler Modu
           if (term === "küçük" || term === "kucuk") {
-            // Manuel liste: Gambia, Djibouti, vb.
             if (['GM', 'DJ', 'RW', 'BI', 'TG', 'BJ', 'GW', 'SL', 'LB'].includes(id)) matches.push({ id, name });
           } else {
             if (name && name.toLowerCase().includes(term)) matches.push({ id, name });
@@ -1046,10 +1097,10 @@
         }
         resetMapHighlights();
       }
-      // 3. GRUP ARAMA (Genel)
-      else {
-        let seenGroups = new Set();
+      // 2. GRUP ARAMA
+      else if (searchMode === 'group') {
         let matches = [];
+        let seenGroups = new Set();
         Object.keys(countryData).forEach(cid => {
           const c = countryData[cid];
           if (c.groups) {
@@ -1064,7 +1115,6 @@
             });
           }
         });
-
         matches.sort((a, b) => a.gName.localeCompare(b.gName));
 
         if (matches.length === 0) html = "<p style='color:#777;text-align:center'>Grup bulunamadı.</p>";
@@ -1076,32 +1126,105 @@
                         <div style="font-weight:bold;color:#eee;">${m.gName}</div>
                         <div style="font-size:11px;color:#888;">${m.cName}</div>
                     </div>
-                    <svg style="width:16px;height:16px;color:#888;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle></svg>
                 </div>`;
           });
         }
         resetMapHighlights();
       }
+      // 3. DETAYLI FİLTRE
+      else if (searchMode === 'detailed') {
+        if (!activeFilterCategory || activeFilterCategory === 'all') {
+          html = "<p style='color:#aaa;text-align:center;padding:20px;'>Lütfen yukarıdan bir kategori seçin.</p>";
+          resetMapHighlights();
+        } else {
+          let targetCategory = "";
+          if (activeFilterCategory === 'cihat') targetCategory = "Cihatçı";
+          else if (activeFilterCategory === 'ayrilik') targetCategory = "Ayrılıkçı";
+          else targetCategory = "Diğer";
+
+          highlightMapByCategory(targetCategory);
+
+          let matches = [];
+          Object.keys(countryData).forEach(cid => {
+            const c = countryData[cid];
+            if (c.groups) {
+              c.groups.forEach((g, idx) => {
+                const cat = g.kategori || "Diğer";
+                if (cat === targetCategory || (targetCategory === "Diğer" && cat !== "Cihatçı" && cat !== "Ayrılıkçı")) {
+                  if (!term || (g.name_tr && g.name_tr.toLowerCase().includes(term))) {
+                    matches.push({ cid, idx, gName: g.name_tr, cName: c.name_tr });
+                  }
+                }
+              });
+            }
+          });
+          matches.sort((a, b) => a.gName.localeCompare(b.gName));
+
+          if (matches.length === 0) html = "<p style='color:#777;text-align:center;padding:20px;'>Kayıt bulunamadı.</p>";
+          else {
+            matches.forEach(m => {
+              html += `
+                    <div class="result-item" onclick="goToGroup('${m.cid}', ${m.idx})">
+                        <div>
+                            <div style="font-weight:bold;color:#eee;">${m.gName}</div>
+                            <div style="font-size:11px;color:#888;">${m.cName}</div>
+                        </div>
+                    </div>`;
+            });
+          }
+        }
+      }
+
       dom.sidebarContent.innerHTML = html;
     }
 
+    // Veri Yükleme (LocalStorage Entegrasyonu)
+    function loadFromStorage() {
+      const s = localStorage.getItem('militan_db_v2');
+      if (s) {
+        try {
+          countryData = JSON.parse(s);
+          console.log("Veri LocalStorage'dan yüklendi.");
+          updateTotalCount();
+        } catch (e) {
+          console.error("LocalStorage verisi bozuk:", e);
+        }
+      } else {
+        console.warn("LocalStorage'da veri bulunamadı. Admin panelden veri kaydedin.");
+      }
+      initMapInteractions();
+    }
+
+    function updateTotalCount() {
+      let total = 0;
+      Object.values(countryData).forEach(c => {
+        if (c.groups) total += c.groups.length;
+      });
+      document.getElementById('total-count-val').innerText = total;
+    }
+
     function highlightMapByCategory(category) {
+      let color = '#ef4444'; // Kırmızı - Tüm kategoriler için
+      let stroke = '#fca5a5'; // Açık kırmızı kenarlık
+
       document.querySelectorAll('svg path').forEach(p => {
-        p.style.fill = ''; p.style.opacity = '0.3'; // Diğerlerini soluklaştır
+        p.style.fill = ''; p.style.opacity = '0.2'; p.style.stroke = '';
+
         const id = p.id;
         const c = countryData[id];
         if (c && c.groups && c.groups.some(g => {
           const gCat = g.kategori || "Diğer";
           return gCat === category || (category === "Diğer" && gCat !== "Cihatçı" && gCat !== "Ayrılıkçı");
         })) {
-          p.style.fill = '#4ade80'; p.style.opacity = '1';
+          p.style.fill = color;
+          p.style.opacity = '1';
+          if (stroke) p.style.stroke = stroke;
         }
       });
     }
-
     function resetMapHighlights() {
       document.querySelectorAll('svg path').forEach(p => {
-        p.style.fill = ''; p.style.opacity = '1';
+        p.style.fill = ''; p.style.opacity = '1'; p.style.stroke = '';
       });
     }
 
@@ -1176,97 +1299,4 @@
     function openLongModal() {
       dom.groupModal.classList.remove("active");
       dom.longModal.classList.add("active");
-      showLongTabContent('olusum');
-    }
-
-    function showLongTabContent(key) {
-      document.querySelectorAll(".l-tab").forEach(t => t.classList.remove("active"));
-      const activeTab = document.querySelector(`.l-tab[onclick*="'${key}'"]`);
-      if (activeTab) activeTab.classList.add("active");
-
-      const d = currentGroup.details || {};
-      let title = "", text = "";
-      const noData = "<i style='color:#777;'>Bilgi girişi yapılmamış.</i>";
-
-      switch (key) {
-        case 'olusum': title = "Oluşumu ve Gelişimi"; text = d.olusum_sureci; break;
-        case 'amac': title = "Amaç ve Nihai Hedef"; text = d.nihai_hedef; break;
-        case 'yonetim': title = "Yönetim ve Yapılanma"; text = d.yonetim_yapisi; break;
-        case 'metot': title = "Kullandıkları Eylem Taktikleri"; text = d.eylem_metotlari; break;
-        case 'eylem': title = "Eylemler"; text = d.onemli_eylemler; break;
-        case 'finans': title = "Kaynak Temini"; text = d.finansman_kaynaklari; break;
-        case 'iliski': title = "Diğer Gruplarla İlişkiler"; text = d.grup_iliskileri; break;
-        case 'diger': title = "Diğer Bilgiler"; text = d.diger_bilgiler; break;
-        case 'kaynak': title = "Kaynakça"; text = d.kaynakca; break;
-      }
-      dom.longDetailBody.innerHTML = `<h3>${title}</h3>${text || noData}`;
-    }
-
-    // Navigasyon Yardımcıları
-    function openSidebar() {
-      dom.sidebar.classList.add("active");
-      dom.sidebarBackdrop.style.display = "block";
-      dom.searchFab.classList.add("hidden");
-      // Varsayılan olarak Cihatçı listesini açalım mı? Hayır, ülke listesi kalsın.
-      if (!['country', 'group', 'cihat', 'ayrilik', 'diger'].includes(searchMode)) setSearchMode('country');
-      else runSearch(); // Mevcut modu yenile
-    }
-
-    function goToCountry(id, name) {
-      resetApplicationState();
-      selectCountry(id, name, null);
-    }
-
-    function goToGroup(cid, idx) {
-      // Önce temizle
-      resetApplicationState();
-
-      // Geri tuşu için ülke verisini hazırla
-      currentCountryId = cid;
-      const cData = countryData[cid];
-      if (cData) {
-        dom.countryTitle.textContent = cData.name_tr;
-        let html = "";
-        cData.groups.forEach((g, i) => html += `<div class="group-item" onclick="openGroupDetail(${i})">${g.name_tr}</div>`);
-        dom.countryGroups.innerHTML = html;
-      }
-
-      // Direkt grubu aç
-      openGroupDetail(idx);
-    }
-
-
-    // ──────────────────────────────────────────────
-    // MOBİL SWIPE MANTIĞI (KAPATMAK İÇİN)
-    // ──────────────────────────────────────────────
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    dom.sidebar.addEventListener('touchstart', e => {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-
-    dom.sidebar.addEventListener('touchend', e => {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipe();
-    }, { passive: true });
-
-    function handleSwipe() {
-      // Sağdan sola kaydırırsan (Sidebar sağda olduğu için, kapatmak için SAĞA kaydırman lazım)
-      // Sidebar right:0, yani ekranın sağında. Kapatmak için +X yönünde (SAĞA) kaydırılmalı.
-      if (touchEndX > touchStartX + 100) { // 100px eşik değeri
-        resetApplicationState(); // Kapat
-      }
-    }
-    function backToCountry() {
-      dom.groupModal.classList.remove("active");
-      dom.countryModal.classList.add("active");
-    }
-    function closeLongModal() {
-      dom.longModal.classList.remove("active");
-      dom.groupModal.classList.add("active");
-    }
-  </script>
-</body>
-
-</html>
+   

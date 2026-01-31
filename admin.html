@@ -290,6 +290,23 @@
             opacity: 1;
         }
 
+        /* Global Mod için Özel Stil (Haritayı Kullanıma Açma) */
+        .overlay.allow-map-interaction {
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: none;
+            pointer-events: none;
+            justify-content: flex-end;
+            padding: 20px;
+        }
+
+        .overlay.allow-map-interaction .editor-container {
+            pointer-events: auto;
+            width: 500px;
+            height: 100%;
+            max-width: 500px;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
         .editor-container {
             background: var(--bg-body);
             width: 95%;
@@ -443,20 +460,27 @@
 
         .tab-bar {
             display: flex;
+            flex-wrap: wrap;
             gap: 2px;
-            padding: 0 25px;
+            padding: 0 15px;
             background: #1a2436;
             border-bottom: 1px solid var(--border);
             flex-shrink: 0;
+            min-height: 45px;
         }
 
         .tab {
-            padding: 12px 20px;
-            font-size: 13px;
+            padding: 8px 12px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-muted);
             cursor: pointer;
             border-bottom: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .tab.active {
@@ -717,6 +741,7 @@
     <script>
         const app = {
             data: {}, currentCountryId: null, currentGroupIdx: -1, quill: null, chart: null, currentTab: 'olusum', isGlobalMode: false, groupsTempData: {}, zoom: { scale: 1, pX: 0, pY: 0, isPanning: false, startX: 0, startY: 0 },
+            activeFilters: { cihat: true, ayrilik: true, diger: true },
             init() {
                 this.quill = new Quill('#quill-editor', { theme: 'snow', placeholder: 'Buraya detaylı bilgi giriniz...', modules: { toolbar: [[{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['link', 'clean']] } });
                 const mapContainer = document.getElementById('map-view');
@@ -724,40 +749,157 @@
                 window.addEventListener('mousemove', e => { if (!this.zoom.isPanning) return; e.preventDefault(); this.zoom.pX = e.clientX - this.zoom.startX; this.zoom.pY = e.clientY - this.zoom.startY; this.updateTransform(); });
                 window.addEventListener('mouseup', () => { this.zoom.isPanning = false; mapContainer.style.cursor = 'grab'; });
                 mapContainer.addEventListener('wheel', e => { e.preventDefault(); const xs = (e.clientX - this.zoom.pX) / this.zoom.scale; const ys = (e.clientY - this.zoom.pY) / this.zoom.scale; const factor = -e.deltaY > 0 ? 1.1 : 0.9; let newScale = this.zoom.scale * factor; if (newScale < 0.5) newScale = 0.5; if (newScale > 15) newScale = 15; this.zoom.pX = e.clientX - xs * newScale; this.zoom.pY = e.clientY - ys * newScale; this.zoom.scale = newScale; this.updateTransform(); });
-                document.querySelectorAll('path').forEach(p => { p.addEventListener('click', (e) => { if (Math.abs(e.movementX) > 2 || Math.abs(e.movementY) > 2) return; this.openEditor(p.id, p.getAttribute('data-name')); }); p.addEventListener('mouseover', e => this.showTooltip(e, p.id, p.getAttribute('data-name'))); p.addEventListener('mousemove', e => this.moveTooltip(e)); p.addEventListener('mouseout', () => this.hideTooltip()); });
+
+                document.querySelectorAll('path').forEach(p => {
+                    p.addEventListener('click', (e) => {
+                        if (Math.abs(e.movementX) > 2 || Math.abs(e.movementY) > 2) return;
+                        if (this.isGlobalMode && document.getElementById('editor-overlay').classList.contains('active')) {
+                            this.toggleCountrySelection(p.id);
+                        } else {
+                            this.openEditor(p.id, p.getAttribute('data-name'));
+                        }
+                    });
+                    p.addEventListener('mouseover', e => this.showTooltip(e, p.id, p.getAttribute('data-name')));
+                    p.addEventListener('mousemove', e => this.moveTooltip(e));
+                    p.addEventListener('mouseout', () => this.hideTooltip());
+                });
+
                 document.addEventListener('keydown', e => { if (e.key === 'Escape') this.closeEditor(); if (e.ctrlKey && e.key === 'k') { e.preventDefault(); document.getElementById('searchInput').focus(); } });
                 document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e.target.value));
+
+                // Filtre Butonlarını Ekle (Chart container içine)
+                const chartContainer = document.querySelector('.chart-container');
+                const filterDiv = document.createElement('div');
+                filterDiv.style.cssText = "display:flex; justify-content:center; gap:10px; margin-top:15px; border-top:1px solid #334155; padding-top:10px;";
+                filterDiv.innerHTML = `
+                <label style="font-size:10px; cursor:pointer;"><input type="checkbox" checked onchange="app.toggleFilter('cihat', this.checked)"> Cihatçı</label>
+                <label style="font-size:10px; cursor:pointer;"><input type="checkbox" checked onchange="app.toggleFilter('ayrilik', this.checked)"> Ayrılıkçı</label>
+                <label style="font-size:10px; cursor:pointer;"><input type="checkbox" checked onchange="app.toggleFilter('diger', this.checked)"> Diğer</label>
+            `;
+                chartContainer.appendChild(filterDiv);
+
+                // Tümünü Sil Butonu Ekle
+                const actionCard = document.querySelector('.action-card');
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-danger';
+                deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i> TÜM VERİLERİ SİL';
+                deleteBtn.style.marginTop = '10px';
+                deleteBtn.onclick = () => app.deleteAllData();
+                actionCard.appendChild(deleteBtn);
+
                 this.loadFromStorage(); this.initChart();
+            },
+            toggleFilter(type, isChecked) {
+                this.activeFilters[type] = isChecked;
+                this.updateStats();
+            },
+            deleteAllData() {
+                if (confirm("DİKKAT! Tüm veritabanı silinecek. Bu işlem geri alınamaz.\nDevam etmek istiyor musunuz?")) {
+                    this.data = {};
+                    this.saveToStorage();
+                    this.updateStats();
+                    this.showToast();
+                }
+            },
+            toggleCountrySelection(id) {
+                const checkbox = document.querySelector(`.country-check[value="${id}"]`);
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    this.updateGlobalMapSelection();
+                }
+            },
+            updateGlobalMapSelection() {
+                document.querySelectorAll('#map-group path').forEach(p => {
+                    p.style.fill = ''; // Reset
+                    p.style.opacity = '1';
+
+                    // Normal renklendirme (Eğer global modda değilsek veya seçim yoksa)
+                    const cData = this.data[p.id];
+                    if (cData && cData.groups && cData.groups.length > 0) {
+                        const firstCat = cData.groups[0].kategori;
+                        if (firstCat === 'Cihatçı' && this.activeFilters.cihat) p.style.fill = '#7f1d1d';
+                        else if (firstCat === 'Ayrılıkçı' && this.activeFilters.ayrilik) p.style.fill = '#713f12';
+                        else if (this.activeFilters.diger) p.style.fill = '#1e3a8a';
+                    }
+                });
+
+                // Seçilenleri boya
+                const checked = document.querySelectorAll('.country-check:checked');
+                checked.forEach(c => {
+                    const p = document.getElementById(c.value);
+                    if (p) p.style.fill = '#db2777'; // Pembe renk (Seçili)
+                });
             },
             updateTransform() { document.getElementById('map-group').style.transform = `translate(${this.zoom.pX}px, ${this.zoom.pY}px) scale(${this.zoom.scale})`; },
             resetZoom() { this.zoom = { scale: 1, pX: 0, pY: 0 }; this.updateTransform(); },
             initChart() { const ctx = document.getElementById('statsChart').getContext('2d'); this.chart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Cihatçı', 'Ayrılıkçı', 'Diğer'], datasets: [{ data: [0, 0, 0], backgroundColor: ['#ef4444', '#eab308', '#3b82f6'], borderWidth: 0, hoverOffset: 4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, cutout: '75%' } }); this.updateStats(); },
             updateStats() {
-                // Güvenlik Önlemi: Grafik yoksa güncelleme yapma
-                if (!this.chart || !this.chart.data || !this.chart.data.datasets) {
-                    console.warn("Grafik henüz hazır değil, istatistik güncellenemedi.");
-                    return;
-                }
+                if (!this.chart || !this.chart.data || !this.chart.data.datasets) return;
 
                 let stats = { cihat: 0, ayrilik: 0, diger: 0, total: 0 };
-                Object.values(this.data).forEach(c => { if (c.groups) c.groups.forEach(g => { stats.total++; if (g.kategori === 'Cihatçı') stats.cihat++; else if (g.kategori === 'Ayrılıkçı') stats.ayrilik++; else stats.diger++; }); });
+
+                document.querySelectorAll('path').forEach(p => {
+                    p.classList.remove('has-data', 'cat-cihat', 'cat-ayrilik', 'cat-diger');
+                    p.style.fill = ''; // Inline stili temizle
+                    p.style.stroke = '';
+                });
+
+                Object.values(this.data).forEach(c => {
+                    if (c.groups) {
+                        // Filtreleme mantığı: Sadece aktif filtrelerdeki grupları say ve göster
+                        const activeGroups = c.groups.filter(g => {
+                            if (g.kategori === 'Cihatçı' && !this.activeFilters.cihat) return false;
+                            if (g.kategori === 'Ayrılıkçı' && !this.activeFilters.ayrilik) return false;
+                            if ((g.kategori === 'Diğer' || !g.kategori) && !this.activeFilters.diger) return false;
+                            return true;
+                        });
+
+                        activeGroups.forEach(g => {
+                            stats.total++;
+                            if (g.kategori === 'Cihatçı') stats.cihat++;
+                            else if (g.kategori === 'Ayrılıkçı') stats.ayrilik++;
+                            else stats.diger++;
+                        });
+
+                        // Harita Renklendirme (Filtreye uygun veri varsa)
+                        if (activeGroups.length > 0) {
+                            const p = document.getElementById(Object.keys(this.data).find(key => this.data[key] === c));
+                            if (p) {
+                                const firstCat = activeGroups[0].kategori;
+                                if (firstCat === 'Cihatçı') p.classList.add('cat-cihat');
+                                else if (firstCat === 'Ayrılıkçı') p.classList.add('cat-ayrilik');
+                                else p.classList.add('cat-diger');
+                            }
+                        }
+                    }
+                });
+
                 this.chart.data.datasets[0].data = [stats.cihat, stats.ayrilik, stats.diger]; this.chart.update();
-                document.getElementById('total-count').innerText = stats.total; document.getElementById('cihat-count').innerText = stats.cihat; document.getElementById('ayrilik-count').innerText = stats.ayrilik;
-                document.querySelectorAll('path').forEach(p => { p.classList.remove('has-data', 'cat-cihat', 'cat-ayrilik', 'cat-diger'); const cData = this.data[p.id]; if (cData && cData.groups && cData.groups.length > 0) { const firstCat = cData.groups[0].kategori; if (firstCat === 'Cihatçı') p.classList.add('cat-cihat'); else if (firstCat === 'Ayrılıkçı') p.classList.add('cat-ayrilik'); else p.classList.add('cat-diger'); } });
+                document.getElementById('total-count').innerText = stats.total;
+                document.getElementById('cihat-count').innerText = stats.cihat;
+                document.getElementById('ayrilik-count').innerText = stats.ayrilik;
             },
             openEditor(id, name) {
                 this.isGlobalMode = false; this.currentCountryId = id;
                 document.getElementById('global-country-selector').style.display = 'none';
                 if (!this.data[id]) this.data[id] = { name_tr: name, groups: [] };
                 document.getElementById('modal-country').innerText = this.data[id].name_tr;
-                document.getElementById('editor-overlay').classList.add('active');
+
+                const overlay = document.getElementById('editor-overlay');
+                overlay.classList.remove('allow-map-interaction'); // Normal mod: Tam ekran
+                overlay.classList.add('active');
+
                 document.querySelector('.ed-sidebar').style.display = 'flex';
                 this.renderGroupList(); this.resetFormState();
             },
             openGlobalCreator() {
                 this.isGlobalMode = true; this.currentCountryId = null; this.currentGroupIdx = -1; this.groupsTempData = {};
                 document.getElementById('modal-country').innerText = "KÜRESEL ÖRGÜT EKLEME";
-                document.getElementById('editor-overlay').classList.add('active');
+
+                const overlay = document.getElementById('editor-overlay');
+                overlay.classList.add('allow-map-interaction'); // Global mod: Sidebar + Harita erişimi
+                overlay.classList.add('active');
+
                 document.querySelector('.ed-sidebar').style.display = 'none';
                 document.getElementById('empty-state').style.display = 'none';
                 document.getElementById('editor-form').style.display = 'flex';
@@ -767,10 +909,30 @@
             populateCountryList() {
                 const listContainer = document.getElementById('country-checkbox-list'); listContainer.innerHTML = '';
                 const paths = Array.from(document.querySelectorAll('#map-group path')).sort((a, b) => a.getAttribute('data-name').localeCompare(b.getAttribute('data-name')));
-                paths.forEach(p => { const div = document.createElement('div'); div.style.cssText = 'display:flex; align-items:center; font-size:12px; padding:4px; cursor:pointer; background:#222; border-radius:4px;'; div.innerHTML = `<input type="checkbox" class="country-check" value="${p.id}" style="margin-right:8px; accent-color:#8b5cf6;"><span style="color:#ddd;">${p.getAttribute('data-name')}</span>`; div.onclick = (e) => { if (e.target.type !== 'checkbox') div.querySelector('input').click(); }; listContainer.appendChild(div); });
+                paths.forEach(p => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'display:flex; align-items:center; font-size:12px; padding:4px; cursor:pointer; background:#222; border-radius:4px;';
+                    div.innerHTML = `<input type="checkbox" class="country-check" value="${p.id}" style="margin-right:8px; accent-color:#8b5cf6;" onchange="app.updateGlobalMapSelection()"><span style="color:#ddd;">${p.getAttribute('data-name')}</span>`;
+                    div.onclick = (e) => {
+                        if (e.target.type !== 'checkbox') {
+                            const chk = div.querySelector('input');
+                            chk.checked = !chk.checked;
+                            this.updateGlobalMapSelection();
+                        }
+                    };
+                    listContainer.appendChild(div);
+                });
             },
             filterCountryList(val) { val = val.toLowerCase(); document.querySelectorAll('#country-checkbox-list div').forEach(div => { div.style.display = div.innerText.toLowerCase().includes(val) ? 'flex' : 'none'; }); },
-            closeEditor() { document.getElementById('editor-overlay').classList.remove('active'); document.querySelector('.ed-sidebar').style.display = 'flex'; this.updateStats(); this.saveToStorage(); },
+            closeEditor() {
+                document.getElementById('editor-overlay').classList.remove('active');
+                document.querySelector('.ed-sidebar').style.display = 'flex';
+
+                // Global seçim renklerini temizle
+                document.querySelectorAll('#map-group path').forEach(p => p.style.fill = '');
+
+                this.updateStats(); this.saveToStorage();
+            },
             renderGroupList() {
                 if (this.isGlobalMode) return;
                 const list = document.getElementById('group-list'); list.innerHTML = '';
@@ -845,3 +1007,4 @@
 </body>
 
 </html>
+```

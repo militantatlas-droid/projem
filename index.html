@@ -3,245 +3,219 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MİLİTAN ATLASI </title>
+  <title>MİLİTAN ATLASI | Mobil Optimize</title>
   <style>
-    /* ─── TEMEL AYARLAR (DARK THEME - ORİJİNAL) ─── */
-    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+    /* ─── TEMEL AYARLAR ─── */
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #111;
       color: #eee;
       height: 100vh;
-      overflow: hidden;
+      overflow: hidden; /* Sayfa kaydırmasını engelle */
     }
-    #container { display: flex; height: 100%; width: 100%; position: relative; }
+    #container { display: flex; height: 100%; width: 100%; position: relative; overflow: hidden; }
 
-    /* ─── HARİTA ALANI ─── */
-    #map-area {
+    /* ─── HARİTA ALANI VE ZOOM ─── */
+    #map-wrapper {
       flex: 1;
       position: relative;
       background: #1a1a1a;
       overflow: hidden;
-      cursor: default;
+      cursor: grab;
+      touch-action: none; /* Mobilde tarayıcı sürüklemesini engeller */
     }
+    #map-wrapper:active { cursor: grabbing; }
+
+    /* SVG ve Dönüşüm Grubu */
     svg {
       width: 100%; height: 100%; display: block;
-      user-select: none; touch-action: manipulation;
+      pointer-events: all; 
     }
+    /* Zoom ve Pan işlemleri bu grup üzerine uygulanacak */
+    #map-transform-group {
+      transform-origin: 0 0;
+      transition: transform 0.1s linear; /* Yumuşak geçiş */
+    }
+
     svg path {
       fill: #ffffff;
       stroke: #000000;
       stroke-width: 1.5;
-      vector-effect: non-scaling-stroke;
-      transition: fill 0.2s, stroke 0.2s;
+      vector-effect: non-scaling-stroke; /* Zoom yapınca çizgiler kalınlaşmaz */
+      transition: fill 0.2s;
       cursor: pointer;
     }
-    /* HOVER: YEŞİL */
-    svg path:hover {
-      fill: #4ade80 !important;
-      stroke: #000;
-      stroke-width: 2.0;
-      z-index: 10;
+    
+    /* HOVER VE AKTİF DURUMLAR */
+    @media (hover: hover) {
+        svg path:hover {
+            fill: #4ade80 !important;
+            z-index: 10;
+        }
     }
-    /* AKTİF: KIRMIZI */
     svg path.active {
       fill: #ff4444 !important;
       stroke: #fff;
       stroke-width: 2.5;
     }
 
+    /* ─── ZOOM KONTROLLERİ (MOBİL DOSTU) ─── */
+    .zoom-controls {
+        position: absolute;
+        bottom: 30px; left: 20px;
+        display: flex; flex-direction: column; gap: 8px;
+        z-index: 400;
+    }
+    .zoom-btn {
+        width: 44px; height: 44px;
+        background: rgba(30, 30, 30, 0.9);
+        color: #fff;
+        border: 1px solid #444;
+        border-radius: 8px;
+        font-size: 20px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+    .zoom-btn:active { background: #4ade80; color: #000; }
+
     /* ─── TOOLTIP ─── */
     .tooltip {
       position: absolute;
       background: rgba(0,0,0,0.95);
       color: white;
-      padding: 12px 16px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      border-radius: 6px;
       font-size: 13px;
       pointer-events: none;
       z-index: 1000;
       display: none;
       border: 1px solid rgba(255,255,255,0.2);
-      white-space: normal;
-      max-width: 250px;
+      white-space: nowrap;
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
     .tooltip.visible { display: block; }
-    .tooltip-title { font-size: 14px; font-weight: bold; color: #4ade80; margin-bottom: 4px; display: block;}
-    .tooltip-sub { font-size: 11px; color: #aaa; margin-bottom: 6px; display: block; border-bottom: 1px solid #444; padding-bottom: 4px;}
-    .tooltip-list { font-size: 12px; color: #ddd; line-height: 1.4; }
 
-    /* ─── BACK HOME BUTONU ─── */
+    /* ─── FAB BUTTONS ─── */
     #back-to-home {
-      position: fixed;
-      top: 20px; left: 20px;
-      z-index: 500;
+      position: fixed; top: 20px; left: 20px; z-index: 500;
       width: 44px; height: 44px;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(30, 30, 30, 0.9);
-      color: #4ade80;
-      border: 1px solid #444;
-      border-radius: 50%;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      background: rgba(30, 30, 30, 0.9); color: #4ade80;
+      border: 1px solid #444; border-radius: 50%;
+      text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
-    #back-to-home:hover {
-      background: rgba(74, 222, 128, 0.2);
-      color: #ffffff;
-      border-color: #4ade80;
-    }
-    #back-to-home svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2.5; }
-
-    /* ─── ARAMA BUTONU (FAB) ─── */
     #search-fab {
-      position: fixed;
-      bottom: 30px; right: 30px;
-      width: 64px; height: 64px;
-      background: #4ade80;
-      color: #111;
-      border: none; border-radius: 50%;
-      cursor: pointer;
-      box-shadow: 0 8px 25px rgba(74,222,128,0.5);
-      z-index: 500;
-      display: flex; align-items: center; justify-content: center;
+      position: fixed; bottom: 30px; right: 30px;
+      width: 60px; height: 60px;
+      background: #4ade80; color: #111;
+      border: none; border-radius: 50%; cursor: pointer;
+      box-shadow: 0 8px 25px rgba(74,222,128,0.4);
+      z-index: 500; display: flex; align-items: center; justify-content: center;
       transition: transform 0.2s;
     }
-    #search-fab:hover { transform: scale(1.1); background: #00ff88; }
+    #search-fab:active { transform: scale(0.95); }
     #search-fab.hidden { transform: scale(0); opacity: 0; pointer-events: none; }
     #search-fab svg { width: 28px; height: 28px; stroke: currentColor; stroke-width: 2.5; fill: none; }
 
     /* ─── SIDEBAR ─── */
     #sidebar {
-      width: 360px;
+      width: 360px; max-width: 85%;
       background: #1f1f1f;
       border-left: 1px solid #333;
-      color: #ddd;
       position: fixed; top: 0; bottom: 0; right: 0;
       transform: translateX(100%);
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 600;
-      display: flex; flex-direction: column;
+      z-index: 600; display: flex; flex-direction: column;
       box-shadow: -10px 0 30px rgba(0,0,0,0.7);
     }
     #sidebar.active { transform: translateX(0); }
-
-    .sidebar-header {
-      padding: 20px;
-      background: #252525;
-      border-bottom: 1px solid #333;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .sidebar-title { font-size: 18px; font-weight: bold; color: #4ade80; }
-    #sidebar-close { background: none; border: none; color: #aaa; font-size: 28px; cursor: pointer; }
-    #sidebar-close:hover { color: #fff; }
-
-    .search-tabs { display: flex; background: #1a1a1a; padding: 10px 20px 0; border-bottom: 1px solid #333; }
-    .search-tab {
-      flex: 1; padding: 12px;
-      background: #2a2a2a; color: #888;
-      border: none; cursor: pointer;
-      font-weight: bold; font-size: 13px;
-      border-radius: 8px 8px 0 0; margin-right: 4px;
-      transition: 0.2s;
-    }
-    .search-tab:last-child { margin-right: 0; }
-    .search-tab.active { background: #4ade80; color: #111; }
-
-    .search-box-wrapper { padding: 15px 20px; background: #1f1f1f; border-bottom: 1px solid #333; }
-    #search-input {
-      width: 100%; padding: 12px;
-      background: #111; border: 1px solid #444;
-      color: #fff; border-radius: 6px; font-size: 15px;
-    }
-    #search-input:focus { border-color: #4ade80; }
-
-    #sidebar-content { flex: 1; overflow-y: auto; padding: 10px 20px; }
+    .sidebar-header { padding: 15px; background: #252525; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+    .sidebar-title { font-weight: bold; color: #4ade80; }
+    #sidebar-close { background: none; border: none; color: #aaa; font-size: 28px; cursor: pointer; padding: 0 10px; }
     
-    .result-item {
-      padding: 12px; margin-bottom: 8px;
-      background: #2a2a2a; border-radius: 6px; border: 1px solid #333;
-      cursor: pointer; display: flex; align-items: center; justify-content: space-between;
-      transition: 0.2s;
-    }
-    .result-item:hover { background: #333; border-color: #555; transform: translateX(3px); }
-    .result-info div { font-size: 14px; font-weight: bold; color: #eee; }
-    /* İSTEK ÜZERİNE ALT BİLGİ GİZLENDİ */
-    .result-info span { display: none; } 
+    .search-tabs { display: flex; background: #1a1a1a; padding: 10px 15px 0; border-bottom: 1px solid #333; }
+    .search-tab { flex: 1; padding: 10px; background: #2a2a2a; color: #888; border: none; cursor: pointer; font-size: 13px; font-weight: bold; border-radius: 6px 6px 0 0; margin-right: 2px; }
+    .search-tab.active { background: #4ade80; color: #111; }
+    
+    .search-box-wrapper { padding: 10px 15px; background: #1f1f1f; }
+    #search-input { width: 100%; padding: 10px; background: #111; border: 1px solid #444; color: #fff; border-radius: 6px; }
+    #sidebar-content { flex: 1; overflow-y: auto; padding: 10px 15px; }
+    .result-item { padding: 12px; margin-bottom: 6px; background: #2a2a2a; border-radius: 6px; border: 1px solid #333; cursor: pointer; display: flex; justify-content: space-between; align-items: center;}
 
-    /* ─── MODALLAR ─── */
+    /* ─── MODALLAR (Fixlendi) ─── */
     .modal {
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.85);
       display: none; align-items: center; justify-content: center;
-      z-index: 2000; padding: 20px;
+      z-index: 2000; padding: 15px;
       backdrop-filter: blur(4px);
     }
     .modal.active { display: flex; }
 
     .modal-content {
       background: #1f1f1f; border: 1px solid #444;
-      border-radius: 12px; width: 100%; max-width: 500px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.8);
-      color: #eee; max-height: 85vh; display: flex; flex-direction: column;
+      border-radius: 12px; 
+      /* MOBİL TAŞMA FİX BURADA: */
+      width: 100%; max-width: 500px; 
+      max-height: 85vh; /* Ekran boyunu aşarsa içten kaydır */
+      display: flex; flex-direction: column;
       position: relative;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+      margin: auto; /* Ortala */
     }
     
+    /* Uzun içerik modalı daha geniş olabilir */
+    #long-detail-modal .modal-content { max-width: 900px; height: 90vh; }
+
     .modal-header {
-      padding: 15px 20px; background: #252525;
+      padding: 15px; background: #252525;
       border-bottom: 1px solid #333; border-radius: 12px 12px 0 0;
       display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0; /* Başlık küçülmesin */
     }
-    .modal-header h2 { font-size: 18px; color: #4ade80; margin: 0; }
+    .modal-header h2 { font-size: 18px; color: #4ade80; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
     .btn-close, .btn-back {
       background: #333; border: none; color: #ccc;
-      width: 32px; height: 32px; border-radius: 50%;
-      cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 50%;
+      cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
-    .btn-close:hover, .btn-back:hover { background: #555; color: #fff; }
 
-    .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+    /* Modal İçeriği Scroll Ayarları */
+    .modal-body { 
+      padding: 20px; 
+      overflow-y: auto; /* Sadece burası kaydırılır */
+      overflow-x: hidden; /* Yatay taşmayı engelle */
+      flex: 1; 
+      word-wrap: break-word; /* Uzun kelimeleri kır */
+      word-break: break-word; 
+    }
 
     .group-item {
       padding: 14px; margin-bottom: 10px;
       background: #2a2a2a; border-left: 4px solid #4ade80;
-      border-radius: 4px; cursor: pointer; transition: 0.2s;
+      border-radius: 4px; cursor: pointer; 
     }
-    .group-item:hover { background: #333; transform: translateX(4px); }
+    .group-item:active { background: #333; }
 
-    .tabs { display: flex; gap: 8px; margin-bottom: 15px; justify-content: center; }
-    .tab {
-      padding: 8px 15px; background: #2a2a2a; border: 1px solid #444;
-      border-radius: 6px; cursor: pointer; font-size: 13px; color: #aaa;
-    }
+    .tabs { display: flex; gap: 8px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap; }
+    .tab { padding: 8px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 6px; cursor: pointer; font-size: 13px; color: #aaa; flex: 1; text-align: center; min-width: 80px;}
     .tab.active { background: #4ade80; color: #111; font-weight: bold; border-color: #4ade80; }
 
-    /* BÜYÜK MODAL */
-    #long-detail-modal .modal-content { max-width: 900px; height: 90vh; }
-    
-    .long-tabs {
-      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px;
-      justify-content: center; border-bottom: 1px solid #333; padding-bottom: 10px;
-    }
-    .l-tab {
-      padding: 8px 12px; background: #222; border: 1px solid #444;
-      border-radius: 4px; font-size: 12px; color: #bbb; cursor: pointer;
-      flex: 1 1 auto; text-align: center; min-width: 80px;
-    }
-    .l-tab:hover { background: #333; }
-    .l-tab.active { background: #4ade80; color: #000; border-color: #4ade80; font-weight: bold; }
+    .long-tabs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+    .l-tab { padding: 8px; background: #222; border: 1px solid #444; border-radius: 4px; font-size: 12px; color: #bbb; cursor: pointer; flex: 1 1 30%; text-align: center; }
+    .l-tab.active { background: #4ade80; color: #000; border-color: #4ade80; }
 
-    .detail-body {
-      background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px;
-      font-size: 15px; line-height: 1.6; color: #ddd; text-align: justify;
-    }
-    .detail-body h3 { color: #4ade80; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 8px; }
+    .detail-body p { line-height: 1.6; color: #ddd; }
+    .detail-body h3 { color: #4ade80; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 5px; }
 
     @media (max-width: 768px) {
-      #sidebar { width: 100%; }
-      .modal-content { width: 95%; }
-      .l-tab { flex: 1 1 30%; }
+      .modal-content { width: 95%; } /* Mobilde yanlardan biraz boşluk */
+      .l-tab { flex: 1 1 45%; } /* Tabları büyüt */
     }
   </style>
 </head>
@@ -255,9 +229,17 @@
     </svg>
   </a>
 
-  <div id="map-area">
+  <div class="zoom-controls">
+      <button class="zoom-btn" id="zoom-in" title="Yakınlaştır">+</button>
+      <button class="zoom-btn" id="zoom-out" title="Uzaklaştır">-</button>
+      <button class="zoom-btn" id="zoom-reset" title="Sıfırla">⟲</button>
+  </div>
+
+  <div id="map-wrapper">
     <svg id="svg-map" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
-        <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
+        <g id="map-transform-group">
+            
+           <path id="AO" data-name="Angola" data-id="AO" d="m 495.3,598.6 -36,-0.2 -4.3,1.7 -3.5,-0.3 -5.1,1.9 -1.1,2.7 6,8.7 2.4,9.3 3.6,13.4 -3.8,5.5 -0.6,2.8 2.9,8.3 3.1,8.4 3.6,5 0.6,7.8 -1.4,10.3 -4,6.1 -7.1,9.1 -2.9,5.6 -4.1,12.5 -0.8,5.9 -4.3,12.7 -1.9,12.2 1,8.7 5.9,-2.7 7.2,-2.3 7.8,0.4 7.1,6.3 1.9,-1 48.8,-0.6 8.2,6.6 29.1,2 22.4,-5.7 -7.6,-8.6 -7.8,-11.3 1.6,-44 25.3,0.1 -1,-4.7 2,-5.2 -2,-6.5 1.5,-6.7 -1.2,-4.3 -5.5,-0.8 -7.6,2 -5.3,-0.3 -3,1.3 0.9,-16.5 -3.9,-5.1 -0.8,-8.5 1.9,-8.4 -2.4,-5.3 -0.1,-8.7 -14.8,0.1 1.1,-5 -6.2,0.1 -0.7,2.4 -7.6,0.5 -3.1,8.1 -1.9,3.4 -6.7,-1.9 -4,1.9 -8.1,1.1 -4.6,-7.2 -2.7,-4.5 -3.5,-8.3 -2.9,-10.3 z m -47.4,-2.7 0.4,-6 2,-3.5 4.5,-2.9 -4.6,-4.8 -3.7,2.3 -5,6 3.3,10.4 3.1,-1.5 z" />
       <path id="BI" data-name="Burundi" data-id="BI" d="m 669,556.1 -0.6,-5.4 0,0 -6.5,-0.9 -3.8,7.9 -7.4,-1.1 3,6.3 0.1,2.4 4.3,13.2 0,0.6 1.2,-0.2 4.5,-5 4.9,-7.2 3,-2.9 -0.1,-4.5 -2.6,-3.2 z" />
       <path id="BJ" data-name="Benin" data-id="BJ" d="m 340,356 -9.3,-8 -4.3,0.1 -4.1,4 -2.6,4.2 -6,1.2 -2.5,6.1 -4.1,1.6 -1.6,7.2 3.7,4.1 4.3,4.9 0.4,6.8 2.5,2.8 -0.5,31.8 3,9.5 10.1,-1.6 0.6,-22.3 -0.3,-8.8 2.3,-8.7 3.7,-4.3 5.9,-8.5 -1.3,-3.7 2.4,-5.6 -2.8,-8.2 0.5,-4.6 z" />
       <path id="BF" data-name="Burkina Faso" data-id="BF" d="m 300.7,310.8 -7.8,0 -3,-2.6 -6.7,1.9 -11.3,5.8 -2.3,4.3 -9.4,6.2 -1.7,3.6 -5.1,2.8 -5.8,-1.9 -3.4,3.4 -1.8,9.5 -9.7,11.4 0.3,4.7 -3.4,5.9 0.8,8 5.5,3 2.1,4.6 5.4,2.9 4.3,-3.4 5.7,-0.6 8.3,3.6 -1.6,-10.4 0.3,-7.9 21.1,-0.6 5.4,1 3.9,-2.2 5.6,1.1 10.7,0.3 4.1,-1.6 2.5,-6.1 6,-1.2 2.6,-4.2 0.3,-9.5 -14,-3.1 -0.4,-6.7 -6.9,-9 -1.6,-6.3 1,-6.7 z" />
@@ -323,16 +305,13 @@
       <span class="sidebar-title">GELİŞMİŞ ARAMA</span>
       <button id="sidebar-close">×</button>
     </div>
-    
     <div class="search-tabs">
       <button class="search-tab active" onclick="setSearchMode('country')">ÜLKELER</button>
       <button class="search-tab" onclick="setSearchMode('group')">GRUPLAR</button>
     </div>
-
     <div class="search-box-wrapper">
       <input type="text" id="search-input" placeholder="Ülke ara...">
     </div>
-
     <div id="sidebar-content"></div>
   </div>
 
@@ -342,8 +321,7 @@
         <h2 id="country-title">Ülke</h2>
         <button class="btn-close" onclick="resetApplicationState()">×</button>
       </div>
-      <div class="modal-body" id="country-groups">
-        </div>
+      <div class="modal-body" id="country-groups"></div>
     </div>
   </div>
 
@@ -358,7 +336,7 @@
         <div class="tabs">
           <div class="tab active" data-tab="temel">KATEGORİ</div>
           <div class="tab" data-tab="durum">DURUM</div>
-          <div class="tab" data-tab="detay">DETAY PENCERESİNİ AÇ</div>
+          <div class="tab" data-tab="detay">DETAY GÖR</div>
         </div>
         <div id="tab-content" style="padding:10px; text-align:center;"></div>
       </div>
@@ -374,17 +352,16 @@
       </div>
       <div class="modal-body">
         <div class="long-tabs">
-            <div class="l-tab active" onclick="showLongTabContent('olusum')">Oluşum Süreci</div>
-            <div class="l-tab" onclick="showLongTabContent('amac')">Amaç ve Hedef</div>
-            <div class="l-tab" onclick="showLongTabContent('yonetim')">Yönetim Yapısı</div>
-            <div class="l-tab" onclick="showLongTabContent('metot')">Eylem Metotları</div>
-            <div class="l-tab" onclick="showLongTabContent('eylem')">Önemli Eylemler</div>
-            <div class="l-tab" onclick="showLongTabContent('finans')">Finansman</div>
+            <div class="l-tab active" onclick="showLongTabContent('olusum')">Oluşum</div>
+            <div class="l-tab" onclick="showLongTabContent('amac')">Amaç</div>
+            <div class="l-tab" onclick="showLongTabContent('yonetim')">Yönetim</div>
+            <div class="l-tab" onclick="showLongTabContent('metot')">Metot</div>
+            <div class="l-tab" onclick="showLongTabContent('eylem')">Eylemler</div>
+            <div class="l-tab" onclick="showLongTabContent('finans')">Finans</div>
             <div class="l-tab" onclick="showLongTabContent('iliski')">İlişkiler</div>
-            <div class="l-tab" onclick="showLongTabContent('diger')">Diğer Bilgiler</div>
-            <div class="l-tab" onclick="showLongTabContent('kaynak')">Kaynakça</div>
+            <div class="l-tab" onclick="showLongTabContent('diger')">Diğer</div>
+            <div class="l-tab" onclick="showLongTabContent('kaynak')">Kaynak</div>
         </div>
-
         <div id="long-detail-body" class="detail-body">
            <p style="text-align:center; color:#888;">Lütfen bir kategori seçin.</p>
         </div>
@@ -396,13 +373,126 @@
 
 <script>
 // ──────────────────────────────────────────────
-// DEĞİŞKENLER
+// PAN & ZOOM MOTORU (MOBİL & PC UYUMLU)
+// ──────────────────────────────────────────────
+const mapWrapper = document.getElementById('map-wrapper');
+const mapTransformGroup = document.getElementById('map-transform-group');
+
+let state = {
+    scale: 1,
+    panning: false,
+    pointX: 0,
+    pointY: 0,
+    startX: 0,
+    startY: 0
+};
+
+// Dönüşümü Uygula
+function setTransform() {
+    mapTransformGroup.style.transform = `translate(${state.pointX}px, ${state.pointY}px) scale(${state.scale})`;
+}
+
+// Mouse/Touch Başlangıç
+function onPointerDown(e) {
+    // Sadece sol tık veya tek parmak
+    if (e.type === 'mousedown' && e.button !== 0) return;
+    
+    state.panning = true;
+    state.startX = (e.clientX || e.touches[0].clientX) - state.pointX;
+    state.startY = (e.clientY || e.touches[0].clientY) - state.pointY;
+    mapWrapper.style.cursor = 'grabbing';
+}
+
+// Mouse/Touch Hareketi
+function onPointerMove(e) {
+    if (!state.panning) return;
+    e.preventDefault();
+    const clientX = e.clientX || e.touches[0].clientX;
+    const clientY = e.clientY || e.touches[0].clientY;
+    state.pointX = clientX - state.startX;
+    state.pointY = clientY - state.startY;
+    setTransform();
+}
+
+// Bırakma
+function onPointerUp() {
+    state.panning = false;
+    mapWrapper.style.cursor = 'grab';
+}
+
+// Tekerlek ile Zoom (PC)
+function onWheel(e) {
+    e.preventDefault();
+    const xs = (e.clientX - state.pointX) / state.scale;
+    const ys = (e.clientY - state.pointY) / state.scale;
+    const delta = -e.deltaY;
+    
+    // Zoom sınırları (0.5x ile 10x arası)
+    const factor = delta > 0 ? 1.1 : 0.9;
+    let newScale = state.scale * factor;
+    if (newScale < 0.5) newScale = 0.5;
+    if (newScale > 10) newScale = 10;
+
+    state.pointX = e.clientX - xs * newScale;
+    state.pointY = e.clientY - ys * newScale;
+    state.scale = newScale;
+    setTransform();
+}
+
+// Buton ile Zoom
+function manualZoom(factor) {
+    // Merkeze doğru zoom
+    const centerX = mapWrapper.offsetWidth / 2;
+    const centerY = mapWrapper.offsetHeight / 2;
+    const xs = (centerX - state.pointX) / state.scale;
+    const ys = (centerY - state.pointY) / state.scale;
+
+    let newScale = state.scale * factor;
+    if(newScale < 0.5) newScale = 0.5;
+    if(newScale > 10) newScale = 10;
+
+    state.pointX = centerX - xs * newScale;
+    state.pointY = centerY - ys * newScale;
+    state.scale = newScale;
+    setTransform();
+}
+
+function resetZoom() {
+    state.scale = 1;
+    state.pointX = 0;
+    state.pointY = 0;
+    setTransform();
+}
+
+// Olay Dinleyicileri Ekle
+mapWrapper.addEventListener('mousedown', onPointerDown);
+mapWrapper.addEventListener('touchstart', onPointerDown, { passive: false });
+
+window.addEventListener('mousemove', onPointerMove);
+window.addEventListener('touchmove', onPointerMove, { passive: false });
+
+window.addEventListener('mouseup', onPointerUp);
+window.addEventListener('touchend', onPointerUp);
+
+mapWrapper.addEventListener('wheel', onWheel, { passive: false });
+
+// Zoom Butonları
+document.getElementById('zoom-in').onclick = () => manualZoom(1.3);
+document.getElementById('zoom-out').onclick = () => manualZoom(0.7);
+document.getElementById('zoom-reset').onclick = resetZoom;
+
+// ──────────────────────────────────────────────
+// UYGULAMA MANTIĞI (VERİ & SEÇİM)
 // ──────────────────────────────────────────────
 let countryData = {};
 let currentCountryId = null;
 let currentGroup = null;
 let activePath = null;
 let searchMode = 'country';
+
+// Drag vs Click ayırımı için değişkenler
+let touchStartTime = 0;
+let touchStartCoords = {x:0, y:0};
 
 const dom = {
     tooltip: document.getElementById("tooltip"),
@@ -424,48 +514,58 @@ const dom = {
     longTitle: document.getElementById("long-detail-title")
 };
 
-// ──────────────────────────────────────────────
-// BAŞLATMA
-// ──────────────────────────────────────────────
+// Veri Yükleme
 fetch("trdata.json")
   .then(res => res.json())
   .then(data => {
     countryData = data;
-    initMap();
+    initMapInteractions();
   })
   .catch(err => {
     console.error("Veri hatası:", err);
-    initMap();
+    initMapInteractions();
   });
 
-function initMap() {
-    // HARİTA ETKİLEŞİMLERİ
+function initMapInteractions() {
     document.querySelectorAll("svg path").forEach(path => {
         const id = path.id;
         const name = path.getAttribute("data-name") || id;
 
-        // Hover Tooltip (GELİŞMİŞ - GRUP İSİMLERİ EKLENDİ)
+        // "Sürükleme mi yoksa Tıklama mı?" kontrolü
+        // Pan yaparken yanlışlıkla tıklamayı engellemek için.
+        path.addEventListener('mousedown', e => {
+            touchStartTime = Date.now();
+            touchStartCoords = {x: e.clientX, y: e.clientY};
+        });
+        path.addEventListener('touchstart', e => {
+            touchStartTime = Date.now();
+            touchStartCoords = {x: e.touches[0].clientX, y: e.touches[0].clientY};
+        }, {passive: true});
+
+        // Tıklama Olayı (Hem PC Hem Mobil için 'click' yeterlidir, ancak koordinat kontrolü şart)
+        path.addEventListener("click", e => {
+            e.stopPropagation(); // Harita boşluk tıklamasını engelle
+            
+            // Eğer kullanıcı haritayı sürüklediyse (Pan), bunu tıklama olarak sayma
+            const dx = Math.abs(e.clientX - touchStartCoords.x);
+            const dy = Math.abs(e.clientY - touchStartCoords.y);
+            if (dx > 5 || dy > 5) return; // 5 pikselden fazla hareket varsa tıklama iptal
+
+            selectCountry(id, name, path);
+        });
+
+        // Hover Tooltip (Sadece PC için Mouse olayları)
         path.addEventListener("mouseover", e => {
             const cData = countryData[id];
             const groupCount = cData && cData.groups ? cData.groups.length : 0;
+            let html = `<span style="font-weight:bold;color:#4ade80;display:block;">${cData ? (cData.name_tr || name) : name}</span>`;
             
-            // Başlık
-            let html = `<span class="tooltip-title">${cData ? (cData.name_tr || name) : name}</span>`;
-            
-            // Grup Sayısı ve İsim Listesi
             if(groupCount > 0) {
-                html += `<span class="tooltip-sub">${groupCount} Grup Aktif</span>`;
-                
-                // Grupların isimlerini al (En fazla 5 tane göster, sonrası ...)
                 let groupNames = cData.groups.map(g => g.name_tr);
-                let displayNames = groupNames.slice(0, 5).join(", ");
-                if(groupNames.length > 5) displayNames += ", ...";
-                
-                html += `<div class="tooltip-list">${displayNames}</div>`;
-            } else {
-                 html += `<span style="font-size:11px;color:#777;">Kayıtlı grup yok</span>`;
+                let displayNames = groupNames.slice(0, 3).join(", ");
+                if(groupNames.length > 3) displayNames += ", ...";
+                html += `<span style="font-size:11px;color:#aaa;border-top:1px solid #444;margin-top:2px;padding-top:2px;display:block;">${groupCount} Grup: ${displayNames}</span>`;
             }
-
             dom.tooltip.innerHTML = html;
             dom.tooltip.classList.add("visible");
         });
@@ -474,49 +574,18 @@ function initMap() {
             dom.tooltip.style.left = (e.clientX + 15) + "px";
             dom.tooltip.style.top = (e.clientY + 15) + "px";
         });
-
         path.addEventListener("mouseout", () => dom.tooltip.classList.remove("visible"));
-
-        path.addEventListener("click", e => {
-            e.stopPropagation(); // Harita boşluk tıklamasını engelle
-            selectCountry(id, name, path);
-        });
     });
 
-    // Sidebar
+    // Arayüz Etkileşimleri
     dom.searchFab.addEventListener("click", openSidebar);
     document.getElementById("sidebar-close").addEventListener("click", resetApplicationState);
     dom.searchInput.addEventListener("input", runSearch);
 
-    // Modal Sekmeler
-    document.querySelectorAll("#group-modal .tab").forEach(t => {
-        t.addEventListener("click", () => {
-            document.querySelectorAll("#group-modal .tab").forEach(x => x.classList.remove("active"));
-            t.classList.add("active");
-            showSmallTabContent(t.dataset.tab);
-        });
-    });
-
-    // GLOBAL KAPATMA OLAYLARI (ESC VE DIŞARI TIKLAMA)
+    // Modal Kapatma
+    document.addEventListener('keydown', (e) => { if(e.key === "Escape") resetApplicationState(); });
+    dom.sidebarBackdrop.addEventListener('click', resetApplicationState);
     
-    // 1. ESC Tuşu
-    document.addEventListener('keydown', (e) => {
-        if(e.key === "Escape") {
-            resetApplicationState();
-        }
-    });
-
-    // 2. Harita Boşluğuna Tıklama (PC ve Mobil)
-    document.getElementById('map-area').addEventListener('click', () => {
-        resetApplicationState();
-    });
-
-    // 3. Sidebar Backdrop Tıklama
-    dom.sidebarBackdrop.addEventListener('click', () => {
-        resetApplicationState();
-    });
-
-    // 4. Modal Dışına (Backdrop) Tıklama
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', (e) => {
             if(e.target === modal) resetApplicationState();
@@ -524,21 +593,13 @@ function initMap() {
     });
 }
 
-// ──────────────────────────────────────────────
-// ANA STATE YÖNETİMİ (KAPATMA & SIFIRLAMA)
-// ──────────────────────────────────────────────
 function resetApplicationState() {
-    // 1. Modalları Kapat
     dom.countryModal.classList.remove("active");
     dom.groupModal.classList.remove("active");
     dom.longModal.classList.remove("active");
-
-    // 2. Sidebar Kapat
     dom.sidebar.classList.remove("active");
     dom.sidebarBackdrop.style.display = "none";
     dom.searchFab.classList.remove("hidden");
-
-    // 3. Harita Seçimini Kaldır (Kırmızı Sönsün)
     if(activePath) {
         activePath.classList.remove("active");
         activePath = null;
@@ -547,7 +608,7 @@ function resetApplicationState() {
 }
 
 // ──────────────────────────────────────────────
-// ARAMA MANTIĞI (DÜZELTİLDİ: TEKİLLEŞTİRME VE TEMİZ GÖRÜNÜM)
+// ARAMA VE SEÇİM
 // ──────────────────────────────────────────────
 function setSearchMode(mode) {
     searchMode = mode;
@@ -566,7 +627,6 @@ function runSearch() {
         dom.sidebarContent.innerHTML = "";
         return;
     }
-
     let html = "";
     
     if(searchMode === 'country') {
@@ -583,42 +643,35 @@ function runSearch() {
             matches.forEach(m => {
                 html += `
                 <div class="result-item" onclick="goToCountry('${m.id}', '${m.name.replace(/'/g,"\\'")}')">
-                    <div class="result-info"><div>${m.name}</div></div>
-                    <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    <div style="font-weight:bold;color:#eee;">${m.name}</div>
+                    <svg style="width:16px;height:16px;color:#888;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </div>`;
             });
         }
     } else {
-        // GRUP ARAMA - YENİLENDİ (TEKİLLEŞTİRME VAR, ÜLKE ADI YOK)
+        let seenGroups = new Set();
         let matches = [];
-        let seenGroups = new Set(); // Tekrarlanan grupları engellemek için
-
         Object.keys(countryData).forEach(cid => {
             const c = countryData[cid];
             if(c.groups) {
                 c.groups.forEach((g, idx) => {
                     const gName = g.name_tr;
                     if(gName && gName.toLowerCase().includes(term)) {
-                        // Eğer bu grup ismi daha önce eklenmediyse listeye ekle
                         if(!seenGroups.has(gName)) {
                             seenGroups.add(gName);
-                            // Sadece grup ismini yolluyoruz, ülke ismi artık HTML'de görünmeyecek
                             matches.push({ cid, idx, gName: gName });
                         }
                     }
                 });
             }
         });
-
         if(matches.length === 0) html = "<p style='color:#777;text-align:center'>Grup bulunamadı.</p>";
         else {
             matches.forEach(m => {
                 html += `
                 <div class="result-item" onclick="goToGroup('${m.cid}', ${m.idx})">
-                    <div class="result-info">
-                        <div>${m.gName}</div>
-                    </div>
-                    <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle></svg>
+                    <div style="font-weight:bold;color:#eee;">${m.gName}</div>
+                    <svg style="width:16px;height:16px;color:#888;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle></svg>
                 </div>`;
             });
         }
@@ -626,35 +679,27 @@ function runSearch() {
     dom.sidebarContent.innerHTML = html;
 }
 
-// ──────────────────────────────────────────────
-// SEÇİM FONKSİYONLARI (DÜZELTİLDİ: GO TO GROUP HARİTAYI BOYAMAZ)
-// ──────────────────────────────────────────────
 function selectCountry(id, name, pathEl) {
-    // Mevcut seçimi temizle
     if(activePath) activePath.classList.remove("active");
-    
-    // Yeni seçimi işaretle
     const target = pathEl || document.getElementById(id);
     if(target) {
         target.classList.add("active");
         activePath = target;
+        // Mobilde eğer seçilen ülke ekran dışındaysa hafifçe ortala (Opsiyonel ama hoş olurdu)
     }
     currentCountryId = id;
-
     const cData = countryData[id];
     const dispName = cData ? (cData.name_tr || name) : name;
     
     dom.countryTitle.textContent = dispName;
-    
     let html = "";
     if(cData && cData.groups && cData.groups.length > 0) {
         cData.groups.forEach((g, idx) => {
             html += `<div class="group-item" onclick="openGroupDetail(${idx})">${g.name_tr}</div>`;
         });
     } else {
-        html = "<p style='text-align:center;color:#666;padding:20px;'>Grup kaydı yok.</p>";
+        html = "<p style='text-align:center;color:#666;padding:20px;'>Kayıtlı grup bulunamadı.</p>";
     }
-    
     dom.countryGroups.innerHTML = html;
     dom.countryModal.classList.add("active");
 }
@@ -662,13 +707,22 @@ function selectCountry(id, name, pathEl) {
 function openGroupDetail(idx) {
     const cData = countryData[currentCountryId];
     if(!cData || !cData.groups[idx]) return;
-    
     currentGroup = cData.groups[idx];
     dom.countryModal.classList.remove("active");
     dom.groupModal.classList.add("active");
-    
     dom.groupTitle.textContent = currentGroup.name_tr;
-    document.querySelector('[data-tab="temel"]').click();
+    
+    // Tabları sıfırla
+    document.querySelectorAll("#group-modal .tab").forEach(t => {
+        t.classList.remove("active");
+        t.addEventListener("click", () => {
+             document.querySelectorAll("#group-modal .tab").forEach(x => x.classList.remove("active"));
+             t.classList.add("active");
+             showSmallTabContent(t.dataset.tab);
+        });
+    });
+    document.querySelector('[data-tab="temel"]').classList.add("active");
+    showSmallTabContent('temel');
 }
 
 function showSmallTabContent(tab) {
@@ -711,13 +765,10 @@ function showLongTabContent(key) {
         case 'diger': title = "Diğer Bilgiler"; text = d.diger_bilgiler; break;
         case 'kaynak': title = "Kaynakça"; text = d.kaynakca; break;
     }
-
     dom.longDetailBody.innerHTML = `<h3>${title}</h3>${text || noData}`;
 }
 
-// ──────────────────────────────────────────────
-// YARDIMCI NAVİGASYON
-// ──────────────────────────────────────────────
+// Navigasyon Yardımcıları
 function openSidebar() {
     dom.sidebar.classList.add("active");
     dom.sidebarBackdrop.style.display = "block";
@@ -726,48 +777,25 @@ function openSidebar() {
 }
 
 function goToCountry(id, name) {
-    // Sidebar kapat ama tam reset atma (çünkü seçim yapacağız)
-    dom.sidebar.classList.remove("active");
-    dom.sidebarBackdrop.style.display = "none";
-    dom.searchFab.classList.remove("hidden");
-    
+    resetApplicationState();
     selectCountry(id, name, null);
 }
 
-// ─── ÖNEMLİ DÜZELTME: GRUP SEÇİLİNCE HARİTA KIRMIZI OLMAZ ───
 function goToGroup(cid, idx) {
-    // 1. Sidebar ve arayüz temizliği
-    dom.sidebar.classList.remove("active");
-    dom.sidebarBackdrop.style.display = "none";
-    dom.searchFab.classList.remove("hidden");
-
-    // 2. State güncelleme (Hangi ülke verisini kullanacağımızı bilmeliyiz)
+    // Önce temizle
+    resetApplicationState();
+    
+    // Geri tuşu için ülke verisini hazırla
     currentCountryId = cid;
-
-    // 3. EĞER haritada bir yer seçiliyse (kırmızıysa), bunu kaldır.
-    // Arama sonucuna tıkladığında harita temiz kalmalı.
-    if(activePath) {
-        activePath.classList.remove("active");
-        activePath = null;
-    }
-
-    // 4. "Geri" tuşu için Ülke Modalı verilerini arka planda hazırla
-    // (Böylece kullanıcı grup panelinden geri tuşuna basarsa boş ekran görmez)
     const cData = countryData[cid];
     if(cData) {
         dom.countryTitle.textContent = cData.name_tr;
         let html = "";
-        if(cData.groups && cData.groups.length > 0) {
-            cData.groups.forEach((g, i) => {
-                html += `<div class="group-item" onclick="openGroupDetail(${i})">${g.name_tr}</div>`;
-            });
-        } else {
-            html = "<p style='text-align:center;color:#666;padding:20px;'>Grup kaydı yok.</p>";
-        }
+        cData.groups.forEach((g, i) => html += `<div class="group-item" onclick="openGroupDetail(${i})">${g.name_tr}</div>`);
         dom.countryGroups.innerHTML = html;
     }
-
-    // 5. Direkt olarak Grup Detayını aç
+    
+    // Direkt grubu aç
     openGroupDetail(idx);
 }
 
